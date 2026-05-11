@@ -3,7 +3,7 @@
 import { SessionProvider } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const menuItems = [
   {
@@ -90,8 +90,37 @@ const menuItems = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [authorized, setAuthorized] = useState(false);
+  const [checking, setChecking] = useState(true);
   const pathname = usePathname();
+  const router = useRouter();
 
+  // Auth kontrolü
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("/api/admin/check-auth");
+        if (res.ok) {
+          setAuthorized(true);
+        } else {
+          router.push("/admin/login");
+        }
+      } catch {
+        router.push("/admin/login");
+      }
+      setChecking(false);
+    };
+    
+    // Login sayfasında auth kontrolü yapma
+    if (pathname === "/admin/login") {
+      setChecking(false);
+      return;
+    }
+    
+    checkAuth();
+  }, [pathname, router]);
+
+  // Mobile check
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
@@ -99,9 +128,40 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // Close sidebar on route change (mobile)
   useEffect(() => {
     if (isMobile) setSidebarOpen(false);
   }, [pathname, isMobile]);
+
+  // Loading
+  if (checking && pathname !== "/admin/login") {
+    return (
+      <div style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#f8fafc",
+      }}>
+        <div style={{ textAlign: "center" }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0e76bc" strokeWidth="2" style={{ animation: "spin 0.8s linear infinite" }}>
+            <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity="0.3" />
+            <path d="M21 12a9 9 0 01-9 9" />
+          </svg>
+          <p style={{ marginTop: 12, fontSize: 14, color: "#94a3b8" }}>Checking authentication...</p>
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+      </div>
+    );
+  }
+
+  // Login sayfası - auth kontrolü yapma
+  if (pathname === "/admin/login") {
+    return <SessionProvider>{children}</SessionProvider>;
+  }
+
+  // Yetkisiz - hiçbir şey gösterme (redirect olacak)
+  if (!authorized) return null;
 
   return (
     <SessionProvider>
@@ -145,6 +205,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 alt="Trolleys"
                 style={{ height: 42, objectFit: "contain" }}
               />
+              <div>
+                <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Admin Panel</p>
+                <p style={{ margin: 0, fontSize: 10, color: "#94a3b8" }}>Trolleys Supermarket LLC</p>
+              </div>
             </div>
           </div>
 
