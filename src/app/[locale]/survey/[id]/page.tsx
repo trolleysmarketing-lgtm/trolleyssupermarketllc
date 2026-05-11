@@ -7,10 +7,11 @@ import Link from "next/link";
 type QType = "text"|"textarea"|"radio"|"checkbox"|"select"|"rating"|"nps"|"date";
 type Option   = { id: string; label_en: string; label_ar: string };
 type Question = { id: string; text_en: string; text_ar: string; type: QType; is_required: boolean; options: Option[] };
-type Survey   = {
+type Survey = {
   id: string; title_en: string; title_ar: string;
   description_en: string; description_ar: string;
   collect_name: boolean; collect_phone: boolean;
+  branches: string[];
   questions: Question[];
 };
 type Answers = Record<string, { value?: string; selected_option_ids?: string[] }>;

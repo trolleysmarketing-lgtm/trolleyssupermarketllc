@@ -544,9 +544,19 @@ export default function AdminSurveysPage() {
                         <h3 style={{margin:"0 0 20px",fontSize:15,fontWeight:700,color:"#111"}}>Responses by Branch</h3>
                         <ResponsiveContainer width="100%" height={260}>
                           <PieChart>
-                            <Pie data={branchData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({name,percent})=>`${name} ${(percent*100).toFixed(0)}%`}>
-                              {branchData.map((_,i)=><Cell key={i} fill={CHART_COLORS[i%CHART_COLORS.length]}/>)}
-                            </Pie>
+                            <Pie 
+  data={branchData} 
+  dataKey="value" 
+  nameKey="name" 
+  cx="50%" 
+  cy="50%" 
+  outerRadius={100}
+  label={(entry: { name?: string; percent?: number }) => 
+    `${entry.name ?? ""} ${((entry.percent ?? 0) * 100).toFixed(0)}%`
+  }
+>
+  {branchData.map((_,i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]}/>)}
+</Pie>
                             <Tooltip/>
                             <Legend/>
                           </PieChart>
