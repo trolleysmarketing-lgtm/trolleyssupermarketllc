@@ -1,0 +1,59 @@
+{
+  "catalogs": [
+    {
+      "id": "FIWNKR",
+      "title": "SUPER SAVING",
+      "fileName": "catalog-FIWNKR.pdf",
+      "filePath": "/uploads/catalogs/catalog-FIWNKR.pdf",
+      "shortLink": "/offers/FIWNKR",
+      "validFrom": "2026-04-23",
+      "validTo": "2026-04-26",
+      "createdAt": "2026-04-23T08:24:45.523Z",
+      "active": true
+    },
+    {
+      "id": "0VEGVS",
+      "title": "April Offer Week",
+      "fileName": "catalog-0VEGVS.pdf",
+      "filePath": "/uploads/catalogs/catalog-0VEGVS.pdf",
+      "shortLink": "/offers/0VEGVS",
+      "validFrom": "2026-04-23",
+      "validTo": "2026-04-30",
+      "createdAt": "2026-04-23T06:29:12.764Z",
+      "active": true
+    },
+    {
+      "id": "R31G6E",
+      "title": "PROUD OF UAE2",
+      "fileName": "catalog-R31G6E.pdf",
+      "filePath": "/uploads/catalogs/catalog-R31G6E.pdf",
+      "shortLink": "/offers/R31G6E",
+      "validFrom": "2026-04-23",
+      "validTo": "2026-04-30",
+      "createdAt": "2026-04-22T07:05:12.403Z",
+      "active": true
+    },
+    {
+      "id": "IT7HII",
+      "title": "PROUD OF UAE",
+      "fileName": "catalog-IT7HII.pdf",
+      "filePath": "/uploads/catalogs/catalog-IT7HII.pdf",
+      "shortLink": "/offers/IT7HII",
+      "validFrom": "2026-04-21",
+      "validTo": "2026-04-28",
+      "createdAt": "2026-04-21T18:50:24.934Z",
+      "active": true
+    },
+    {
+      "id": "4FW90X",
+      "title": "teset",
+      "fileName": "catalog-4FW90X.pdf",
+      "filePath": "/uploads/catalogs/catalog-4FW90X.pdf",
+      "shortLink": "/offers/4FW90X",
+      "validFrom": "",
+      "validTo": "2026-04-28",
+      "createdAt": "2026-04-19T12:37:31.393Z",
+      "active": true
+    }
+  ]
+}

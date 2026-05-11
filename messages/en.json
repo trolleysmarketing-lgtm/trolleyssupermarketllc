@@ -1,0 +1,408 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About Us",
+    "stores": "Our Stores",
+    "offers": "Offers",
+    "blog": "Blog",
+    "contact": "Contact Us",
+    "delivery": "Delivery",
+    "faqs": "FAQs"
+  },
+  "home": {
+    "title": "Welcome to Trolleys Supermarket",
+    "subtitle": "Your Trusted Supermarket in the United Arab Emirates",
+    "features": {
+      "freshDaily": {
+        "title": "Fresh Daily",
+        "subtitle": "Farm to shelf every day"
+      },
+      "weeklyOffers": {
+        "title": "Weekly Offers",
+        "subtitle": "Hundreds of products on sale"
+      },
+      "fastDelivery": {
+        "title": "2-Hour Delivery",
+        "subtitle": "Dubai · Sharjah · Ajman"
+      },
+      "fourStores": {
+        "title": "5 Stores",
+        "subtitle": "Across the UAE"
+      }
+    },
+    "stats": [
+      { "value": "500+", "label": "Fresh Products" },
+      { "value": "5", "label": "UAE Branches" },
+      { "value": "15+", "label": "Years Experience" },
+      { "value": "98%", "label": "Customer Satisfaction" }
+    ],
+    "categories": {
+      "title": "All You Need",
+      "titleHighlight": "In One Place",
+      "subtitle": "Shop by Category",
+      "viewAll": "View All",
+      "list": [
+        { "name": "Fresh Produce", "slug": "fresh-produce" },
+        { "name": "Dairy & Eggs", "slug": "dairy-eggs" },
+        { "name": "Bakery", "slug": "bakery" },
+        { "name": "Beverages", "slug": "beverages" },
+        { "name": "Meat & Fish", "slug": "meat-fish" },
+        { "name": "Organic", "slug": "organic" },
+        { "name": "Baby Care", "slug": "baby-care" },
+        { "name": "Personal Care", "slug": "personal-care" },
+        { "name": "Household", "slug": "household" },
+        { "name": "Tea & Coffee", "slug": "tea-coffee" },
+        { "name": "Spices", "slug": "spices" },
+        { "name": "Frozen Foods", "slug": "frozen" }
+      ]
+    },
+    "offers": {
+      "title": "Exclusive Weekly Offers",
+      "titleHighlight": "Straight to Your Phone",
+      "subtitle": "This Week's Catalog",
+      "description": "Join our WhatsApp Channel and receive the weekly catalog and exclusive deals across Dubai, Sharjah and Ajman the moment they drop. Completely free, always.",
+      "stats": [
+        { "value": "500+", "label": "Weekly Deals" },
+        { "value": "5", "label": "UAE Branches" },
+        { "value": "Free", "label": "Always Free" }
+      ],
+      "joinWhatsApp": "Join Free on WhatsApp",
+      "browseCatalog": "Browse Catalog",
+      "weeklyCatalog": "Weekly Catalog",
+      "fullView": "Full View"
+    },
+    "reviews": {
+      "title": "What Our",
+      "titleHighlight": "Customers Say",
+      "subtitle": "Customer Reviews",
+      "rating": "4.9",
+      "ratingOutOf": "/5",
+      "googleReviews": "Google Reviews",
+      "items": [
+        { "author": "Sarah M.", "rating": 5, "text": "Best supermarket in the UAE! Products are always fresh and prices are excellent. Highly recommend.", "time": "1 week ago", "branch": "Mirdif — Dubai" },
+        { "author": "James A.", "rating": 5, "text": "Amazing delivery — my order arrived in just one hour! Competitive prices, very fresh products.", "time": "2 weeks ago", "branch": "Al Taawun — Sharjah" },
+        { "author": "Priya S.", "rating": 5, "text": "Wide range of products and great quality. Staff are always friendly and very helpful.", "time": "1 month ago", "branch": "Al Khan — Sharjah" },
+        { "author": "Mohammed H.", "rating": 5, "text": "Best weekly deals in the UAE! The WhatsApp catalog is super convenient. New offers every week.", "time": "3 days ago", "branch": "Al Nuaimia — Ajman" },
+        { "author": "Nora W.", "rating": 5, "text": "Premium supermarket, clean and well-organised. Imported products always available at fair prices.", "time": "1 week ago", "branch": "Mirdif — Dubai" },
+        { "author": "Khalid R.", "rating": 5, "text": "Great shopping experience every visit. The WhatsApp channel keeps me updated on the best offers.", "time": "5 days ago", "branch": "Al Taawun — Sharjah" }
+      ]
+    },
+    "stores": {
+      "subtitle": "Our UAE Branches",
+      "title": "5 Stores",
+      "titleHighlight": "Across the UAE",
+      "viewAll": "View All Stores",
+      "call": "Call",
+      "map": "Get Direction",
+      "list": [
+        { "name": "Mirdif — Dubai", "address": "Golden Gate Shopping Centre", "hours": "7AM – 2AM", "phone": "+971 4 232 2966", "wa": "971504986988", "city": "Dubai" },
+        { "name": "Al Taawun — Sharjah", "address": "895C+XXP Al Khan", "hours": "7AM – 3AM", "phone": "+971 6 554 4505", "wa": "971504059699", "city": "Sharjah" },
+        { "name": "Al Khan — Sharjah", "address": "Al Khan Street", "hours": "7AM – 2AM", "phone": "+971 6 575 7010", "wa": "971547695919", "city": "Sharjah" },
+        { "name": "Al Nuaimia — Ajman", "address": "Al Manama Market", "hours": "7AM – 2AM", "phone": "+971 6 749 9919", "wa": "971563291296", "city": "Ajman" },
+        { "name": "Trolleys - Oasis Street", "address": "Oasis Street, Al Nuaimia 1", "hours": "7AM – 3AM", "phone": "+971 50 790 4355", "wa": "971507904355", "city": "Ajman" }
+      ]
+    },
+    "blog": {
+      "title": "Grocery Tips",
+      "titleHighlight": "& Fresh Ideas",
+      "subtitle": "Latest Blog",
+      "viewAll": "View All Blog",
+      "readMore": "Read Blog"
+    }
+  },
+  "stores": {
+    "breadcrumb": "Our Stores",
+    "hero_badge": "Our Locations",
+    "hero_title_line1": "Find us",
+    "hero_title_line2": "near you",
+    "hero_description": "Visit any of our 5 branches across Dubai, Sharjah and Ajman.",
+    "filter_all": "All Stores",
+    "filter_dubai": "Dubai",
+    "filter_sharjah": "Sharjah",
+    "filter_ajman": "Ajman",
+    "search_placeholder": "Search for a store...",
+    "call": "Call",
+    "whatsapp": "WhatsApp",
+    "directions": "Directions",
+    "stores_list": [
+      {
+        "name": "Trolleys - Mirdif",
+        "city": "Dubai",
+        "address": "Golden Gate Shopping Centre - Mirdif - Dubai",
+        "phone": "+971 4 232 2966",
+        "whatsapp": "971504986988",
+        "maps": "https://www.google.com/maps/place/?q=place_id:ChIJZUCb8PBhXz4R6WVzYGgrCbg",
+        "hours": "7 AM - 2 AM (Daily)",
+        "lat": 25.2169,
+        "lng": 55.4175
+      },
+      {
+        "name": "Trolleys - Al Taawun",
+        "city": "Sharjah",
+        "address": "895C+XXP - Al Khan - Sharjah",
+        "phone": "+971 6 554 4505",
+        "whatsapp": "971504059699",
+        "maps": "https://www.google.com/maps/place/?q=place_id:ChIJA2zBYWZbXz4RueLlNhbVf_4",
+        "hours": "7 AM - 3 AM (Daily)",
+        "lat": 25.3185,
+        "lng": 55.3890
+      },
+      {
+        "name": "Trolleys - Al Khan",
+        "city": "Sharjah",
+        "address": "Al Khan Street - Al Khalidiya - Sharjah",
+        "phone": "+971 6 575 7010",
+        "whatsapp": "971547695919",
+        "maps": "https://www.google.com/maps/place/?q=place_id:ChIJ2ZtxfsVbXz4R2A-fxX703hs",
+        "hours": "7 AM - 2 AM (Daily)",
+        "lat": 25.3295,
+        "lng": 55.3894
+      },
+      {
+        "name": "Trolleys - Al Nuaimiya",
+        "city": "Ajman",
+        "address": "Manama Market - Al Nuaimiya 1 - Ajman",
+        "phone": "+971 6 749 9919",
+        "whatsapp": "971563291296",
+        "maps": "https://www.google.com/maps/place/?q=place_id:ChIJ-6wNlfZZXz4REPMp59PqnpE",
+        "hours": "7 AM - 2 AM (Daily)",
+        "lat": 25.4052,
+        "lng": 55.5136
+      },
+      {
+        "name": "Trolleys - Oasis Street",
+        "city": "Ajman",
+        "address": "Oasis Street - Al Nuaimia 1 - Ajman - UAE",
+        "phone": "+971 50 790 4355",
+        "whatsapp": "971507904355",
+        "maps": "https://www.google.com/maps/place/Trolleys+Supermarket+Oasis+Street+Al+Nuaimia+Ajman/@25.387256,55.458812",
+        "hours": "7 AM - 3 AM (Daily)",
+        "lat": 25.38725635534364,
+        "lng": 55.45881250000001
+      }
+    ]
+  },
+  "about": {
+    "title": "About Us",
+    "breadcrumb": "About Us",
+    "hero_badge": "Our Story",
+    "hero_title_line1": "Trolleys",
+    "hero_title_line2": "Supermarket",
+    "hero_description": "Bringing fresh, quality groceries to families across the UAE.",
+    "story_badge": "Who We Are",
+    "story_title": "Your Neighbourhood Supermarket",
+    "story_text": "Trolleys Supermarket is a trusted grocery destination serving communities across the UAE. We take pride in offering fresh produce, quality products, and friendly service at fair prices. Every day, we work to make grocery shopping a pleasant experience for you and your family.",
+    "values_badge": "Our Promise",
+    "values_title": "What We Stand For",
+    "value_1_title": "Freshness First",
+    "value_1_text": "We handpick the freshest produce daily. Quality is never compromised.",
+    "value_2_title": "Community Focus",
+    "value_2_text": "We're proud to be part of your neighbourhood and support local families.",
+    "value_3_title": "Fair Prices",
+    "value_3_text": "Quality groceries at prices that respect your budget. Always.",
+    "value_4_title": "Warm Service",
+    "value_4_text": "Friendly staff, clean stores, and a welcoming atmosphere every visit.",
+    "branches_badge": "Our Locations",
+    "branches_title": "Find Us Across the UAE",
+    "branch_1_name": "Al Taawun",
+    "branch_1_city": "Sharjah",
+    "branch_2_name": "Al Khan",
+    "branch_2_city": "Sharjah",
+    "branch_3_name": "Mirdif",
+    "branch_3_city": "Dubai",
+    "branch_4_name": "Al Nuaimia",
+    "branch_4_city": "Ajman",
+    "branch_5_name": "Oasis Street",
+    "branch_5_city": "Ajman",
+    "view_all_stores": "View All Stores",
+    "cta_title": "Visit Us Today",
+    "cta_description": "Fresh products, great deals, and a warm welcome await you at any of our branches.",
+    "cta_button_stores": "Find a Store",
+    "cta_button_offers": "View Offers"
+  },
+  "offers": {
+    "title": "Latest Offers",
+    "subtitle": "Great Deals Updated Every Week",
+    "breadcrumb": "Offers",
+    "hero_badge": "Weekly Deals",
+    "hero_title_line1": "Exclusive",
+    "hero_title_line2": "Weekly Offers",
+    "hero_description": "Discover hundreds of products on sale every week across all our UAE branches. Fresh deals, great savings.",
+    "valid_until": "Valid Until",
+    "shop_now": "Shop Now",
+    "offers_list": [
+      { "title": "Fresh Fruits & Vegetables", "description": "Up to 30% off on all fresh produce this week.", "discount": "30% Off", "valid_until": "April 29, 2026", "color": "green" },
+      { "title": "Dairy & Eggs", "description": "Buy 2 Get 1 Free on selected dairy products.", "discount": "Buy 2 Get 1", "valid_until": "April 25, 2026", "color": "blue" },
+      { "title": "Bakery Deals", "description": "Freshly baked goods at special prices every morning.", "discount": "20% Off", "valid_until": "April 28, 2026", "color": "yellow" },
+      { "title": "Household Essentials", "description": "Save big on cleaning products and household supplies.", "discount": "25% Off", "valid_until": "May 5, 2026", "color": "red" }
+    ]
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "We're Here to Help",
+    "breadcrumb": "Contact",
+    "hero_badge": "Contact Us",
+    "hero_title_line1": "We're here",
+    "hero_title_line2": "to help",
+    "hero_description": "Reach us via the form, WhatsApp or phone",
+    "form_title": "Send us a message",
+    "name": "Full Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "subject": "Subject",
+    "message": "Your Message",
+    "send": "Send Message",
+    "sending": "Sending...",
+    "sent": "Message Sent!",
+    "sent_description": "We'll get back to you as soon as possible.",
+    "error": "Something went wrong. Please try again.",
+    "address_title": "Visit Us",
+    "address": "Dubai, United Arab Emirates",
+    "phone_title": "Call Us",
+    "phone_value": "+971 4 232 2966",
+    "email_title": "Email Us",
+    "email_value": "info@trolleyssupermarketllc.com",
+    "hours_title": "Working Hours",
+    "hours_value": "Sat - Thu: 8AM - 11PM | Fri: 2PM - 11PM",
+    "contact_phone": "Phone",
+    "contact_whatsapp": "WhatsApp",
+    "contact_branches": "Our Branches",
+    "phone_label": "Phone",
+    "phone_sub": "Mirdif Dubai",
+    "whatsapp_label": "WhatsApp",
+    "whatsapp_value": "Join Channel",
+    "whatsapp_sub": "Free weekly offers",
+    "branches_label": "Our Branches",
+    "branches_value": "Dubai · Sharjah · Ajman",
+    "branches_sub": "5 branches open daily",
+    "branches": {
+      "taawun": "Al Taawun — Sharjah",
+      "khan": "Al Khan — Sharjah",
+      "mirdif": "Mirdif — Dubai",
+      "nuaimia": "Al Nuaimia — Ajman",
+      "oasis": "Oasis Street — Ajman"
+    }
+  },
+  "delivery": {
+    "title": "Delivery Information",
+    "subtitle": "Fast & Reliable Delivery Across the UAE",
+    "how_title": "How It Works",
+    "step_1_title": "Browse & Add to Cart",
+    "step_1_text": "Shop online or call your nearest Trolleys branch to place your order.",
+    "step_2_title": "Choose Delivery Time",
+    "step_2_text": "Select a convenient delivery slot that suits you.",
+    "step_3_title": "We Deliver to You",
+    "step_3_text": "Our team delivers fresh products straight to your doorstep.",
+    "zones_title": "Delivery Zones",
+    "zone_dubai": "Dubai",
+    "zone_abudhabi": "Abu Dhabi",
+    "zone_sharjah": "Sharjah",
+    "zone_ajman": "Ajman",
+    "zone_fee": "Delivery fees from 10 AED",
+    "zone_time": "Same-day delivery available",
+    "zone_min": "Minimum order 50 AED",
+    "info_title": "Delivery Details",
+    "info_hours": "Delivery Hours: 8:00 AM – 10:00 PM Daily",
+    "info_time": "Estimated Delivery Time: 2-4 Hours",
+    "info_track": "Real-time order tracking available",
+    "info_contact": "For delivery inquiries call: +971 4 000 0000"
+  },
+  "faqs": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything You Need to Know",
+    "faqs_list": [
+      { "question": "What are your store hours?", "answer": "All Trolleys branches are open daily from 7:00 AM to 11:00 PM, including weekends and public holidays." },
+      { "question": "Do you offer home delivery?", "answer": "Yes! We offer same-day home delivery across Dubai, Abu Dhabi, and Sharjah. Minimum order is 50 AED and delivery fees start from 10 AED." },
+      { "question": "How do I find the nearest branch?", "answer": "Visit our Stores page to find all Trolleys locations with addresses, phone numbers, and directions." },
+      { "question": "Do you have a loyalty program?", "answer": "Yes, we have the Trolleys Rewards program. Ask at any branch to sign up and start earning points on every purchase." },
+      { "question": "Can I return or exchange products?", "answer": "Yes, we accept returns and exchanges within 3 days of purchase with the original receipt for non-perishable items." },
+      { "question": "Do you accept credit cards?", "answer": "We accept all major credit and debit cards, cash, and digital payment methods including Apple Pay and Google Pay." }
+    ]
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "News, Tips & Recipes from Trolleys",
+    "breadcrumb": "Blog",
+    "hero_badge": "Our Blog",
+    "hero_title_line1": "Grocery Tips",
+    "hero_title_line2": "& Fresh Ideas",
+    "hero_description": "Shopping tips, recipes, and lifestyle ideas from your favourite supermarket.",
+    "read_more": "Read More",
+    "back": "Back to Blog",
+    "featured_badge": "Featured",
+    "no_posts": "No posts yet"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "subtitle": "Last Updated: April 19, 2026",
+    "intro": "Trolleys Supermarket LLC is committed to protecting your personal information in accordance with the UAE Personal Data Protection Law (PDPL) Federal Decree-Law No. 45 of 2021.",
+    "sections": [
+      { "title": "1. Information We Collect", "content": "We collect information you provide to us directly, such as your name, email address, phone number, and delivery address when you register, place an order, or contact us. We also collect usage data, device information, and cookies when you use our website." },
+      { "title": "2. How We Use Your Information", "content": "We use your information to process orders and deliver products, send updates about your orders, improve our services, send promotional offers with your consent, comply with legal obligations, and prevent fraud and ensure security." },
+      { "title": "3. Sharing Your Information", "content": "We do not sell your personal data. We may share your information with delivery partners to fulfill your orders, payment processors to handle transactions, and government authorities when required under UAE law." },
+      { "title": "4. Data Retention", "content": "We retain your personal data for as long as necessary to provide our services and comply with UAE legal requirements. You can request deletion of your data at any time by contacting us." },
+      { "title": "5. Your Rights", "content": "Under the UAE PDPL, you have the right to access your personal data, correct inaccurate data, request deletion of your data, withdraw consent at any time, and file a complaint with the UAE Data Protection Office." },
+      { "title": "6. Contact Us", "content": "For any privacy questions or to exercise your rights, please contact our Data Protection Officer at: privacy@trolleys.ae or call +971 4 000 0000." }
+    ]
+  },
+  "terms": {
+    "title": "Terms & Conditions",
+    "subtitle": "Last Updated: April 19, 2026",
+    "intro": "Please read these terms and conditions carefully before using the Trolleys Supermarket LLC website. By using our website, you agree to be bound by these terms.",
+    "sections": [
+      { "title": "1. Acceptance of Terms", "content": "By using our website and services, you confirm that you are at least 18 years old, have the legal capacity to enter into these terms, and agree to comply with all applicable UAE laws and regulations." },
+      { "title": "2. Website Use", "content": "You may use our website for lawful purposes only. You must not misuse our website, attempt unauthorized access, transmit any harmful or offensive content, or use our website in any way that violates UAE law." },
+      { "title": "3. Products & Pricing", "content": "All prices are in UAE Dirhams and include VAT where applicable. We reserve the right to change prices at any time. Product availability is subject to stock levels at the time of ordering." },
+      { "title": "4. Orders & Delivery", "content": "Orders are subject to acceptance and availability. We will notify you if we are unable to fulfill your order. Delivery times are estimates and may vary due to circumstances beyond our control." },
+      { "title": "5. Returns & Refunds", "content": "We accept returns of non-perishable items within 3 days of purchase with the original receipt. Perishable items can only be returned if defective or not as described. Refunds will be processed within 5-7 business days." },
+      { "title": "6. Limitation of Liability", "content": "To the maximum extent permitted by UAE law, Trolleys Supermarket LLC shall not be liable for any indirect, incidental, or consequential damages arising from your use of our website or services." },
+      { "title": "7. Governing Law", "content": "These terms are governed by the laws of the United Arab Emirates. Any disputes shall be subject to the exclusive jurisdiction of the Courts of Dubai, United Arab Emirates." }
+    ]
+  },
+  "cookies": {
+    "title": "Cookie Policy",
+    "subtitle": "Last Updated: April 19, 2026",
+    "intro": "This Cookie Policy explains how Trolleys Supermarket LLC uses cookies and similar technologies on our website in accordance with UAE regulations.",
+    "sections": [
+      { "title": "1. What Are Cookies", "content": "Cookies are small text files placed on your device when you visit our website. They help us recognize your device, remember your preferences, and improve your browsing experience." },
+      { "title": "2. Types of Cookies We Use", "content": "Essential cookies are necessary for the website to function and cannot be disabled. Performance cookies help us understand how visitors use our website. Functionality cookies remember your preferences like language and region. Marketing cookies track your browsing to deliver relevant advertisements." },
+      { "title": "3. Managing Cookies", "content": "You can control and manage cookies through your browser settings. Please note that disabling certain cookies may affect the functionality of our website." },
+      { "title": "4. Third-Party Cookies", "content": "We use Google Analytics to understand website usage. These external services may place their own cookies on your device. We do not control these cookies and recommend reviewing the privacy policies of these services." },
+      { "title": "5. Updates to This Policy", "content": "We may update this Cookie Policy from time to time. We will notify you of any material changes by posting a notice on our website." },
+      { "title": "6. Contact", "content": "If you have questions about our use of cookies, please contact us at: privacy@trolleys.ae" }
+    ]
+  },
+  "footer": {
+    "whatsappChannel": "Our WhatsApp Channel",
+    "whatsappDesc": "Weekly Catalog & Exclusive Offers",
+    "join": "Join on WhatsApp",
+    "description": "Your trusted supermarket in the UAE. Fresh products and high-quality service in Dubai, Sharjah, and Ajman.",
+    "descriptionShort": "Your Trusted Supermarket in the UAE",
+    "quickLinks": "Quick Links",
+    "usefulLinks": "Useful Links",
+    "ourBranches": "Our Branches",
+    "getInTouch": "Get In Touch",
+    "aboutUs": "About Us",
+    "offers": "Offers",
+    "contact": "Contact Us",
+    "faqs": "FAQs",
+    "blog": "Blog",
+    "deliveryInfo": "Delivery Info",
+    "privacyPolicy": "Privacy Policy",
+    "termsConditions": "Terms & Conditions",
+    "branch1": "Mirdif — Dubai",
+    "branch2": "Al Taawun — Sharjah",
+    "branch3": "Al Khan — Sharjah",
+    "branch4": "Al Nuaimiya — Ajman",
+    "branch5": "Oasis Street — Ajman",
+    "address": "Dubai, United Arab Emirates",
+    "phone": "+971 4 123 4567",
+    "email": "info@trolleyssupermarketllc.com",
+    "hours": "Sat-Thu: 07:00 - 02:00",
+    "fridayHours": "Friday: 14:00 - 23:00",
+    "copyright": "All rights reserved.",
+    "privacyPolicyShort": "Privacy Policy",
+    "termsOfUse": "Terms of Use",
+    "cookiePolicy": "Cookie Policy"
+  }
+}

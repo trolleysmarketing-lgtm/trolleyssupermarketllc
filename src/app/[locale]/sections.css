@@ -1,0 +1,847 @@
+/* ═══════════════════════════════════════════════════════════ */
+/* TROLLEYS SUPERMARKET — BÖLÜM STİLLERİ                      */
+/* Marka Renkleri: Mavi #00529B | Kırmızı #CC0000 | Beyaz #FFF */
+/* ═══════════════════════════════════════════════════════════ */
+
+/* ============================================ */
+/* ORTAK DEĞİŞKENLER                            */
+/* ============================================ */
+:root {
+  --brand-blue: #00529B;
+  --brand-blue-rgb: 0, 82, 155;
+  --brand-red: #CC0000;
+  --brand-red-rgb: 204, 0, 0;
+  --brand-white: #FFFFFF;
+  --text-dark: #1a1a1a;
+  --text-soft: #666666;
+  --text-muted: #4a4a4a;
+  --border-light: #e5e7eb;
+  --bg-light: #fafbfc;
+  --radius-xl: 24px;
+  --radius-lg: 20px;
+  --radius-full: 100px;
+  --ease-premium: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* ============================================ */
+/* ORTAK SCROLL KAPLARI (Grid → Mobil Slider)   */
+/* ============================================ */
+
+/* Masaüstü grid */
+.cat-scroll { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+.rv-scroll  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.blog-scroll { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.store-scroll { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+/* Scrollbar gizle */
+.cat-scroll::-webkit-scrollbar,
+.rv-scroll::-webkit-scrollbar,
+.blog-scroll::-webkit-scrollbar,
+.store-scroll::-webkit-scrollbar { display: none; }
+
+.cat-scroll,
+.rv-scroll,
+.blog-scroll,
+.store-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .cat-scroll { grid-template-columns: repeat(3, 1fr); }
+  .rv-scroll,
+  .blog-scroll { grid-template-columns: repeat(2, 1fr); }
+  .store-scroll { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Mobil slider */
+@media (max-width: 640px) {
+  .cat-scroll,
+  .rv-scroll,
+  .blog-scroll,
+  .store-scroll {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 16px;
+    padding: 4px calc(16px + 4vw) 20px 0;
+    margin-right: calc(-16px - 4vw);
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  }
+
+  .cat-scroll > *  { flex: 0 0 clamp(220px, 65vw, 280px); scroll-snap-align: start; }
+  .rv-scroll > *   { flex: 0 0 clamp(300px, 80vw, 380px); scroll-snap-align: start; }
+  .blog-scroll > * { flex: 0 0 clamp(300px, 82vw, 400px); scroll-snap-align: start; }
+  .store-scroll > * { flex: 0 0 clamp(290px, 78vw, 360px); scroll-snap-align: start; }
+  
+  .cat-scroll { gap: 12px; }
+  .rv-scroll,
+  .blog-scroll,
+  .store-scroll { gap: 16px; }
+}
+
+/* ============================================ */
+/* SHIMMER SKELETON ANİMASYONU                  */
+/* ============================================ */
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ============================================ */
+/* ORTAK KART HOVER EFECTLERİ                   */
+/* ============================================ */
+.section-card {
+  background: var(--brand-white);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
+  transition: all 0.4s var(--ease-premium);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+  border-color: transparent;
+}
+
+/* ============================================ */
+/* ORTAK BUTON STİLLERİ                         */
+/* ============================================ */
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  transition: all 0.25s ease;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-pill:active {
+  transform: scale(0.96);
+}
+
+/* ============================================ */
+/* BÖLÜM BAŞLIK STİLLERİ                        */
+/* ============================================ */
+.section-eyebrow {
+  font-size: clamp(12px, 1.2vw, 14px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 12px;
+}
+
+.section-heading {
+  font-family: serif;
+  font-size: clamp(28px, 4vw, 52px);
+  color: var(--text-dark);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.section-heading em {
+  font-style: normal;
+  position: relative;
+}
+
+.section-heading em::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  width: 100%;
+  height: clamp(6px, 1vw, 10px);
+  background: rgba(var(--brand-blue-rgb), 0.12);
+  z-index: -1;
+  border-radius: 2px;
+}
+
+/* ============================================ */
+/* 1. KATEGORİ KARTLARI                         */
+/* ============================================ */
+.cat-card {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transform: translateY(0);
+  transition: all 0.4s var(--ease-premium);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.cat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.cat-card:active {
+  transform: scale(0.97);
+}
+
+.cat-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s var(--ease-premium);
+}
+
+.cat-card:hover img {
+  transform: scale(1.06);
+}
+
+.cat-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 40%,
+    rgba(0, 0, 0, 0.05) 60%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  transition: background 0.4s ease;
+}
+
+.cat-card:hover .cat-overlay {
+  background: linear-gradient(
+    180deg,
+    transparent 35%,
+    rgba(0, 0, 0, 0.08) 55%,
+    rgba(0, 0, 0, 0.65) 100%
+  );
+}
+
+.cat-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 28px 20px 22px;
+  color: var(--brand-white);
+  font-weight: 700;
+  font-size: clamp(15px, 1.4vw, 18px);
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  transition: transform 0.35s ease, padding-bottom 0.35s ease;
+}
+
+.cat-card:hover .cat-label {
+  transform: translateY(-4px);
+  padding-bottom: 30px;
+}
+
+.cat-label::after {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--brand-white);
+  margin-top: 8px;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: all 0.35s ease;
+}
+
+.cat-card:hover .cat-label::after {
+  opacity: 0.85;
+  transform: translateX(0);
+}
+
+/* ============================================ */
+/* 2. GOOGLE REVIEWS KARTLARI                   */
+/* ============================================ */
+.rv-card {
+  background: var(--brand-white);
+  border-radius: var(--radius-xl);
+  padding: 28px 24px;
+  border: 1px solid var(--border-light);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.35s var(--ease-premium);
+  box-shadow: var(--shadow-sm);
+}
+
+.rv-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: transparent;
+}
+
+/* Üstte mavi-kırmızı degrade çizgi */
+.rv-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--brand-blue), var(--brand-red));
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.rv-card:hover::before {
+  opacity: 1;
+}
+
+/* Büyük tırnak işareti */
+.rv-quote {
+  font-family: serif;
+  font-size: 72px;
+  color: var(--brand-blue);
+  line-height: 0.7;
+  margin-bottom: 14px;
+  opacity: 0.08;
+  font-style: italic;
+  user-select: none;
+  transition: opacity 0.3s ease;
+}
+
+.rv-card:hover .rv-quote {
+  opacity: 0.15;
+}
+
+.rv-stars {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 14px;
+}
+
+.rv-text {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.75;
+  margin-bottom: auto;
+  flex-grow: 1;
+}
+
+.rv-author-row {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rv-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--brand-white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.rv-avatar-fallback {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand-blue) 0%, #003d75 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-white);
+  font-weight: 700;
+  font-size: 16px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.rv-google-badge {
+  opacity: 0.35;
+  transition: opacity 0.3s ease;
+}
+
+.rv-card:hover .rv-google-badge {
+  opacity: 0.65;
+}
+
+/* Skeleton */
+.rv-sk {
+  background: var(--brand-white);
+  border-radius: var(--radius-xl);
+  padding: 28px 24px;
+  border: 1px solid var(--border-light);
+  height: 100%;
+}
+
+/* ============================================ */
+/* 3. BLOG KARTLARI                             */
+/* ============================================ */
+.blog-card {
+  background: var(--brand-white);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s var(--ease-premium);
+  box-shadow: var(--shadow-sm);
+  height: 100%;
+}
+
+.blog-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+  border-color: transparent;
+}
+
+.blog-img-wrap {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  background: rgba(var(--brand-blue-rgb), 0.05);
+}
+
+.blog-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s var(--ease-premium);
+}
+
+.blog-img-wrap img.contain-fit {
+  object-fit: contain;
+  background: rgba(var(--brand-blue-rgb), 0.05);
+}
+
+.blog-card:hover .blog-img-wrap img {
+  transform: scale(1.08);
+}
+
+.blog-img-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.25) 0%,
+    transparent 55%
+  );
+  transition: background 0.4s ease;
+}
+
+.blog-card:hover .blog-img-gradient {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.35) 0%,
+    transparent 50%
+  );
+}
+
+.blog-category-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--brand-blue);
+  color: var(--brand-white);
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+
+.blog-body {
+  padding: 22px 22px 26px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.blog-date {
+  font-size: 10px;
+  color: var(--text-soft);
+  margin-bottom: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.blog-title {
+  font-family: serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1.35;
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.blog-excerpt {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 18px;
+  flex-grow: 1;
+}
+
+.blog-read-more {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--brand-blue);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: gap 0.3s ease;
+}
+
+.blog-card:hover .blog-read-more {
+  gap: 10px;
+}
+
+.blog-read-more svg {
+  transition: transform 0.3s ease;
+}
+
+.blog-card:hover .blog-read-more svg {
+  transform: translateX(3px);
+}
+
+.blog-sk {
+  background: var(--brand-white);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  height: 100%;
+}
+
+/* ============================================ */
+/* 4. STORE KARTLARI                            */
+/* ============================================ */
+.store-card {
+  background: var(--brand-white);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--border-light);
+  transition: all 0.4s var(--ease-premium);
+  box-shadow: var(--shadow-sm);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.store-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+  border-color: transparent;
+}
+
+.store-img-wrap {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.store-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s var(--ease-premium);
+}
+
+.store-card:hover .store-img-wrap img {
+  transform: scale(1.08);
+}
+
+.store-img-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.7) 0%,
+    transparent 50%
+  );
+  transition: background 0.4s ease;
+}
+
+.store-card:hover .store-img-gradient {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.78) 0%,
+    transparent 45%
+  );
+}
+
+.store-city-badge {
+  position: absolute;
+  top: 13px;
+  left: 13px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--brand-white);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  backdrop-filter: blur(4px);
+}
+
+.store-hours {
+  position: absolute;
+  bottom: 12px;
+  left: 13px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.store-body {
+  padding: 18px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.store-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.store-address {
+  font-size: 11px;
+  color: var(--text-soft);
+  margin-bottom: 16px;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.store-address svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.store-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.store-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  transition: all 0.25s ease;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.store-btn:hover {
+  transform: translateY(-1px);
+}
+
+.store-btn:active {
+  transform: scale(0.96);
+}
+
+.store-btn-call {
+  color: var(--brand-white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.store-btn-call:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.store-btn-wa {
+  background: #25d366;
+  color: var(--brand-white);
+}
+
+.store-btn-wa:hover {
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
+}
+
+.store-btn-maps {
+  width: 38px;
+  flex: 0 0 auto;
+  background: var(--bg-light);
+  color: var(--text-muted);
+  border: 1px solid var(--border-light);
+  padding: 10px;
+}
+
+.store-btn-maps:hover {
+  background: var(--border-light);
+  color: var(--text-dark);
+}
+
+/* ============================================ */
+/* CTA BUTONLARI                                */
+/* ============================================ */
+.btn-outline-red {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--brand-red);
+  color: var(--brand-red);
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  background: var(--brand-white);
+}
+
+.btn-outline-red:hover {
+  background: var(--brand-red);
+  color: var(--brand-white);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(204, 0, 0, 0.25);
+}
+
+.btn-solid-blue {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 32px;
+  border-radius: var(--radius-full);
+  background: var(--brand-blue);
+  color: var(--brand-white);
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 82, 155, 0.25);
+}
+
+.btn-solid-blue:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(0, 82, 155, 0.35);
+}
+
+.btn-solid-blue:active {
+  transform: scale(0.97);
+}
+
+/* ============================================ */
+/* RATING BADGE                                */
+/* ============================================ */
+.rating-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--brand-white);
+  padding: 16px 24px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.03);
+}
+
+/* ============================================ */
+/* DEKORATİF ARKA PLAN BLOBLARI                 */
+/* ============================================ */
+.deco-blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.deco-blob-blue {
+  background: radial-gradient(
+    circle,
+    rgba(var(--brand-blue-rgb), 0.04) 0%,
+    transparent 70%
+  );
+}
+
+.deco-blob-red {
+  background: radial-gradient(
+    circle,
+    rgba(var(--brand-red-rgb), 0.025) 0%,
+    transparent 70%
+  );
+}
+
+/* ============================================ */
+/* ERİŞİLEBİLİRLİK                              */
+/* ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================ */
+/* MOBİL İYİLEŞTİRMELER                         */
+/* ============================================ */
+@media (max-width: 640px) {
+  .section-card:hover,
+  .cat-card:hover,
+  .rv-card:hover,
+  .blog-card:hover,
+  .store-card:hover {
+    transform: none;
+  }
+  
+  .btn-pill:hover,
+  .btn-outline-red:hover,
+  .btn-solid-blue:hover {
+    transform: none;
+  }
+}
