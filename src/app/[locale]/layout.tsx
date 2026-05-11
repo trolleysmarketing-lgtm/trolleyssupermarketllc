@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -9,8 +9,13 @@ import SchemaOrg from "@/components/SchemaOrg";
 import Chatbot from "@/components/Chatbot";
 import Preloader from "@/components/Preloader";
 import "../globals.css";
+import { SurveyWidget } from "@/components/SurveyWidget";
 
 const baseUrl = "https://trolleyssupermarketllc.com";
+
+export const viewport: Viewport = {
+  themeColor: "#0e76bc",
+};
 
 export async function generateMetadata({
   params,
@@ -132,21 +137,23 @@ export async function generateMetadata({
 
     category: "shopping",
 
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: "Trolleys",
+    },
+
     other: {
-      // GEO tags
-      "geo.region": "AE",
-      "geo.placename": "Dubai, Sharjah, Ajman",
+      "geo.region": "AE-DU",
+      "geo.placename": "Dubai, UAE",
       "geo.position": "25.2048;55.2708",
       "ICBM": "25.2048, 55.2708",
-
-      // GEO for AI engines
       "og:locale:alternate": isAr ? "en_AE" : "ar_AE",
-
-      // Business meta
       "business:contact_data:country_name": "United Arab Emirates",
       "business:contact_data:locality": "Dubai",
       "business:contact_data:region": "Dubai",
       "business:contact_data:website": baseUrl,
+      "msapplication-TileColor": "#0e76bc",
     },
   };
 }
@@ -167,33 +174,18 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
-      <head>
-        <SchemaOrg locale={locale} />
-        {/* GEO meta — AI search engines */}
-        <meta name="geo.region" content="AE-DU" />
-        <meta name="geo.placename" content="Dubai, UAE" />
-        <meta name="geo.position" content="25.2048;55.2708" />
-        <meta name="ICBM" content="25.2048, 55.2708" />
-        {/* Apple */}
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Trolleys" />
-        {/* Theme */}
-        <meta name="theme-color" content="#0e76bc" />
-        <meta name="msapplication-TileColor" content="#0e76bc" />
-      </head>
-      <body className="flex flex-col min-h-screen">
-        <NextIntlClientProvider messages={messages}>
-          <Preloader />
-          <Header />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Chatbot />
-          <Footer />
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <>
+      <SchemaOrg locale={locale} />
+      <NextIntlClientProvider messages={messages}>
+        <Preloader />
+        <Header />
+        <main className="flex-1">
+          {children}
+        </main>
+        <SurveyWidget locale={locale} />
+        <Chatbot />
+        <Footer />
+      </NextIntlClientProvider>
+    </>
   );
 }

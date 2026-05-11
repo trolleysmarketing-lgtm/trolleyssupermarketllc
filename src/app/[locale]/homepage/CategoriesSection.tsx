@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { FadeUp } from "./FadeUp";
@@ -7,30 +8,21 @@ import { HScroll } from "./HScroll";
 import { Ico } from "./icons";
 import styles from "./homepage.module.css";
 
-const CAT_IMAGES: Record<string, string> = {
-  "fresh-produce":   "/categories/fresh_produce.webp",
-  "dairy-eggs":      "/categories/dairy_eggs.webp",
-  "bakery":          "/categories/bakery.webp",
-  "beverages":       "/categories/beverages.webp",
-  "meat-fish":       "/categories/meat_fish.webp",
-  "organic":         "/categories/organic.webp",
-  "baby-care":       "/categories/baby_care.webp",
-  "personal-care":   "/categories/personal_care.webp",
-  "household":       "/categories/household.webp",
-  "tea-coffee":      "/categories/tea_coffee.webp",
-  "spices":          "/categories/spices.webp",
-  "frozen":          "/categories/frozen.webp",
+type Category = {
+  slug: string;
+  name_en: string;
+  name_ar: string;
+  image: string;
 };
 
 function CatCard({ name, img, priority }: { name: string; img: string; priority: boolean }) {
   return (
     <div className={styles.catCard}>
       <img
-        src={img}
+        src={img || "/categories/placeholder.webp"}
         alt={name}
         loading={priority ? "eager" : "lazy"}
         decoding={priority ? "sync" : "async"}
-        fetchPriority={priority ? "high" : "low"}
         width={200}
         height={300}
       />
@@ -54,7 +46,18 @@ interface Props {
 
 export default function CategoriesSection({ locale, isRTL }: Props) {
   const t = useTranslations("home");
-  const categories = t.raw("categories.list") as Array<{ name: string; slug: string }>;
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    fetch("/api/admin/categories?public=1")
+      .then((r) => r.json())
+      .then((d) => setCategories(d.categories ?? []))
+      .catch(() => {});
+  }, []);
+
+  // Display name based on locale
+  const name = (cat: Category) =>
+    locale === "ar" ? cat.name_ar : cat.name_en;
 
   return (
     <section className={`${styles.sec} ${styles.secAlt}`} aria-labelledby="categories-heading">
@@ -74,30 +77,34 @@ export default function CategoriesSection({ locale, isRTL }: Props) {
         </FadeUp>
 
         {/* Desktop grid */}
-        <div className={styles.catGridDesktop} role="list">
-          {categories.map((cat, i) => (
-            <FadeUp key={cat.slug} delay={i * 28}>
-              <div role="listitem">
-                <Link href={`/${locale}/offers?category=${cat.slug}`} aria-label={cat.name}>
-                  <CatCard name={cat.name} img={CAT_IMAGES[cat.slug] || ""} priority={i < 6} />
-                </Link>
-              </div>
-            </FadeUp>
-          ))}
-        </div>
+        {categories.length > 0 && (
+          <div className={styles.catGridDesktop} role="list">
+            {categories.map((cat, i) => (
+              <FadeUp key={cat.slug} delay={i * 28}>
+                <div role="listitem">
+                  <Link href={`/${locale}/offers?category=${cat.slug}`} aria-label={name(cat)}>
+                    <CatCard name={name(cat)} img={cat.image} priority={i < 6} />
+                  </Link>
+                </div>
+              </FadeUp>
+            ))}
+          </div>
+        )}
 
         {/* Mobile scroll */}
-        <div className={styles.catGridMobile}>
-          <HScroll itemWidth={140} gap={12} label={t("categories.subtitle")}>
-            {categories.map((cat, i) => (
-              <div key={cat.slug} style={{ width: 140, flexShrink: 0, scrollSnapAlign: "start" }}>
-                <Link href={`/${locale}/offers?category=${cat.slug}`} aria-label={cat.name}>
-                  <CatCard name={cat.name} img={CAT_IMAGES[cat.slug] || ""} priority={i < 4} />
-                </Link>
-              </div>
-            ))}
-          </HScroll>
-        </div>
+        {categories.length > 0 && (
+          <div className={styles.catGridMobile}>
+            <HScroll itemWidth={140} gap={12} label={t("categories.subtitle")}>
+              {categories.map((cat, i) => (
+                <div key={cat.slug} style={{ width: 140, flexShrink: 0, scrollSnapAlign: "start" }}>
+                  <Link href={`/${locale}/offers?category=${cat.slug}`} aria-label={name(cat)}>
+                    <CatCard name={name(cat)} img={cat.image} priority={i < 4} />
+                  </Link>
+                </div>
+              ))}
+            </HScroll>
+          </div>
+        )}
       </div>
     </section>
   );

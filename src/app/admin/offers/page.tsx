@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 type Catalog = {
   id: string;
@@ -27,6 +28,7 @@ export default function AdminOffersPage() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [generating, setGenerating] = useState<string | null>(null);
   const [blogResults, setBlogResults] = useState<Record<string, string>>({});
+  const [deleteTarget, setDeleteTarget] = useState<Catalog | null>(null);
 
   useEffect(() => { fetchCatalogs(); }, []);
 
@@ -61,14 +63,20 @@ export default function AdminOffersPage() {
     setUploading(false);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
     const res = await fetch("/api/admin/delete-catalog", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({ id: deleteTarget.id }),
     });
-    if (res.ok) fetchCatalogs();
+    if (res.ok) {
+      setMessage({ type: "success", text: `"${deleteTarget.title}" deleted successfully.` });
+      fetchCatalogs();
+    } else {
+      setMessage({ type: "error", text: "Delete failed. Please try again." });
+    }
+    setDeleteTarget(null);
   };
 
   const copyLink = (id: string) => {
@@ -78,29 +86,29 @@ export default function AdminOffersPage() {
   };
 
   // Client-side PDF → cover image via pdfjs
- const extractCover = async (filePath: string): Promise<string> => {
-  try {
-    const pdfjsLib = await import("pdfjs-dist");
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
-    const pdf = await pdfjsLib.getDocument(filePath).promise;
-    const page = await pdf.getPage(1);
-    const viewport = page.getViewport({ scale: 1.5 });
-    const canvas = document.createElement("canvas");
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return "";
-    await page.render({
-      canvasContext: ctx,
-      viewport,
-    } as any).promise;
-    return canvas.toDataURL("image/jpeg", 0.85);
-  } catch (e) {
-    console.warn("Cover extract failed:", e);
-    return "";
-  }
-};
+  const extractCover = async (filePath: string): Promise<string> => {
+    try {
+      const pdfjsLib = await import("pdfjs-dist");
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+      const pdf = await pdfjsLib.getDocument(filePath).promise;
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 1.5 });
+      const canvas = document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return "";
+      await page.render({
+        canvasContext: ctx,
+        viewport,
+      } as any).promise;
+      return canvas.toDataURL("image/jpeg", 0.85);
+    } catch (e) {
+      console.warn("Cover extract failed:", e);
+      return "";
+    }
+  };
 
   const handleGenerateBlog = async (catalog: Catalog) => {
     setGenerating(catalog.id);
@@ -272,7 +280,7 @@ export default function AdminOffersPage() {
                         background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0",
                         borderRadius: 8, padding: "6px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer",
                       }}>WA Msg</button>
-                      <button onClick={() => handleDelete(catalog.id)} style={{
+                      <button onClick={() => setDeleteTarget(catalog)} style={{
                         background: "#fef2f2", color: "#dc2626", border: "1px solid #fecaca",
                         borderRadius: 8, padding: "6px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer",
                       }}>Delete</button>
@@ -343,6 +351,18 @@ export default function AdminOffersPage() {
         </div>
 
       </div>
+
+      {/* 🔥 Delete Confirmation Lightbox */}
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete Catalog"
+        message={`Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }
