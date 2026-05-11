@@ -1,0 +1,330 @@
+import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
+import Link from "next/link";
+
+const baseUrl = "https://trolleyssupermarketllc.com";
+
+/* ── Store data ── */
+type Store = {
+  slug: string;
+  name: string;
+  name_ar: string;
+  city: string;
+  address: string;
+  address_ar: string;
+  phone: string;
+  whatsapp: string;
+  maps: string;
+  hours: string;
+  lat: number;
+  lng: number;
+  image: string;
+  description: string;
+  description_ar: string;
+  keywords: string[];
+};
+
+const STORES: Store[] = [
+  {
+    slug: "mirdif-dubai",
+    name: "Trolleys Supermarket Mirdif — Dubai",
+    name_ar: "تروليز سوبرماركت مردف — دبي",
+    city: "Dubai",
+    address: "Golden Gate Shopping Centre - Mirdif - Dubai - UAE",
+    address_ar: "مركز جولدن جيت التجاري - مردف - دبي - الإمارات",
+    phone: "+971 4 232 2966",
+    whatsapp: "971504986988",
+    maps: "https://www.google.com/maps/place/?q=place_id:ChIJZUCb8PBhXz4R6WVzYGgrCbg",
+    hours: "7 AM – 2 AM (Daily)",
+    lat: 25.2169,
+    lng: 55.4175,
+    image: "/store/Mirdif-Dubai.webp",
+    description: "Trolleys Supermarket Mirdif is your neighbourhood grocery store in Golden Gate Shopping Centre, Dubai. Shop fresh produce, dairy, meat, bakery, and thousands of products at great prices.",
+    description_ar: "تروليز سوبرماركت مردف هو متجر البقالة المجاور في مركز جولدن جيت التجاري، دبي.",
+    keywords: ["supermarket mirdif", "grocery store mirdif dubai", "trolleys mirdif", "fresh food mirdif"],
+  },
+  {
+    slug: "al-taawun-sharjah",
+    name: "Trolleys Supermarket Al Taawun — Sharjah",
+    name_ar: "تروليز سوبرماركت التعاون — الشارقة",
+    city: "Sharjah",
+    address: "895C+XXP - Al Khan - Sharjah - UAE",
+    address_ar: "895C+XXP - الخان - الشارقة - الإمارات",
+    phone: "+971 6 554 4505",
+    whatsapp: "971504059699",
+    maps: "https://www.google.com/maps/place/?q=place_id:ChIJA2zBYWZbXz4RueLlNhbVf_4",
+    hours: "7 AM – 3 AM (Daily)",
+    lat: 25.3185,
+    lng: 55.3890,
+    image: "/store/Al-Taawun-Sharjah.webp",
+    description: "Trolleys Supermarket Al Taawun is a leading grocery store in Sharjah, offering fresh produce, weekly deals, and a wide range of local and imported products.",
+    description_ar: "تروليز سوبرماركت التعاون هو متجر بقالة رائد في الشارقة.",
+    keywords: ["supermarket al taawun sharjah", "grocery sharjah", "trolleys sharjah", "supermarket sharjah"],
+  },
+  {
+    slug: "al-khan-sharjah",
+    name: "Trolleys Supermarket Al Khan — Sharjah",
+    name_ar: "تروليز سوبرماركت الخان — الشارقة",
+    city: "Sharjah",
+    address: "Al Khan Street - Al Khalidiya - Sharjah - UAE",
+    address_ar: "شارع الخان - الخالدية - الشارقة - الإمارات",
+    phone: "+971 6 575 7010",
+    whatsapp: "971547695919",
+    maps: "https://www.google.com/maps/place/?q=place_id:ChIJ2ZtxfsVbXz4R2A-fxX703hs",
+    hours: "7 AM – 2 AM (Daily)",
+    lat: 25.3295,
+    lng: 55.3894,
+    image: "/store/Al-Khan-Sharjah.webp",
+    description: "Trolleys Supermarket Al Khan serves the Al Khalidiya and Al Khan communities in Sharjah with fresh groceries, household products, and weekly offers.",
+    description_ar: "تروليز سوبرماركت الخان يخدم مجتمعات الخالدية والخان في الشارقة.",
+    keywords: ["supermarket al khan sharjah", "grocery al khan", "trolleys al khan", "supermarket khalidiya sharjah"],
+  },
+  {
+    slug: "al-nuaimiya-ajman",
+    name: "Trolleys Supermarket Al Nuaimiya — Ajman",
+    name_ar: "تروليز سوبرماركت النعيمية — عجمان",
+    city: "Ajman",
+    address: "Manama Market - Al Nuaimiya 1 - Ajman - UAE",
+    address_ar: "سوق المنامة - النعيمية 1 - عجمان - الإمارات",
+    phone: "+971 6 749 9919",
+    whatsapp: "971563291296",
+    maps: "https://www.google.com/maps/place/?q=place_id:ChIJ-6wNlfZZXz4REPMp59PqnpE",
+    hours: "7 AM – 2 AM (Daily)",
+    lat: 25.4052,
+    lng: 55.5136,
+    image: "/store/Al-Nuaimia-Ajman.webp",
+    description: "Trolleys Supermarket Al Nuaimiya in Ajman offers fresh produce, quality groceries, and great weekly deals for the Al Nuaimiya community.",
+    description_ar: "تروليز سوبرماركت النعيمية في عجمان يقدم منتجات طازجة وبقالة عالية الجودة.",
+    keywords: ["supermarket ajman", "grocery ajman", "trolleys ajman", "supermarket al nuaimiya", "fresh food ajman"],
+  },
+  {
+    slug: "oasis-street-ajman",
+    name: "Trolleys Supermarket Oasis Street — Ajman",
+    name_ar: "تروليز سوبرماركت شارع الواحة — عجمان",
+    city: "Ajman",
+    address: "Oasis Street - Al Nuaimia 1 - Ajman - UAE",
+    address_ar: "شارع الواحة - النعيمية 1 - عجمان - الإمارات",
+    phone: "+971 50 790 4355",
+    whatsapp: "971507904355",
+    maps: "https://maps.google.com/?q=25.387256,55.458812",
+    hours: "7 AM – 3 AM (Daily)",
+    lat: 25.38725635534364,
+    lng: 55.45881250000001,
+    image: "/store/oasis-ajman.webp",
+    description: "Trolleys Supermarket on Oasis Street in Ajman is open late every day, offering a full range of groceries, fresh produce, and household essentials.",
+    description_ar: "تروليز سوبرماركت في شارع الواحة بعجمان مفتوح متأخراً كل يوم.",
+    keywords: ["supermarket oasis street ajman", "grocery oasis ajman", "trolleys oasis ajman", "24 hour supermarket ajman"],
+  },
+];
+
+export function getStoreBySlug(slug: string): Store | undefined {
+  return STORES.find(s => s.slug === slug);
+}
+
+export function getAllStoreSlugs() {
+  return STORES.map(s => s.slug);
+}
+
+/* ── Metadata ── */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const store = getStoreBySlug(slug);
+  if (!store) return {};
+  const isAr = locale === "ar";
+
+  return {
+    metadataBase: new URL(baseUrl),
+    title: isAr ? store.name_ar : store.name,
+    description: isAr ? store.description_ar : store.description,
+    keywords: store.keywords,
+    alternates: {
+      canonical: `${baseUrl}/${locale}/stores/${slug}`,
+      languages: {
+        en: `${baseUrl}/en/stores/${slug}`,
+        ar: `${baseUrl}/ar/stores/${slug}`,
+      },
+    },
+    openGraph: {
+      title: isAr ? store.name_ar : store.name,
+      description: isAr ? store.description_ar : store.description,
+      url: `${baseUrl}/${locale}/stores/${slug}`,
+      images: [{ url: `${baseUrl}${store.image}`, width: 800, height: 600 }],
+    },
+  };
+}
+
+/* ── Static params ── */
+export async function generateStaticParams() {
+  const locales = ["en", "ar"];
+  return locales.flatMap(locale =>
+    STORES.map(store => ({ locale, slug: store.slug }))
+  );
+}
+
+/* ── Page ── */
+export default async function StorePage({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}) {
+  const { locale, slug } = await params;
+  const store = getStoreBySlug(slug);
+  if (!store) notFound();
+
+  const t     = await getTranslations({ locale, namespace: "stores" });
+  const isAr  = locale === "ar";
+  const name  = isAr ? store.name_ar  : store.name;
+  const addr  = isAr ? store.address_ar : store.address;
+  const desc  = isAr ? store.description_ar : store.description;
+
+  /* ── LocalBusiness JSON-LD ── */
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "GroceryStore",
+    name: store.name,
+    description: store.description,
+    url: `${baseUrl}/en/stores/${store.slug}`,
+    telephone: store.phone,
+    image: `${baseUrl}${store.image}`,
+    hasMap: store.maps,
+    openingHours: "Mo-Su 07:00-02:00",
+    currenciesAccepted: "AED",
+    paymentAccepted: "Cash, Credit Card",
+    priceRange: "$$",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: store.address,
+      addressLocality: store.city,
+      addressCountry: "AE",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: store.lat,
+      longitude: store.lng,
+    },
+    sameAs: [
+      "https://www.instagram.com/trolleys.ae",
+      "https://www.facebook.com/trolleys.ae",
+    ],
+    parentOrganization: {
+      "@type": "Organization",
+      name: "Trolleys Supermarket LLC",
+      url: baseUrl,
+    },
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      <div dir={isAr ? "rtl" : "ltr"} style={{ fontFamily: "Inter, system-ui, sans-serif", color: "#0f172a" }}>
+
+        {/* ── Hero ── */}
+        <div style={{ position: "relative", height: 340, overflow: "hidden", background: "#0f172a" }}>
+          <img
+            src={store.image}
+            alt={name}
+            style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.55 }}
+            fetchPriority="high"
+          />
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "32px clamp(20px,5vw,80px)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+              <Link href={`/${locale}/stores`} style={{ color: "rgba(255,255,255,.7)", textDecoration: "none", fontSize: 13 }}>
+                {t("breadcrumb")}
+              </Link>
+              <span style={{ color: "rgba(255,255,255,.4)" }}>›</span>
+              <span style={{ color: "white", fontSize: 13 }}>{store.city}</span>
+            </div>
+            <h1 style={{ color: "white", fontSize: "clamp(22px,4vw,40px)", fontWeight: 700, margin: 0, lineHeight: 1.2 }}>{name}</h1>
+            <p style={{ color: "rgba(255,255,255,.8)", fontSize: 15, margin: "8px 0 0" }}>{addr}</p>
+          </div>
+        </div>
+
+        {/* ── Content ── */}
+        <div style={{ maxWidth: 960, margin: "0 auto", padding: "48px clamp(20px,4vw,48px)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 40, alignItems: "start" }}>
+
+            {/* ── Left ── */}
+            <div>
+              <p style={{ fontSize: 16, color: "#475569", lineHeight: 1.8, marginBottom: 32 }}>{desc}</p>
+
+              {/* Info cards */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 32 }}>
+                {[
+                  { icon: "🕐", label: isAr ? "ساعات العمل" : "Opening Hours", value: store.hours },
+                  { icon: "📍", label: isAr ? "العنوان" : "Address", value: addr },
+                  { icon: "📞", label: isAr ? "الهاتف" : "Phone", value: store.phone },
+                  { icon: "🏙️", label: isAr ? "المدينة" : "City", value: store.city + ", UAE" },
+                ].map(({ icon, label, value }) => (
+                  <div key={label} style={{ background: "#f8fafc", borderRadius: 12, padding: "16px 18px", border: "1px solid #e2e8f0" }}>
+                    <p style={{ margin: "0 0 4px", fontSize: 11, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".08em" }}>{icon} {label}</p>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "#0f172a" }}>{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Action buttons */}
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                <a href={`tel:${store.phone}`} style={actionBtn("#1C75BC", "#fff")}>
+                  📞 {isAr ? "اتصل بنا" : "Call Store"}
+                </a>
+                <a href={`https://wa.me/${store.whatsapp}`} target="_blank" rel="noopener noreferrer" style={actionBtn("#22c55e", "#fff")}>
+                  💬 WhatsApp
+                </a>
+                <a href={store.maps} target="_blank" rel="noopener noreferrer" style={actionBtn("#0f172a", "#fff")}>
+                  🗺️ {isAr ? "الاتجاهات" : "Get Directions"}
+                </a>
+              </div>
+            </div>
+
+            {/* ── Right: Other stores ── */}
+            <div>
+              <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginBottom: 16 }}>
+                {isAr ? "فروعنا الأخرى" : "Other Branches"}
+              </h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {STORES.filter(s => s.slug !== slug).map(s => (
+                  <Link key={s.slug} href={`/${locale}/stores/${s.slug}`} style={{
+                    display: "flex", alignItems: "center", gap: 12, padding: "12px 14px",
+                    borderRadius: 12, border: "1px solid #e2e8f0", background: "#fff",
+                    textDecoration: "none", transition: "border-color .2s",
+                  }}>
+                    <img src={s.image} alt={s.name} style={{ width: 52, height: 52, objectFit: "cover", borderRadius: 8, flexShrink: 0 }} />
+                    <div>
+                      <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
+                        {isAr ? s.name_ar : s.name}
+                      </p>
+                      <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>{s.city} · {s.hours}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+              <Link href={`/${locale}/stores`} style={{
+                display: "block", marginTop: 16, textAlign: "center",
+                padding: "11px", borderRadius: 12, border: "1.5px solid #1C75BC",
+                color: "#1C75BC", fontWeight: 600, fontSize: 13, textDecoration: "none",
+              }}>
+                {isAr ? "عرض جميع الفروع" : "View All Stores"}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+const actionBtn = (bg: string, color: string): React.CSSProperties => ({
+  display: "inline-flex", alignItems: "center", gap: 8,
+  padding: "12px 22px", borderRadius: 999, fontSize: 14, fontWeight: 600,
+  background: bg, color, textDecoration: "none", border: "none",
+});
