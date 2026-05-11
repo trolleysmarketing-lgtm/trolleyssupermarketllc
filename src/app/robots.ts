@@ -13,10 +13,10 @@ export default function robots(): MetadataRoute.Robots {
           "/_next/",
           "/admin/",
           "/admin",
+          "/uploads/catalogs/",
         ],
       },
       {
-        // Allow AI crawlers for GEO
         userAgent: [
           "GPTBot",
           "Google-Extended",
@@ -26,7 +26,7 @@ export default function robots(): MetadataRoute.Robots {
           "cohere-ai",
         ],
         allow: "/",
-        disallow: ["/api/", "/_next/", "/admin/"],
+        disallow: ["/api/", "/_next/", "/admin/", "/uploads/catalogs/"],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
