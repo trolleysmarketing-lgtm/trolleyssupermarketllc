@@ -2,18 +2,21 @@
 
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import HeroSlider from "@/components/HeroSlider";
+import styles from "./homepage/homepage.module.css";
 
+/* ── Above the fold — loaded immediately ── */
 import CategoriesSection from "./homepage/CategoriesSection";
-import OffersSection     from "./homepage/OffersSection";
-import ReviewsSection    from "./homepage/ReviewsSection";
-import BlogSection       from "./homepage/BlogSection";
-import StoresSection     from "./homepage/StoresSection";
-import styles            from "./homepage/homepage.module.css";
 
-function buildJsonLd(
-  stores: Array<{ name: string; address: string; phone: string; city: string }>
-) {
+/* ── Below the fold — lazy loaded ── */
+const OffersSection  = dynamic(() => import("./homepage/OffersSection"),  { ssr: false });
+const ReviewsSection = dynamic(() => import("./homepage/ReviewsSection"), { ssr: false });
+const BlogSection    = dynamic(() => import("./homepage/BlogSection"),    { ssr: false });
+const StoresSection  = dynamic(() => import("./homepage/StoresSection"),  { ssr: false });
+
+/* ── Structured Data ── */
+function buildJsonLd(stores: Array<{ name: string; address: string; phone: string; city: string }>) {
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -52,6 +55,7 @@ function buildJsonLd(
   };
 }
 
+/* ── Ticker ── */
 function Ticker({ items }: { items: string[] }) {
   return (
     <div className={styles.ticker} aria-hidden="true" role="marquee">
@@ -69,11 +73,12 @@ function Ticker({ items }: { items: string[] }) {
   );
 }
 
+/* ── Page ── */
 export default function HomePage() {
-  const params = useParams();
-  const locale = (params?.locale as string) || "en";
-  const isRTL = locale === "ar";
-  const t = useTranslations("home");
+  const params  = useParams();
+  const locale  = (params?.locale as string) || "en";
+  const isRTL   = locale === "ar";
+  const t       = useTranslations("home");
 
   const stores = t.raw("stores.list") as Array<{
     name: string; address: string; phone: string;
@@ -105,8 +110,10 @@ export default function HomePage() {
   ];
 
   const tickerItems = [
-    t("features.freshDaily.title"), t("features.weeklyOffers.title"),
-    t("features.fastDelivery.title"), t("features.fourStores.title"),
+    t("features.freshDaily.title"),
+    t("features.weeklyOffers.title"),
+    t("features.fastDelivery.title"),
+    t("features.fourStores.title"),
     t("offers.subtitle"),
   ];
 
@@ -117,13 +124,16 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(buildJsonLd(stores)) }}
       />
       <div className={styles.hp} dir={isRTL ? "rtl" : "ltr"} lang={locale}>
+        {/* ── Critical path ── */}
         <HeroSlider locale={locale} slides={slides} ariaLabel={t("offers.browseCatalog")} />
         <Ticker items={tickerItems} />
         <CategoriesSection locale={locale} isRTL={isRTL} />
-        <OffersSection     locale={locale} isRTL={isRTL} />
-        <ReviewsSection    locale={locale} />
-        <BlogSection       locale={locale} isRTL={isRTL} />
-        <StoresSection     locale={locale} isRTL={isRTL} />
+
+        {/* ── Deferred ── */}
+        <OffersSection  locale={locale} isRTL={isRTL} />
+        <ReviewsSection locale={locale} />
+        <BlogSection    locale={locale} isRTL={isRTL} />
+        <StoresSection  locale={locale} isRTL={isRTL} />
       </div>
     </>
   );
