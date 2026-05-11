@@ -3,6 +3,7 @@
 import { useTranslations, useLocale } from "next-intl";
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import Breadcrumb from "@/components/Breadcrumb";
 
 const StoresMap = dynamic(() => import("@/components/StoresMap"), { ssr: false });
@@ -15,6 +16,14 @@ const storeImages: Record<string, string> = {
   "Sharjah-Khan": "/store/Al-Khan-Sharjah.webp",
   "Sharjah-Taawun": "/store/Al-Taawun-Sharjah.webp",
   "Oasis-Street": "/store/oasis-ajman.webp",
+};
+
+const storeSlugMap: Record<string, string> = {
+  "Trolleys - Mirdif":       "mirdif-dubai",
+  "Trolleys - Al Taawun":    "al-taawun-sharjah",
+  "Trolleys - Al Khan":      "al-khan-sharjah",
+  "Trolleys - Al Nuaimiya":  "al-nuaimiya-ajman",
+  "Trolleys - Oasis Street": "oasis-street-ajman",
 };
 
 function getStoreImage(store: Store) {
@@ -49,7 +58,7 @@ export default function StoresPage() {
     all: t("filter_all"),
     Dubai: t("filter_dubai"),
     Sharjah: t("filter_sharjah"),
-    Ajman: t("filter_ajman")
+    Ajman: t("filter_ajman"),
   };
   const cityConfig: Record<string, { bg: string; color: string; border: string }> = {
     Dubai:   { bg: "#f0f4f8", color: "#1a2e3f", border: "#dde4ed" },
@@ -94,361 +103,173 @@ export default function StoresPage() {
           transition: all .25s;
           letter-spacing: .02em;
         }
-        .stores-filter-btn.on {
-          background: #1C75BC;
-          color: #fff;
-          box-shadow: 0 2px 8px rgba(26,46,63,.2);
-        }
-        .stores-filter-btn.off {
-          background: #fff;
-          color: #7a7a7a;
-          border: 1px solid #f0ebe4;
-        }
-        .stores-filter-btn.off:hover {
-          background: #faf6f2;
-          color: #c8956c;
-          border-color: #e8d5c0;
-        }
+        .stores-filter-btn.on { background: #1C75BC; color: #fff; box-shadow: 0 2px 8px rgba(26,46,63,.2); }
+        .stores-filter-btn.off { background: #fff; color: #7a7a7a; border: 1px solid #f0ebe4; }
+        .stores-filter-btn.off:hover { background: #faf6f2; color: #c8956c; border-color: #e8d5c0; }
         .stores-action-btn {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 5px;
-          flex: 1;
-          padding: 9px 8px;
-          border-radius: 8px;
-          font-size: 11.5px;
-          font-weight: 600;
-          text-decoration: none;
-          border: none;
-          cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+          gap: 5px; flex: 1; padding: 9px 8px; border-radius: 8px;
+          font-size: 11.5px; font-weight: 600; text-decoration: none;
+          border: none; cursor: pointer; transition: all .2s; letter-spacing: .01em;
+        }
+        .stores-action-btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
+        .stores-details-btn {
+          display: flex; align-items: center; justify-content: center;
+          gap: 5px; width: 100%; margin-top: 8px; padding: 7px 12px;
+          border-radius: 8px; font-size: 11.5px; font-weight: 600;
+          color: #1C75BC; text-decoration: none;
+          border: 1px solid #dbeafe; background: #eff8ff;
           transition: all .2s;
-          letter-spacing: .01em;
         }
-        .stores-action-btn:hover {
-          transform: translateY(-1px);
-          filter: brightness(1.08);
-        }
+        .stores-details-btn:hover { background: #1C75BC; color: #fff; border-color: #1C75BC; }
         .stores-search {
-          width: 100%;
-          border: 1.5px solid #f0ebe4;
-          border-radius: 10px;
-          padding: 10px 14px;
-          font-size: 13px;
-          outline: none;
-          font-family: 'Inter', system-ui, sans-serif;
-          transition: all .25s;
-          background: #fdfbf9;
-          color: #4a4a4a;
+          width: 100%; border: 1.5px solid #f0ebe4; border-radius: 10px;
+          padding: 10px 14px; font-size: 13px; outline: none;
+          font-family: 'Inter', system-ui, sans-serif; transition: all .25s;
+          background: #fdfbf9; color: #4a4a4a;
         }
-        .stores-search::placeholder {
-          color: #a0a0a0;
-        }
-        .stores-search:focus {
-          border-color: #c8956c;
-          background: #fff;
-          box-shadow: 0 0 0 3px rgba(200,149,108,.08);
-        }
-
-        @keyframes pulse { 
-          0%,100%{opacity:.5;transform:scale(1)} 
-          50%{opacity:1;transform:scale(1.5)} 
-        }
-
-        .stores-layout {
-          display: flex;
-          gap: 22px;
-          align-items: stretch;
-        }
-
+        .stores-search::placeholder { color: #a0a0a0; }
+        .stores-search:focus { border-color: #c8956c; background: #fff; box-shadow: 0 0 0 3px rgba(200,149,108,.08); }
+        @keyframes pulse { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.5)} }
+        .stores-layout { display: flex; gap: 22px; align-items: stretch; }
         .stores-list-scroll {
-          overflow-y: auto;
-          overflow-x: hidden;
-          scrollbar-width: thin;
-          scrollbar-color: #e0d5c5 transparent;
-          padding-right: 4px;
+          overflow-y: auto; overflow-x: hidden;
+          scrollbar-width: thin; scrollbar-color: #e0d5c5 transparent; padding-right: 4px;
         }
-
-        .stores-list-scroll::-webkit-scrollbar {
-          width: 5px;
-        }
-
-        .stores-list-scroll::-webkit-scrollbar-track {
-          background: transparent;
-          border-radius: 10px;
-        }
-
-        .stores-list-scroll::-webkit-scrollbar-thumb {
-          background: #e0d5c5;
-          border-radius: 10px;
-        }
-
-        .stores-list-scroll::-webkit-scrollbar-thumb:hover {
-          background: #c8956c;
-        }
-
-        /* DESKTOP: Map LEFT, Store cards RIGHT (scrollable) */
+        .stores-list-scroll::-webkit-scrollbar { width: 5px; }
+        .stores-list-scroll::-webkit-scrollbar-track { background: transparent; border-radius: 10px; }
+        .stores-list-scroll::-webkit-scrollbar-thumb { background: #e0d5c5; border-radius: 10px; }
+        .stores-list-scroll::-webkit-scrollbar-thumb:hover { background: #c8956c; }
         @media(min-width: 1025px) {
-          .stores-layout {
-            flex-direction: row !important;
-          }
-          .stores-map-col { 
-            width: 58% !important;
-            position: sticky !important;
-            top: 80px !important;
-            height: 580px !important;
-            order: 0 !important;
-          }
-          .stores-list-col { 
-            width: 42% !important;
-            order: 1 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            max-height: 580px !important;
-          }
-          .stores-list-scroll {
-            flex: 1 !important;
-          }
-          .map-zoom-hint {
-            display: block !important;
-          }
-          .map-touch-hint {
-            display: none !important;
-          }
+          .stores-layout { flex-direction: row !important; }
+          .stores-map-col { width: 58% !important; position: sticky !important; top: 80px !important; height: 580px !important; order: 0 !important; }
+          .stores-list-col { width: 42% !important; order: 1 !important; display: flex !important; flex-direction: column !important; max-height: 580px !important; }
+          .stores-list-scroll { flex: 1 !important; }
+          .map-zoom-hint { display: block !important; }
+          .map-touch-hint { display: none !important; }
         }
-
-        /* MOBILE: Store cards TOP, Map BOTTOM */
         @media(max-width: 1024px) {
-          .stores-layout {
-            flex-direction: column !important;
-          }
-          .stores-list-col { 
-            width: 100% !important;
-            order: 0 !important;
-            max-height: none !important;
-          }
-          .stores-list-scroll {
-            max-height: none !important;
-            overflow-y: visible !important;
-          }
-          .stores-map-col { 
-            width: 100% !important;
-            position: relative !important;
-            top: 0 !important;
-            height: 450px !important;
-            order: 1 !important;
-          }
-          .map-zoom-hint {
-            display: none !important;
-          }
-          .map-touch-hint {
-            display: block !important;
-          }
+          .stores-layout { flex-direction: column !important; }
+          .stores-list-col { width: 100% !important; order: 0 !important; max-height: none !important; }
+          .stores-list-scroll { max-height: none !important; overflow-y: visible !important; }
+          .stores-map-col { width: 100% !important; position: relative !important; top: 0 !important; height: 450px !important; order: 1 !important; }
+          .map-zoom-hint { display: none !important; }
+          .map-touch-hint { display: block !important; }
         }
       `}</style>
 
       <div className="cp" style={{ background: "#fdfbf9", minHeight: "100vh", direction: isRTL ? "rtl" : "ltr" }}>
-        
-        {/* Breadcrumb */}
+
         <Breadcrumb locale={locale} crumbs={[{ label: t("breadcrumb") }]} />
 
-         {/* Page header */}
+        {/* Header */}
         <div style={{ background: "linear-gradient(135deg, #1C75BC 0%, #1C75BC 100%)", position: "relative", overflow: "hidden", padding: "48px 32px 52px" }}>
           <div style={{ position: "absolute", inset: 0, opacity: .02, backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "24px 24px", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", top: -60, right: -60, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(200,149,108,.1) 0%, transparent 70%)", pointerEvents: "none" }} />
           <div style={{ maxWidth: 1280, margin: "0 auto", position: "relative", zIndex: 1 }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.08)", padding: "5px 14px", borderRadius: 999, marginBottom: 16 }}>
               <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#ffffff", animation: "pulse 2s ease-in-out infinite" }} />
-              <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", color: "#ffffff" }}>
-                {t("hero_badge")}
-              </span>
+              <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", color: "#ffffff" }}>{t("hero_badge")}</span>
             </div>
-            <h1 className="serif" style={{ fontSize: "clamp(28px,4vw,44px)", fontStyle: "italic" , fontWeight: 400, color: "#fff", margin: "0 0 12px", lineHeight: 1.12, letterSpacing: "-.02em" }}>
-              {t("hero_title_line1")}{" "}
-              <em style={{ color: "#ffffff", fontStyle: "italic" }}>{t("hero_title_line2")}</em>
+            <h1 className="serif" style={{ fontSize: "clamp(28px,4vw,44px)", fontStyle: "italic", fontWeight: 400, color: "#fff", margin: "0 0 12px", lineHeight: 1.12, letterSpacing: "-.02em" }}>
+              {t("hero_title_line1")}{" "}<em style={{ color: "#ffffff", fontStyle: "italic" }}>{t("hero_title_line2")}</em>
             </h1>
-            <p style={{ fontSize: 14, color: "rgba(255,255,255,.48)", margin: 0 }}>
-              {t("hero_description")}
-            </p>
+            <p style={{ fontSize: 14, color: "rgba(255,255,255,.48)", margin: 0 }}>{t("hero_description")}</p>
           </div>
         </div>
 
-        {/* MAIN CONTENT */}
-        <div style={{
-          maxWidth: 1200, margin: "0 auto",
-          padding: "32px clamp(16px, 3vw, 32px) 80px"
-        }}>
+        {/* Main */}
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px clamp(16px, 3vw, 32px) 80px" }}>
           <div className="stores-layout">
-            {/* Map - SOLDA desktopta, ALTTA mobilde */}
+
+            {/* Map */}
             <div className="stores-map-col">
-              <div style={{
-                background: "#fff", borderRadius: 18, overflow: "hidden",
-                boxShadow: "0 4px 24px rgba(0,0,0,.05)",
-                height: "100%", border: "1px solid #f0ebe4"
-              }}>
-                <StoresMap
-                  stores={stores}
-                  activeStore={activeStore}
-                  onMarkerClick={setActiveStore}
-                  locale={locale}
-                />
+              <div style={{ background: "#fff", borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,.05)", height: "100%", border: "1px solid #f0ebe4" }}>
+                <StoresMap stores={stores} activeStore={activeStore} onMarkerClick={setActiveStore} locale={locale} />
               </div>
-              <p className="map-zoom-hint" style={{
-                fontSize: 10.5, color: "#a0a0a0",
-                textAlign: "center", marginTop: 8
-              }}>
+              <p className="map-zoom-hint" style={{ fontSize: 10.5, color: "#a0a0a0", textAlign: "center", marginTop: 8 }}>
                 {isRTL ? "Ctrl + التمرير للتكبير" : "Ctrl + scroll to zoom"}
               </p>
-              <p className="map-touch-hint" style={{
-                fontSize: 10.5, color: "#a0a0a0",
-                textAlign: "center", marginTop: 8
-              }}>
+              <p className="map-touch-hint" style={{ fontSize: 10.5, color: "#a0a0a0", textAlign: "center", marginTop: 8 }}>
                 {isRTL ? "استخدم إصبعين للتكبير والتحريك" : "Use two fingers to zoom & move"}
               </p>
             </div>
 
-            {/* Store Cards - SAĞDA desktopta, ÜSTTE mobilde (Scrollable) */}
+            {/* Store Cards */}
             <div className="stores-list-col">
-              {/* Filters - Sabit üst kısım */}
+              {/* Filters */}
               <div className="stores-card" style={{ padding: "16px", cursor: "default", marginBottom: 12 }}>
-                <div style={{
-                  display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12
-                }}>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
                   {cities.map(city => (
-                    <button
-                      key={city}
-                      onClick={() => setActiveCity(city)}
-                      className={`stores-filter-btn ${activeCity === city ? "on" : "off"}`}
-                    >
+                    <button key={city} onClick={() => setActiveCity(city)} className={`stores-filter-btn ${activeCity === city ? "on" : "off"}`}>
                       {cityLabels[city]}
                     </button>
                   ))}
                 </div>
-                <input
-                  type="text"
-                  placeholder={t("search_placeholder")}
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  className="stores-search"
-                />
+                <input type="text" placeholder={t("search_placeholder")} value={search} onChange={e => setSearch(e.target.value)} className="stores-search" />
               </div>
 
-              {/* Scrollable Store List */}
+              {/* List */}
               <div className="stores-list-scroll" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {filteredStores.map(store => (
-                  <div
-                    key={store.name}
-                    onClick={() => setActiveStore(store.name)}
-                    className={`stores-card ${activeStore === store.name ? "active" : ""}`}
-                  >
-                    <div style={{ display: "flex" }}>
-                      {/* Image */}
-                      <div style={{
-                        width: 130, minWidth: 130, overflow: "hidden",
-                        position: "relative", borderRadius: "14px 0 0 14px"
-                      }}>
-                        <img
-                          src={getStoreImage(store)}
-                          alt={store.name}
-                          className="stores-card-img"
-                          style={{
-                            width: "100%", height: "100%",
-                            objectFit: "cover", display: "block"
-                          }}
-                        />
-                        <div style={{
-                          position: "absolute", inset: 0,
-                          background: "linear-gradient(to right, rgba(0,0,0,.15) 0%, transparent 50%)"
-                        }} />
-                      </div>
-
-                      {/* Content */}
-                      <div style={{
-                        flex: 1, padding: "14px 14px 12px", minWidth: 0
-                      }}>
-                        <div style={{
-                          display: "flex", alignItems: "flex-start",
-                          justifyContent: "space-between", gap: 8, marginBottom: 8
-                        }}>
-                          <h3 style={{
-                            fontSize: 13.5, fontWeight: 700,
-                            color: "#1a1a1a", margin: 0, lineHeight: 1.3
-                          }}>
-                            {store.name}
-                          </h3>
-                          <span style={{
-                            fontSize: 9, fontWeight: 700,
-                            letterSpacing: ".06em", textTransform: "uppercase",
-                            padding: "3px 10px", borderRadius: 999,
-                            flexShrink: 0,
-                            background: cityConfig[store.city]?.bg || "#f5f7fa",
-                            color: cityConfig[store.city]?.color || "#4a4a4a"
-                          }}>
-                            {store.city}
-                          </span>
+                {filteredStores.map(store => {
+                  const slug = storeSlugMap[store.name];
+                  return (
+                    <div
+                      key={store.name}
+                      onClick={() => setActiveStore(store.name)}
+                      className={`stores-card ${activeStore === store.name ? "active" : ""}`}
+                    >
+                      <div style={{ display: "flex" }}>
+                        {/* Image */}
+                        <div style={{ width: 130, minWidth: 130, overflow: "hidden", position: "relative", borderRadius: "14px 0 0 14px" }}>
+                          <img src={getStoreImage(store)} alt={store.name} className="stores-card-img" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,.15) 0%, transparent 50%)" }} />
                         </div>
 
-                        <p style={{
-                          fontSize: 11.5, color: "#7a7a7a",
-                          marginBottom: 4, display: "flex",
-                          alignItems: "center", gap: 5
-                        }}>
-                          <MapIcon /> {store.address}
-                        </p>
-                        <p style={{
-                          fontSize: 11.5, color: "#7a7a7a",
-                          marginBottom: 12, display: "flex",
-                          alignItems: "center", gap: 5
-                        }}>
-                          <ClockIcon /> {store.hours}
-                        </p>
+                        {/* Content */}
+                        <div style={{ flex: 1, padding: "14px 14px 12px", minWidth: 0 }}>
+                          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
+                            <h3 style={{ fontSize: 13.5, fontWeight: 700, color: "#1a1a1a", margin: 0, lineHeight: 1.3 }}>
+                              {store.name}
+                            </h3>
+                            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: ".06em", textTransform: "uppercase", padding: "3px 10px", borderRadius: 999, flexShrink: 0, background: cityConfig[store.city]?.bg || "#f5f7fa", color: cityConfig[store.city]?.color || "#4a4a4a" }}>
+                              {store.city}
+                            </span>
+                          </div>
 
-                        {/* Action Buttons */}
-                        <div style={{ display: "flex", gap: 6 }}>
-                          <a
-                            href={"tel:" + store.phone}
-                            className="stores-action-btn"
-                            style={{ background: "#1C75BC", color: "#fff" }}
-                            onClick={e => e.stopPropagation()}
-                          >
-                            <PhoneIcon /> {t("call")}
-                          </a>
-                          <a
-                            href={"https://wa.me/" + store.whatsapp}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="stores-action-btn"
-                            style={{ background: "#25d366", color: "#fff" }}
-                            onClick={e => e.stopPropagation()}
-                          >
-                            <WAIcon /> {t("whatsapp")}
-                          </a>
-                          <a
-                            href={store.maps}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="stores-action-btn"
-                            style={{
-                              flex: "0 0 36px",
-                              background: "#faf6f2",
-                              color: "#c8956c",
-                              border: "1px solid #f0e4d8"
-                            }}
-                            onClick={e => e.stopPropagation()}
-                            title={t("directions")}
-                          >
-                            <MapIcon />
-                          </a>
+                          <p style={{ fontSize: 11.5, color: "#7a7a7a", marginBottom: 4, display: "flex", alignItems: "center", gap: 5 }}>
+                            <MapIcon /> {store.address}
+                          </p>
+                          <p style={{ fontSize: 11.5, color: "#7a7a7a", marginBottom: 12, display: "flex", alignItems: "center", gap: 5 }}>
+                            <ClockIcon /> {store.hours}
+                          </p>
+
+                          {/* Action Buttons */}
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <a href={"tel:" + store.phone} className="stores-action-btn" style={{ background: "#1C75BC", color: "#fff" }} onClick={e => e.stopPropagation()}>
+                              <PhoneIcon /> {t("call")}
+                            </a>
+                            <a href={"https://wa.me/" + store.whatsapp} target="_blank" rel="noopener noreferrer" className="stores-action-btn" style={{ background: "#25d366", color: "#fff" }} onClick={e => e.stopPropagation()}>
+                              <WAIcon /> {t("whatsapp")}
+                            </a>
+                            <a href={store.maps} target="_blank" rel="noopener noreferrer" className="stores-action-btn" style={{ flex: "0 0 36px", background: "#faf6f2", color: "#c8956c", border: "1px solid #f0e4d8" }} onClick={e => e.stopPropagation()} title={t("directions")}>
+                              <MapIcon />
+                            </a>
+                          </div>
+
+                          {/* View Details Link */}
+                          {slug && (
+                            <Link href={`/${locale}/stores/${slug}`} className="stores-details-btn" onClick={e => e.stopPropagation()}>
+                              {isRTL ? "عرض التفاصيل ←" : "View Details →"}
+                            </Link>
+                          )}
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
 
                 {filteredStores.length === 0 && (
-                  <div className="stores-card" style={{
-                    textAlign: "center", padding: "48px 0", cursor: "default"
-                  }}>
+                  <div className="stores-card" style={{ textAlign: "center", padding: "48px 0", cursor: "default" }}>
                     <p style={{ fontSize: 14, color: "#a0a0a0", margin: 0 }}>
                       {isRTL ? "لا توجد فروع متطابقة" : "No matching stores found"}
                     </p>
