@@ -5,31 +5,33 @@ import path from "path";
 
 const dataPath = path.join(process.cwd(), "data", "surveys.json");
 
-export type QType = "text" | "textarea" | "radio" | "checkbox" | "select" | "rating" | "nps" | "date";
-
+export type QType = "text"|"textarea"|"radio"|"checkbox"|"select"|"rating"|"nps"|"date";
 export type SurveyOption   = { id: string; label_en: string; label_ar: string };
-export type SurveyQuestion = {
-  id: string; text_en: string; text_ar: string;
-  type: QType; is_required: boolean; options: SurveyOption[];
-};
+export type SurveyQuestion = { id: string; text_en: string; text_ar: string; type: QType; is_required: boolean; options: SurveyOption[] };
 export type Survey = {
   id: string;
   title_en: string; title_ar: string;
   description_en: string; description_ar: string;
-  display_mode: "popup" | "page" | "both";
-  trigger: "immediate" | "scroll" | "exit_intent" | "delay";
+  display_mode: "popup"|"page"|"both";
+  trigger: "immediate"|"scroll"|"exit_intent"|"delay";
   trigger_delay_seconds: number;
   is_active: boolean;
   starts_at: string; ends_at: string;
   notify_email: string;
-  branches: string[];  // ✅ EKLENDİ
+  collect_name: boolean;
+  collect_phone: boolean;
+  branches: string[];
   questions: SurveyQuestion[];
   responses: SurveyResponse[];
+  slug: string;
 };
 export type SurveyResponse = {
   id: string;
   submitted_at: string;
   locale: string;
+  respondent_name?: string;
+  respondent_phone?: string;
+  respondent_branch?: string;
   answers: { question_id: string; value?: string; selected_option_ids?: string[] }[];
 };
 
@@ -55,26 +57,29 @@ function uid(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
+function toSlug(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
 // ── GET ──────────────────────────────────────────────────────────────
-// /api/admin/surveys            → admin: all surveys (no responses payload)
-// /api/admin/surveys?active=1   → frontend: single active survey with questions
-// /api/admin/surveys?id=xxx&results=1 → admin: one survey with responses
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const data = await getData();
 
-  // Public: active survey for frontend widget
+  // Public: active survey for widget (?active=1) or specific survey (?active=1&survey_id=xxx)
   if (searchParams.get("active") === "1") {
-    const now    = new Date();
-    const branch = searchParams.get("branch") ?? "";
+    const now       = new Date();
+    const surveyId  = searchParams.get("survey_id");
 
-    // En son oluşturulan, şubeye uyan aktif survey
-    const survey = [...data.surveys].reverse().find((s) => {
-      if (!s.is_active) return false;
-      // Boş branches = tüm şubelerde göster
-      if (branch && s.branches?.length > 0 && !s.branches.some((b: string) => b.toLowerCase().includes(branch.toLowerCase()))) return false;
-      return true;
-    });
+    let survey: Survey | undefined;
+
+    if (surveyId) {
+      // Specific survey by ID (for page mode)
+      survey = data.surveys.find(s => s.id === surveyId && s.is_active);
+    } else {
+      // Most recent active survey (for popup widget)
+      survey = [...data.surveys].reverse().find(s => s.is_active);
+    }
 
     if (!survey) return NextResponse.json({ survey: null });
 
@@ -91,12 +96,12 @@ export async function GET(req: NextRequest) {
   // Admin: single survey with results
   const id = searchParams.get("id");
   if (id && searchParams.get("results") === "1") {
-    const survey = data.surveys.find((s) => s.id === id);
+    const survey = data.surveys.find(s => s.id === id);
     if (!survey) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json({ survey });
   }
 
-  // Admin: list without responses array to keep payload small
+  // Admin: list (without responses to keep payload small)
   return NextResponse.json({
     surveys: data.surveys.map(({ responses, ...s }) => ({
       ...s,
@@ -106,89 +111,97 @@ export async function GET(req: NextRequest) {
 }
 
 // ── POST ─────────────────────────────────────────────────────────────
-// Admin: create survey  |  Public: submit response (?respond=surveyId)
 export async function POST(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const data = await getData();
 
-  // Public submit
+  // Public: submit response
   const respondId = searchParams.get("respond");
   if (respondId) {
-    const survey = data.surveys.find((s) => s.id === respondId);
+    const survey = data.surveys.find(s => s.id === respondId);
     if (!survey) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     const body = await req.json();
     const response: SurveyResponse = {
-      id: uid(),
-      submitted_at: new Date().toISOString(),
-      locale: body.locale ?? "en",
-      answers: body.answers ?? [],
+      id:                uid(),
+      submitted_at:      new Date().toISOString(),
+      locale:            body.locale ?? "en",
+      respondent_name:   body.respondent_name,
+      respondent_phone:  body.respondent_phone,
+      respondent_branch: body.respondent_branch,
+      answers:           body.answers ?? [],
     };
+
     if (!survey.responses) survey.responses = [];
     survey.responses.push(response);
     await saveData(data);
 
-    // Email notification via nodemailer (optional — only if SMTP is configured)
+    // Email notification
     if (survey.notify_email && process.env.SMTP_HOST) {
       try {
         const nodemailer = await import("nodemailer");
-        const transport = nodemailer.default.createTransport({
+        const transport  = nodemailer.default.createTransport({
           host: process.env.SMTP_HOST,
           port: Number(process.env.SMTP_PORT ?? 587),
           auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
         });
         await transport.sendMail({
-          from: process.env.SMTP_FROM ?? process.env.SMTP_USER,
-          to: survey.notify_email,
+          from:    process.env.SMTP_FROM ?? process.env.SMTP_USER,
+          to:      survey.notify_email,
           subject: `New survey response — ${survey.title_en}`,
-          text: `Total responses: ${survey.responses.length}\n\nView results in admin panel.`,
+          text:    `New response received.\n\nName: ${response.respondent_name ?? "—"}\nPhone: ${response.respondent_phone ?? "—"}\nBranch: ${response.respondent_branch ?? "—"}\n\nTotal responses: ${survey.responses.length}`,
         });
-      } catch { /* email is optional, don't break submit */ }
+      } catch { /* email is optional */ }
     }
 
     return NextResponse.json({ success: true }, { status: 201 });
   }
 
-  // Admin: create
+  // Admin: create survey
   if (!isAuthorized(req))
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
   const survey: Survey = {
     ...body,
-    id: uid(),
+    id:        uid(),
+    slug:      toSlug(body.title_en || "survey"),
     responses: [],
-    branches: body.branches ?? [],  // ✅ EKLENDİ
+    collect_name:  body.collect_name  ?? false,
+    collect_phone: body.collect_phone ?? false,
+    branches:  body.branches ?? [],
     questions: (body.questions ?? []).map((q: any) => ({
       ...q,
-      id: q.id ?? uid(),
+      id:      q.id ?? uid(),
       options: (q.options ?? []).map((o: any) => ({ ...o, id: o.id ?? uid() })),
     })),
   };
+
   data.surveys.push(survey);
   await saveData(data);
-  return NextResponse.json({ success: true, id: survey.id }, { status: 201 });
+  return NextResponse.json({ success: true, id: survey.id, slug: survey.slug }, { status: 201 });
 }
 
-// ── PUT — update survey ───────────────────────────────────────────────
+// ── PUT ───────────────────────────────────────────────────────────────
 export async function PUT(req: NextRequest) {
   if (!isAuthorized(req))
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
   const data = await getData();
-  const idx  = data.surveys.findIndex((s) => s.id === body.id);
+  const idx  = data.surveys.findIndex(s => s.id === body.id);
   if (idx === -1) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  // Preserve existing responses
   const responses = data.surveys[idx].responses;
   data.surveys[idx] = {
     ...body,
+    slug:      body.slug || toSlug(body.title_en || "survey"),
     responses,
-    branches: body.branches ?? data.surveys[idx].branches ?? [],  // ✅ EKLENDİ
+    collect_name:  body.collect_name  ?? false,
+    collect_phone: body.collect_phone ?? false,
     questions: (body.questions ?? []).map((q: any) => ({
       ...q,
-      id: q.id ?? uid(),
+      id:      q.id ?? uid(),
       options: (q.options ?? []).map((o: any) => ({ ...o, id: o.id ?? uid() })),
     })),
   };
@@ -203,7 +216,7 @@ export async function DELETE(req: NextRequest) {
 
   const { id } = await req.json();
   const data = await getData();
-  data.surveys = data.surveys.filter((s) => s.id !== id);
+  data.surveys = data.surveys.filter(s => s.id !== id);
   await saveData(data);
   return NextResponse.json({ success: true });
 }

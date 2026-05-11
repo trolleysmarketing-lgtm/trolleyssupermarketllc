@@ -1,6 +1,8 @@
 {
   "surveys": [
     {
+      "id": "mp0vm3tvfgk05",
+      "slug": "customer-satisfaction-may-2026",
       "title_en": "Customer Satisfaction Survey - May 2026",
       "title_ar": "استبيان رضا العملاء - مايو 2026",
       "description_en": "Help us improve your shopping experience at Trolleys. Your feedback is valuable to us and will help us serve you better.",
@@ -10,164 +12,118 @@
       "trigger_delay_seconds": 5,
       "is_active": true,
       "starts_at": "2026-05-11T11:24",
-      "ends_at": "2026-05-18T11:24",
+      "ends_at": "2026-05-25T23:59",
       "notify_email": "sinanmintas04@gmail.com",
+      "collect_name": true,
+      "collect_phone": false,
+      "branches": [
+        "Mirdif - Dubai",
+        "Al Taawun - Sharjah",
+        "Al Khan - Sharjah",
+        "Al Nuaimia - Ajman",
+        "Oasis Street - Ajman"
+      ],
       "questions": [
         {
+          "id": "mp0vm3tvtursz",
           "text_en": "How would you rate your overall shopping experience today?",
           "text_ar": "كيف تقيّم تجربة التسوق الشاملة اليوم؟",
           "type": "rating",
           "is_required": true,
-          "options": [],
-          "id": "mp0vm3tvtursz"
+          "options": []
         },
         {
+          "id": "mp0vm3tvtursz_2",
           "text_en": "How satisfied are you with the product variety in our store?",
           "text_ar": "ما مدى رضاك عن تنوع المنتجات في متجرنا؟",
           "type": "rating",
           "is_required": true,
-          "options": [],
-          "id": "mp0vm3tvtursz_2"
+          "options": []
         },
         {
+          "id": "mp0vm3tvtursz_3",
           "text_en": "How would you rate the cleanliness of the store?",
           "text_ar": "كيف تقيّم نظافة المتجر؟",
           "type": "rating",
           "is_required": true,
-          "options": [],
-          "id": "mp0vm3tvtursz_3"
+          "options": []
         },
         {
+          "id": "mp0vm3tvtursz_4",
           "text_en": "How likely are you to recommend Trolleys to a friend or family member?",
           "text_ar": "ما مدى احتمالية أن توصي بتروليز لصديق أو فرد من العائلة؟",
-          "type": "rating",
+          "type": "nps",
           "is_required": true,
-          "options": [],
-          "id": "mp0vm3tvtursz_4"
+          "options": []
         },
         {
+          "id": "mp0vm3tvtursz_5",
           "text_en": "What could we improve to make your experience better?",
           "text_ar": "ما الذي يمكننا تحسينه لجعل تجربتك أفضل؟",
           "type": "text",
           "is_required": false,
-          "options": [],
-          "id": "mp0vm3tvtursz_5"
+          "options": []
         }
       ],
-      "branches": [
-        "Mirdif — Dubai",
-        "Al Taawun — Sharjah",
-        "Al Khan — Sharjah",
-        "Al Nahda — Dubai",
-        "Jumeirah — Dubai"
-      ],
-      "id": "mp0vm3tvfgk05",
       "responses": [
         {
           "id": "mp0vmny0uuh51",
           "submitted_at": "2026-05-11T07:24:54.073Z",
           "locale": "en",
+          "respondent_name": "Sarah M.",
+          "respondent_phone": "",
+          "respondent_branch": "Al Taawun - Sharjah",
           "answers": [
-            {
-              "question_id": "mp0vm3tvtursz",
-              "value": "5"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_2",
-              "value": "4"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_3",
-              "value": "5"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_4",
-              "value": "4"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_5",
-              "value": "More organic food options would be great. Also, faster checkout during peak hours."
-            }
+            { "question_id": "mp0vm3tvtursz",   "value": "5" },
+            { "question_id": "mp0vm3tvtursz_2",  "value": "4" },
+            { "question_id": "mp0vm3tvtursz_3",  "value": "5" },
+            { "question_id": "mp0vm3tvtursz_4",  "value": "9" },
+            { "question_id": "mp0vm3tvtursz_5",  "value": "More organic food options would be great. Also, faster checkout during peak hours." }
           ]
         },
         {
           "id": "mp0vmny0uuh52",
           "submitted_at": "2026-05-11T08:15:32.000Z",
           "locale": "ar",
+          "respondent_name": "محمد العلي",
+          "respondent_phone": "",
+          "respondent_branch": "Mirdif - Dubai",
           "answers": [
-            {
-              "question_id": "mp0vm3tvtursz",
-              "value": "3"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_2",
-              "value": "4"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_3",
-              "value": "3"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_4",
-              "value": "3"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_5",
-              "value": "أتمنى وجود مواقف سيارات أكثر قرباً من المدخل"
-            }
+            { "question_id": "mp0vm3tvtursz",   "value": "3" },
+            { "question_id": "mp0vm3tvtursz_2",  "value": "4" },
+            { "question_id": "mp0vm3tvtursz_3",  "value": "3" },
+            { "question_id": "mp0vm3tvtursz_4",  "value": "6" },
+            { "question_id": "mp0vm3tvtursz_5",  "value": "أتمنى وجود مواقف سيارات أكثر قرباً من المدخل" }
           ]
         },
         {
           "id": "mp0vmny0uuh53",
           "submitted_at": "2026-05-11T09:42:18.000Z",
           "locale": "en",
+          "respondent_name": "James T.",
+          "respondent_phone": "",
+          "respondent_branch": "Al Taawun - Sharjah",
           "answers": [
-            {
-              "question_id": "mp0vm3tvtursz",
-              "value": "4"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_2",
-              "value": "5"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_3",
-              "value": "4"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_4",
-              "value": "5"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_5",
-              "value": "The staff at Al Taawun branch is amazing, especially Ahmed in the fresh produce section!"
-            }
+            { "question_id": "mp0vm3tvtursz",   "value": "4" },
+            { "question_id": "mp0vm3tvtursz_2",  "value": "5" },
+            { "question_id": "mp0vm3tvtursz_3",  "value": "4" },
+            { "question_id": "mp0vm3tvtursz_4",  "value": "10" },
+            { "question_id": "mp0vm3tvtursz_5",  "value": "The staff at Al Taawun branch is amazing!" }
           ]
         },
         {
           "id": "mp0x88dxg9w50",
           "submitted_at": "2026-05-11T08:09:39.958Z",
           "locale": "en",
+          "respondent_name": "",
+          "respondent_phone": "",
+          "respondent_branch": "Al Khan - Sharjah",
           "answers": [
-            {
-              "question_id": "mp0vm3tvtursz",
-              "value": "3"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_2",
-              "value": "4"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_3",
-              "value": "5"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_4",
-              "value": "5"
-            },
-            {
-              "question_id": "mp0vm3tvtursz_5"
-            }
+            { "question_id": "mp0vm3tvtursz",   "value": "3" },
+            { "question_id": "mp0vm3tvtursz_2",  "value": "4" },
+            { "question_id": "mp0vm3tvtursz_3",  "value": "5" },
+            { "question_id": "mp0vm3tvtursz_4",  "value": "8" },
+            { "question_id": "mp0vm3tvtursz_5",  "value": "" }
           ]
         }
       ]
