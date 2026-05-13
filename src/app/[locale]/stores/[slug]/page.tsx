@@ -283,34 +283,22 @@ export default async function StorePage({
             { label: name },
           ]}
         />
-
-        {/* ── Hero ── */}
-        <div style={{ position: "relative", overflow: "hidden", background: "#0f172a" }}>
-          <img
-            src={store.image}
-            alt={name}
-            className="hero-img"
-            fetchPriority="high"
-          />
-          <div style={{
-            position: "absolute", inset: 0,
-            display: "flex", flexDirection: "column", justifyContent: "flex-end",
-            padding: "24px clamp(16px, 5vw, 80px)",
-          }}>
-            <h1 style={{
-              color: "white",
-              fontSize: "clamp(18px, 4vw, 40px)",
-              fontWeight: 700,
-              margin: 0,
-              lineHeight: 1.2,
-            }}>
-              {name}
-            </h1>
-            <p style={{ color: "rgba(255,255,255,.8)", fontSize: "clamp(13px, 2vw, 15px)", margin: "8px 0 0" }}>
-              {addr}
-            </p>
-          </div>
-        </div>
+       
+               {/* HERO */}
+               <div style={{ background: "linear-gradient(135deg, #1C75BC 0%, #1C75BC 100%)", position: "relative", overflow: "hidden", padding: "48px 32px 52px" }}>
+                 <div style={{ position: "absolute", inset: 0, opacity: .02, backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "24px 24px", pointerEvents: "none" }} />
+                 <div style={{ position: "absolute", top: -60, right: -60, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(200,149,108,.1) 0%, transparent 70%)", pointerEvents: "none" }} />
+                 <div style={{ maxWidth: 1280, margin: "0 auto", position: "relative", zIndex: 1 }}>
+                   <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.08)", padding: "5px 14px", borderRadius: 999, marginBottom: 16 }}>
+                     <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff", animation: "pulse 2s ease-in-out infinite" }} />
+                     <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", color: "#fff" }}>{t("hero_badge")}</span>
+                   </div>
+                   <h1 className="serif" style={{ fontSize: "clamp(28px,4vw,44px)", fontStyle: "italic", fontWeight: 400, color: "#fff", margin: "0 0 12px", lineHeight: 1.12, letterSpacing: "-.02em" }}>
+                     {t("hero_title_line1")}{" "}<em style={{ color: "#fff", fontStyle: "italic" }}>{t("hero_title_line2")}</em>
+                   </h1>
+                   <p style={{ fontSize: 14, color: "rgba(255,255,255,.48)", margin: 0, maxWidth: 500 }}>{t("hero_description")}</p>
+                 </div>
+               </div>
 
         {/* ── Content ── */}
         <div style={{ maxWidth: 960, margin: "0 auto", padding: "40px clamp(16px, 4vw, 48px)" }}>
