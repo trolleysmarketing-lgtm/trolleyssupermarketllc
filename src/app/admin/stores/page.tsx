@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { adminFetch } from "@/lib/adminFetch";
+
 
 type Store = {
   name: string;

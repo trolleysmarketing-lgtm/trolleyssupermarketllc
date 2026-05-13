@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { adminFetch } from "@/lib/adminFetch";
+
+
 
 type Catalog = {
   id: string;

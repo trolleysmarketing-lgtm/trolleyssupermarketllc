@@ -2,6 +2,9 @@
 
 import { useEffect, useState, useMemo, useRef } from "react";
 import Link from "next/link";
+import { adminFetch } from "@/lib/adminFetch";
+
+
 
 // ─── i18n ─────────────────────────────────────────────────────────────────────
 const T = {
