@@ -24,7 +24,7 @@
   background-size: 20px 20px;
 }
 .topBarInner {
-  max-width: 730px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 0 32px;
   display: flex;
@@ -75,6 +75,13 @@
   background: #1dbc58;
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(37,211,102,.3);
+}
+
+.btnGroup {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 /* ── Main ── */
@@ -243,7 +250,17 @@
 @media (max-width: 640px) {
   .grid { display: none; }
   .mobileAccordion { display: block; }
+  .topBarInner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 20px;
+  }
   .topBarText { font-size: 11px; }
-  .whatsappBtn { padding: 7px 16px; font-size: 11px; }
+  .btnGroup {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .whatsappBtn { padding: 7px 14px; font-size: 11px; }
   .logoSvg { width: 60px; }
 }
