@@ -32,9 +32,7 @@ export default function OffersSection({ locale, isRTL }: Props) {
 
               <div className={styles.checkList} role="list">
                 {[
-                  t("features.freshDaily.title"),
-                  t("features.weeklyOffers.title"),
-                  t("features.fastDelivery.title"),
+                 
                 ].map((item, i) => (
                   <div key={i} className={styles.checkItem} role="listitem">
                     <div className={styles.checkIcon} aria-hidden="true">{Ico.check()}</div>

@@ -60,12 +60,8 @@
       "title": "Exclusive Weekly Offers",
       "titleHighlight": "Straight to Your Phone",
       "subtitle": "This Week's Catalog",
-      "description": "Join our WhatsApp Channel and receive the weekly catalog and exclusive deals across Dubai, Sharjah and Ajman the moment they drop. Completely free, always.",
-      "stats": [
-        { "value": "500+", "label": "Weekly Deals" },
-        { "value": "5", "label": "UAE Branches" },
-        { "value": "Free", "label": "Always Free" }
-      ],
+      "description": "Join our WhatsApp Channel and receive the weekly catalog and exclusive deals across Dubai, Sharjah and Ajman the moment they drop.",
+      
       "joinWhatsApp": "Join Free on WhatsApp",
       "browseCatalog": "Browse Catalog",
       "weeklyCatalog": "Weekly Catalog",

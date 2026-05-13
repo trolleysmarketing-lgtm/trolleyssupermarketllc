@@ -1,16 +1,19 @@
 {
   "categories": [
-    { "slug": "fresh-produce",  "name_en": "Fresh Produce",  "name_ar": "منتجات طازجة",  "image": "/categories/fresh_produce.webp",  "is_active": true, "sort_order": 0 },
-    { "slug": "dairy-eggs",     "name_en": "Dairy & Eggs",   "name_ar": "ألبان وبيض",     "image": "/categories/dairy_eggs.webp",     "is_active": true, "sort_order": 1 },
-    { "slug": "bakery",         "name_en": "Bakery",         "name_ar": "المخبوزات",      "image": "/categories/bakery.webp",          "is_active": true, "sort_order": 2 },
-    { "slug": "beverages",      "name_en": "Beverages",      "name_ar": "المشروبات",      "image": "/categories/beverages.webp",       "is_active": true, "sort_order": 3 },
-    { "slug": "meat-fish",      "name_en": "Meat & Fish",    "name_ar": "لحوم وأسماك",    "image": "/categories/meat_fish.webp",       "is_active": true, "sort_order": 4 },
-    { "slug": "organic",        "name_en": "Organic",        "name_ar": "عضوي",           "image": "/categories/organic.webp",         "is_active": true, "sort_order": 5 },
-    { "slug": "baby-care",      "name_en": "Baby Care",      "name_ar": "العناية بالطفل", "image": "/categories/baby_care.webp",       "is_active": true, "sort_order": 6 },
-    { "slug": "personal-care",  "name_en": "Personal Care",  "name_ar": "العناية الشخصية","image": "/categories/personal_care.webp",   "is_active": true, "sort_order": 7 },
-    { "slug": "household",      "name_en": "Household",      "name_ar": "منزلي",          "image": "/categories/household.webp",       "is_active": true, "sort_order": 8 },
-    { "slug": "tea-coffee",     "name_en": "Tea & Coffee",   "name_ar": "شاي وقهوة",     "image": "/categories/tea_coffee.webp",      "is_active": true, "sort_order": 9 },
-    { "slug": "spices",         "name_en": "Spices",         "name_ar": "التوابل",        "image": "/categories/spices.webp",          "is_active": true, "sort_order": 10 },
-    { "slug": "frozen",         "name_en": "Frozen",         "name_ar": "مجمد",           "image": "/categories/frozen.webp",          "is_active": true, "sort_order": 11 }
+    { "slug": "fresh-produce",  "name_en": "Fresh Produce",      "name_ar": "منتجات طازجة",          "image": "/categories/fresh_produce.webp",  "is_active": true, "sort_order": 0 },
+    { "slug": "meat-fish",      "name_en": "Meat & Fish",        "name_ar": "لحوم وأسماك",           "image": "/categories/meat_fish.webp",       "is_active": true, "sort_order": 1 },
+    { "slug": "dairy-eggs",     "name_en": "Dairy & Eggs",       "name_ar": "ألبان وبيض",            "image": "/categories/dairy_eggs.webp",      "is_active": true, "sort_order": 2 },
+    { "slug": "bakery",         "name_en": "Bakery",             "name_ar": "المخبوزات",             "image": "/categories/bakery.webp",          "is_active": true, "sort_order": 3 },
+
+    { "slug": "tea-coffee",     "name_en": "Tea & Coffee",       "name_ar": "شاي وقهوة",             "image": "/categories/tea_coffee.webp",      "is_active": true, "sort_order": 4 },
+    { "slug": "spices",         "name_en": "Spices & Pulses",    "name_ar": "البهارات والبقوليات",    "image": "/categories/spices.webp",          "is_active": true, "sort_order": 5 },
+    { "slug": "nuts-dried-fruits", "name_en": "Roasted Nuts",    "name_ar": "المكسرات المحمصة",      "image": "/categories/nuts.webp",            "is_active": true, "sort_order": 6 },
+
+    { "slug": "frozen",         "name_en": "Frozen",             "name_ar": "مجمدات",                "image": "/categories/frozen.webp",          "is_active": true, "sort_order": 8 },
+    { "slug": "pantry",         "name_en": "Grocery & Pantry",    "name_ar": "البقالة والمواد الغذائية", "image": "/categories/pantry.webp",        "is_active": true, "sort_order": 9 },
+
+    { "slug": "personal-care",  "name_en": "Personal Care",      "name_ar": "العناية الشخصية",       "image": "/categories/personal_care.webp",   "is_active": true, "sort_order": 10 },
+    { "slug": "baby-care",      "name_en": "Baby Care",          "name_ar": "العناية بالطفل",         "image": "/categories/baby_care.webp",       "is_active": true, "sort_order": 11 },
+    { "slug": "household",      "name_en": "Household",          "name_ar": "المنزلية",              "image": "/categories/household.webp",       "is_active": true, "sort_order": 12 }
   ]
 }
