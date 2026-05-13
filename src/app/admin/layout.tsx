@@ -1,7 +1,7 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -11,10 +11,8 @@ const menuItems = [
     label: "Dashboard",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <rect x="3" y="3" width="7" height="7" />
-        <rect x="14" y="3" width="7" height="7" />
-        <rect x="3" y="14" width="7" height="7" />
-        <rect x="14" y="14" width="7" height="7" />
+        <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
+        <rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
       </svg>
     ),
   },
@@ -23,9 +21,7 @@ const menuItems = [
     label: "Offers & Catalog",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <path d="M20 12V22H4V12" />
-        <path d="M22 7H2v5h20V7z" />
-        <path d="M12 22V7" />
+        <path d="M20 12V22H4V12" /><path d="M22 7H2v5h20V7z" /><path d="M12 22V7" />
         <path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z" />
         <path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z" />
       </svg>
@@ -46,10 +42,8 @@ const menuItems = [
     label: "Categories",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <rect x="3" y="3" width="7" height="7" rx="1" />
-        <rect x="14" y="3" width="7" height="7" rx="1" />
-        <rect x="3" y="14" width="7" height="7" rx="1" />
-        <rect x="14" y="14" width="7" height="7" rx="1" />
+        <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
+        <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
       </svg>
     ),
   },
@@ -60,8 +54,7 @@ const menuItems = [
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
         <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
         <polyline points="14 2 14 8 20 8" />
-        <line x1="16" y1="13" x2="8" y2="13" />
-        <line x1="16" y1="17" x2="8" y2="17" />
+        <line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
       </svg>
     ),
   },
@@ -87,6 +80,13 @@ const menuItems = [
   },
 ];
 
+// Global auth token helper — tüm fetch'lerde kullanılacak
+export function getAdminHeaders(): HeadersInit {
+  if (typeof window === "undefined") return {};
+  const token = localStorage.getItem("admin_token") ?? "";
+  return token ? { "x-admin-token": token } : {};
+}
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -101,8 +101,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       setChecking(false);
       return;
     }
-
-    // Zaten yetkili ise tekrar kontrol etme
     if (authorized) {
       setChecking(false);
       return;
@@ -110,10 +108,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     const checkAuth = async () => {
       try {
-        const res = await fetch("/api/admin/check-auth");
+        const token = localStorage.getItem("admin_token") ?? "";
+        const res = await fetch("/api/admin/check-auth", {
+          headers: token ? { "x-admin-token": token } : {},
+        });
         if (res.ok) {
           setAuthorized(true);
         } else {
+          localStorage.removeItem("admin_token");
           router.push("/admin/login");
         }
       } catch {
@@ -138,18 +140,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (isMobile) setSidebarOpen(false);
   }, [pathname, isMobile]);
 
-  // Loading
   if (checking && pathname !== "/admin/login") {
     return (
-      <div style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#f8fafc",
-      }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc" }}>
         <div style={{ textAlign: "center" }}>
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0e76bc" strokeWidth="2" style={{ animation: "spin 0.8s linear infinite" }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1C75BC" strokeWidth="2" style={{ animation: "spin 0.8s linear infinite" }}>
             <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity="0.3" />
             <path d="M21 12a9 9 0 01-9 9" />
           </svg>
@@ -160,56 +155,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  // Login sayfası - auth kontrolü yapma
   if (pathname === "/admin/login") {
     return <SessionProvider>{children}</SessionProvider>;
   }
 
-  // Yetkisiz - hiçbir şey gösterme (redirect olacak)
   if (!authorized) return null;
 
   return (
     <SessionProvider>
       <div style={{ display: "flex", minHeight: "100vh", background: "#f8fafc" }}>
-        {/* Overlay for mobile */}
         {sidebarOpen && (
-          <div
-            onClick={() => setSidebarOpen(false)}
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(0,0,0,0.4)",
-              zIndex: 40,
-              display: isMobile ? "block" : "none",
-            }}
-          />
+          <div onClick={() => setSidebarOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 40, display: isMobile ? "block" : "none" }} />
         )}
 
-        {/* Sidebar */}
-        <aside
-          style={{
-            position: "fixed",
-            top: 0,
-            left: sidebarOpen ? 0 : isMobile ? "-280px" : 0,
-            bottom: 0,
-            width: 260,
-            background: "white",
-            borderRight: "1px solid #e2e8f0",
-            zIndex: 50,
-            transition: "left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            display: "flex",
-            flexDirection: "column",
-            overflowY: "auto",
-          }}
-        >
-          {/* Logo */}
-          <div style={{ padding: "20px 20px", borderBottom: "1px solid #e2e8f0" }}>
+        <aside style={{
+          position: "fixed", top: 0, left: sidebarOpen ? 0 : isMobile ? "-280px" : 0, bottom: 0,
+          width: 260, background: "white", borderRight: "1px solid #e2e8f0", zIndex: 50,
+          transition: "left 0.3s cubic-bezier(0.4, 0, 0.2, 1)", display: "flex", flexDirection: "column", overflowY: "auto",
+        }}>
+          <div style={{ padding: "20px", borderBottom: "1px solid #e2e8f0" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <img
-                src="/trolleys-supermarket-llc-logo.png"
-                alt="Trolleys"
-                style={{ height: 42, objectFit: "contain" }}
-              />
+              <img src="/trolleys-supermarket-llc-logo.png" alt="Trolleys" style={{ height: 42, objectFit: "contain" }} />
               <div>
                 <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Admin Panel</p>
                 <p style={{ margin: 0, fontSize: 10, color: "#94a3b8" }}>Trolleys Supermarket LLC</p>
@@ -217,30 +183,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
 
-          {/* Navigation */}
-          <nav style={{ flex: 1, padding: "12px 12px" }}>
+          <nav style={{ flex: 1, padding: "12px" }}>
             {menuItems.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => isMobile && setSidebarOpen(false)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    padding: "10px 14px",
-                    borderRadius: 12,
-                    marginBottom: 4,
-                    textDecoration: "none",
-                    fontSize: 14,
-                    fontWeight: isActive ? 600 : 400,
-                    color: isActive ? "#0f172a" : "#64748b",
-                    background: isActive ? "#f1f5f9" : "transparent",
-                    transition: "all 0.15s",
-                  }}
-                >
+                <Link key={item.href} href={item.href} onClick={() => isMobile && setSidebarOpen(false)} style={{
+                  display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 12,
+                  marginBottom: 4, textDecoration: "none", fontSize: 14,
+                  fontWeight: isActive ? 600 : 400, color: isActive ? "#0f172a" : "#64748b",
+                  background: isActive ? "#f1f5f9" : "transparent", transition: "all 0.15s",
+                }}>
                   <span style={{ opacity: isActive ? 1 : 0.6 }}>{item.icon}</span>
                   {item.label}
                 </Link>
@@ -248,21 +200,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             })}
           </nav>
 
-          {/* Bottom section */}
           <div style={{ padding: "12px 20px", borderTop: "1px solid #e2e8f0" }}>
-            <Link
-              href="/api/admin/logout"
+            <button
+              onClick={() => {
+                localStorage.removeItem("admin_token");
+                router.push("/admin/login");
+              }}
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "10px 14px",
-                borderRadius: 12,
-                textDecoration: "none",
-                fontSize: 13,
-                fontWeight: 500,
-                color: "#94a3b8",
-                transition: "all 0.15s",
+                display: "flex", alignItems: "center", gap: 8, padding: "10px 14px",
+                borderRadius: 12, textDecoration: "none", fontSize: 13, fontWeight: 500,
+                color: "#94a3b8", background: "none", border: "none", cursor: "pointer", width: "100%",
               }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -271,90 +218,41 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <line x1="21" y1="12" x2="9" y2="12" />
               </svg>
               Sign out
-            </Link>
+            </button>
           </div>
         </aside>
 
-        {/* Main content */}
-        <div
-          style={{
-            flex: 1,
-            marginLeft: isMobile ? 0 : 260,
-            transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            display: "flex",
-            flexDirection: "column",
-            minWidth: 0,
-          }}
-        >
-          {/* Mobile header */}
-          <header
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              padding: "12px 20px",
-              background: "white",
-              borderBottom: "1px solid #e2e8f0",
-              position: "sticky",
-              top: 0,
-              zIndex: 30,
-            }}
-          >
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              style={{
-                display: isMobile ? "flex" : "none",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                border: "1px solid #e2e8f0",
-                background: "white",
-                cursor: "pointer",
-                padding: 0,
-              }}
-            >
+        <div style={{ flex: 1, marginLeft: isMobile ? 0 : 260, transition: "margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)", display: "flex", flexDirection: "column", minWidth: 0 }}>
+          <header style={{
+            display: "flex", alignItems: "center", gap: 12, padding: "12px 20px",
+            background: "white", borderBottom: "1px solid #e2e8f0", position: "sticky", top: 0, zIndex: 30,
+          }}>
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
+              display: isMobile ? "flex" : "none", alignItems: "center", justifyContent: "center",
+              width: 36, height: 36, borderRadius: 8, border: "1px solid #e2e8f0",
+              background: "white", cursor: "pointer", padding: 0,
+            }}>
               {sidebarOpen ? (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="2" strokeLinecap="round">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               ) : (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="2" strokeLinecap="round">
-                  <line x1="3" y1="6" x2="21" y2="6" />
-                  <line x1="3" y1="12" x2="21" y2="12" />
-                  <line x1="3" y1="18" x2="21" y2="18" />
+                  <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
                 </svg>
               )}
             </button>
-
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
-              <Link
-                href="/en"
-                style={{
-                  fontSize: 12,
-                  color: "#0e76bc",
-                  textDecoration: "none",
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                }}
-              >
+              <Link href="/en" style={{ fontSize: 12, color: "#1C75BC", textDecoration: "none", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M2 12h20M12 2a15.3 15.3 0 010 20" />
+                  <circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 010 20" />
                 </svg>
                 <span style={{ display: isMobile ? "none" : "inline" }}>View Website</span>
               </Link>
-              <Link href="/ar" style={{ fontSize: 12, color: "#64748b", textDecoration: "none", fontWeight: 600 }}>
-                عربي
-              </Link>
+              <Link href="/ar" style={{ fontSize: 12, color: "#64748b", textDecoration: "none", fontWeight: 600 }}>عربي</Link>
             </div>
           </header>
 
-          {/* Page content */}
           <main style={{ flex: 1, padding: "24px 20px", maxWidth: 1200, width: "100%", margin: "0 auto" }}>
             {children}
           </main>
