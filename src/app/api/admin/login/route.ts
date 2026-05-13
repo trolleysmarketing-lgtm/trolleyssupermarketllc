@@ -7,16 +7,16 @@ export async function POST(req: NextRequest) {
     username === process.env.ADMIN_USERNAME &&
     password === process.env.ADMIN_PASSWORD
   ) {
-    const response = NextResponse.json({ success: true });
-    response.cookies.set("admin_token", process.env.ADMIN_SECRET!, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+    const token = process.env.ADMIN_SECRET!;
+    const response = NextResponse.json({ success: true, token });
+    response.cookies.set("admin_token", token, {
+      httpOnly: false,
+      secure: true,
+      sameSite: "none",
       maxAge: 60 * 60 * 24 * 7,
       path: "/",
     });
     return response;
   }
-
   return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
 }

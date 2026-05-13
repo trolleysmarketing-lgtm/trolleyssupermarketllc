@@ -22,6 +22,8 @@ export default function AdminLoginPage() {
     });
 
     if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem("admin_token", data.token);
       router.push("/admin");
     } else {
       setError("Invalid username or password");
@@ -35,7 +37,7 @@ export default function AdminLoginPage() {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      background: "linear-gradient(135deg, #16a34a, #15803d)",
+      background: "linear-gradient(135deg, #1C75BC, #155a8e)",
     }}>
       <div style={{
         background: "white",
@@ -57,6 +59,7 @@ export default function AdminLoginPage() {
             <input
               type="text"
               value={username}
+              autoComplete="username"
               onChange={(e) => setUsername(e.target.value)}
               required
               style={{ width: "100%", border: "1.5px solid #e5e7eb", borderRadius: 10, padding: "10px 14px", fontSize: 14, outline: "none", boxSizing: "border-box" }}
@@ -67,6 +70,7 @@ export default function AdminLoginPage() {
             <input
               type="password"
               value={password}
+              autoComplete="current-password"
               onChange={(e) => setPassword(e.target.value)}
               required
               style={{ width: "100%", border: "1.5px solid #e5e7eb", borderRadius: 10, padding: "10px 14px", fontSize: 14, outline: "none", boxSizing: "border-box" }}
@@ -84,7 +88,7 @@ export default function AdminLoginPage() {
             disabled={loading}
             style={{
               width: "100%",
-              background: "linear-gradient(135deg, #16a34a, #15803d)",
+              background: "#1C75BC",
               color: "white",
               border: "none",
               borderRadius: 10,
