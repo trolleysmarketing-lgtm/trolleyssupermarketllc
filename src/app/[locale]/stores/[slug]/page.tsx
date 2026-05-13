@@ -28,8 +28,8 @@ type Store = {
 const STORES: Store[] = [
   {
     slug: "mirdif-dubai",
-    name: "Trolleys Supermarket Mirdif — Dubai",
-    name_ar: "تروليز سوبرماركت مردف — دبي",
+    name: "Trolleys Supermarket Mirdif – Dubai",
+    name_ar: "تروليز سوبرماركت مردف – دبي",
     city: "Dubai",
     address: "Golden Gate Shopping Centre - Mirdif - Dubai - UAE",
     address_ar: "مركز جولدن جيت التجاري - مردف - دبي - الإمارات",
@@ -46,8 +46,8 @@ const STORES: Store[] = [
   },
   {
     slug: "al-taawun-sharjah",
-    name: "Trolleys Supermarket Al Taawun — Sharjah",
-    name_ar: "تروليز سوبرماركت التعاون — الشارقة",
+    name: "Trolleys Supermarket Al Taawun – Sharjah",
+    name_ar: "تروليز سوبرماركت التعاون – الشارقة",
     city: "Sharjah",
     address: "895C+XXP - Al Khan - Sharjah - UAE",
     address_ar: "895C+XXP - الخان - الشارقة - الإمارات",
@@ -64,8 +64,8 @@ const STORES: Store[] = [
   },
   {
     slug: "al-khan-sharjah",
-    name: "Trolleys Supermarket Al Khan — Sharjah",
-    name_ar: "تروليز سوبرماركت الخان — الشارقة",
+    name: "Trolleys Supermarket Al Khan – Sharjah",
+    name_ar: "تروليز سوبرماركت الخان – الشارقة",
     city: "Sharjah",
     address: "Al Khan Street - Al Khalidiya - Sharjah - UAE",
     address_ar: "شارع الخان - الخالدية - الشارقة - الإمارات",
@@ -82,8 +82,8 @@ const STORES: Store[] = [
   },
   {
     slug: "al-nuaimiya-ajman",
-    name: "Trolleys Supermarket Al Nuaimiya — Ajman",
-    name_ar: "تروليز سوبرماركت النعيمية — عجمان",
+    name: "Trolleys Supermarket Al Nuaimiya – Ajman",
+    name_ar: "تروليز سوبرماركت النعيمية – عجمان",
     city: "Ajman",
     address: "Manama Market - Al Nuaimiya 1 - Ajman - UAE",
     address_ar: "سوق المنامة - النعيمية 1 - عجمان - الإمارات",
@@ -100,8 +100,8 @@ const STORES: Store[] = [
   },
   {
     slug: "oasis-street-ajman",
-    name: "Trolleys Supermarket Oasis Street — Ajman",
-    name_ar: "تروليز سوبرماركت شارع الواحة — عجمان",
+    name: "Trolleys Supermarket Oasis Street – Ajman",
+    name_ar: "تروليز سوبرماركت شارع الواحة – عجمان",
     city: "Ajman",
     address: "Oasis Street - Al Nuaimia 1 - Ajman - UAE",
     address_ar: "شارع الواحة - النعيمية 1 - عجمان - الإمارات",
@@ -176,11 +176,11 @@ export default async function StorePage({
   const store = getStoreBySlug(slug);
   if (!store) notFound();
 
-  const t     = await getTranslations({ locale, namespace: "stores" });
-  const isAr  = locale === "ar";
-  const name  = isAr ? store.name_ar  : store.name;
-  const addr  = isAr ? store.address_ar : store.address;
-  const desc  = isAr ? store.description_ar : store.description;
+  const t    = await getTranslations({ locale, namespace: "stores" });
+  const isAr = locale === "ar";
+  const name = isAr ? store.name_ar  : store.name;
+  const addr = isAr ? store.address_ar : store.address;
+  const desc = isAr ? store.description_ar : store.description;
 
   /* ── LocalBusiness JSON-LD ── */
   const jsonLd = {
@@ -225,54 +225,122 @@ export default async function StorePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      <style>{`
+        .store-layout {
+          display: grid;
+          grid-template-columns: 1fr 340px;
+          gap: 40px;
+          align-items: start;
+        }
+        .info-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px;
+          margin-bottom: 32px;
+        }
+        .action-btns {
+          display: flex;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+        .hero-img {
+          width: 100%;
+          height: 340px;
+          object-fit: cover;
+          opacity: 0.55;
+        }
+        @media (max-width: 768px) {
+          .store-layout {
+            grid-template-columns: 1fr;
+            gap: 32px;
+          }
+          .info-grid {
+            grid-template-columns: 1fr;
+          }
+          .hero-img {
+            height: 240px;
+          }
+          .action-btns a {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+        @media (max-width: 480px) {
+          .hero-img {
+            height: 200px;
+          }
+        }
+      `}</style>
+
       <div dir={isAr ? "rtl" : "ltr"} style={{ fontFamily: "Inter, system-ui, sans-serif", color: "#0f172a" }}>
 
         {/* ── Hero ── */}
-        <div style={{ position: "relative", height: 340, overflow: "hidden", background: "#0f172a" }}>
+        <div style={{ position: "relative", overflow: "hidden", background: "#0f172a" }}>
           <img
             src={store.image}
             alt={name}
-            style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.55 }}
+            className="hero-img"
             fetchPriority="high"
           />
-          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "32px clamp(20px,5vw,80px)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <div style={{
+            position: "absolute", inset: 0,
+            display: "flex", flexDirection: "column", justifyContent: "flex-end",
+            padding: "24px clamp(16px, 5vw, 80px)",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
               <Link href={`/${locale}/stores`} style={{ color: "rgba(255,255,255,.7)", textDecoration: "none", fontSize: 13 }}>
                 {t("breadcrumb")}
               </Link>
               <span style={{ color: "rgba(255,255,255,.4)" }}>›</span>
               <span style={{ color: "white", fontSize: 13 }}>{store.city}</span>
             </div>
-            <h1 style={{ color: "white", fontSize: "clamp(22px,4vw,40px)", fontWeight: 700, margin: 0, lineHeight: 1.2 }}>{name}</h1>
-            <p style={{ color: "rgba(255,255,255,.8)", fontSize: 15, margin: "8px 0 0" }}>{addr}</p>
+            <h1 style={{
+              color: "white",
+              fontSize: "clamp(18px, 4vw, 40px)",
+              fontWeight: 700,
+              margin: 0,
+              lineHeight: 1.2,
+            }}>
+              {name}
+            </h1>
+            <p style={{ color: "rgba(255,255,255,.8)", fontSize: "clamp(13px, 2vw, 15px)", margin: "8px 0 0" }}>
+              {addr}
+            </p>
           </div>
         </div>
 
         {/* ── Content ── */}
-        <div style={{ maxWidth: 960, margin: "0 auto", padding: "48px clamp(20px,4vw,48px)" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 40, alignItems: "start" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto", padding: "40px clamp(16px, 4vw, 48px)" }}>
+          <div className="store-layout">
 
             {/* ── Left ── */}
             <div>
               <p style={{ fontSize: 16, color: "#475569", lineHeight: 1.8, marginBottom: 32 }}>{desc}</p>
 
               {/* Info cards */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 32 }}>
+              <div className="info-grid">
                 {[
-                  { icon: "🕐", label: isAr ? "ساعات العمل" : "Opening Hours", value: store.hours },
-                  { icon: "📍", label: isAr ? "العنوان" : "Address", value: addr },
-                  { icon: "📞", label: isAr ? "الهاتف" : "Phone", value: store.phone },
-                  { icon: "🏙️", label: isAr ? "المدينة" : "City", value: store.city + ", UAE" },
+                  { icon: "🕐", label: isAr ? "ساعات العمل" : "Hours",   value: store.hours },
+                  { icon: "📞", label: isAr ? "الهاتف"     : "Phone",   value: store.phone },
+                  { icon: "📍", label: isAr ? "العنوان"    : "Address", value: addr },
+                  { icon: "🏙️", label: isAr ? "المدينة"    : "City",    value: store.city + ", UAE" },
                 ].map(({ icon, label, value }) => (
-                  <div key={label} style={{ background: "#f8fafc", borderRadius: 12, padding: "16px 18px", border: "1px solid #e2e8f0" }}>
-                    <p style={{ margin: "0 0 4px", fontSize: 11, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".08em" }}>{icon} {label}</p>
+                  <div key={label} style={{
+                    background: "#f8fafc",
+                    borderRadius: 12,
+                    padding: "16px 18px",
+                    border: "1px solid #e2e8f0",
+                  }}>
+                    <p style={{ margin: "0 0 4px", fontSize: 11, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".08em" }}>
+                      {icon} {label}
+                    </p>
                     <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "#0f172a" }}>{value}</p>
                   </div>
                 ))}
               </div>
 
               {/* Action buttons */}
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <div className="action-btns">
                 <a href={`tel:${store.phone}`} style={actionBtn("#1C75BC", "#fff")}>
                   📞 {isAr ? "اتصل بنا" : "Call Store"}
                 </a>
@@ -293,16 +361,23 @@ export default async function StorePage({
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {STORES.filter(s => s.slug !== slug).map(s => (
                   <Link key={s.slug} href={`/${locale}/stores/${s.slug}`} style={{
-                    display: "flex", alignItems: "center", gap: 12, padding: "12px 14px",
-                    borderRadius: 12, border: "1px solid #e2e8f0", background: "#fff",
-                    textDecoration: "none", transition: "border-color .2s",
+                    display: "flex", alignItems: "center", gap: 12,
+                    padding: "12px 14px", borderRadius: 12,
+                    border: "1px solid #e2e8f0", background: "#fff",
+                    textDecoration: "none",
                   }}>
-                    <img src={s.image} alt={s.name} style={{ width: 52, height: 52, objectFit: "cover", borderRadius: 8, flexShrink: 0 }} />
-                    <div>
-                      <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
+                    <img
+                      src={s.image}
+                      alt={isAr ? s.name_ar : s.name}
+                      style={{ width: 52, height: 52, objectFit: "cover", borderRadius: 8, flexShrink: 0 }}
+                    />
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {isAr ? s.name_ar : s.name}
                       </p>
-                      <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>{s.city} · {s.hours}</p>
+                      <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>
+                        {s.city} · {s.hours}
+                      </p>
                     </div>
                   </Link>
                 ))}
@@ -310,7 +385,8 @@ export default async function StorePage({
 
               <Link href={`/${locale}/stores`} style={{
                 display: "block", marginTop: 16, textAlign: "center",
-                padding: "11px", borderRadius: 12, border: "1.5px solid #1C75BC",
+                padding: "11px", borderRadius: 12,
+                border: "1.5px solid #1C75BC",
                 color: "#1C75BC", fontWeight: 600, fontSize: 13, textDecoration: "none",
               }}>
                 {isAr ? "عرض جميع الفروع" : "View All Stores"}
@@ -324,7 +400,16 @@ export default async function StorePage({
 }
 
 const actionBtn = (bg: string, color: string): React.CSSProperties => ({
-  display: "inline-flex", alignItems: "center", gap: 8,
-  padding: "12px 22px", borderRadius: 999, fontSize: 14, fontWeight: 600,
-  background: bg, color, textDecoration: "none", border: "none",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 8,
+  padding: "12px 22px",
+  borderRadius: 999,
+  fontSize: 14,
+  fontWeight: 600,
+  background: bg,
+  color,
+  textDecoration: "none",
+  border: "none",
+  cursor: "pointer",
 });
