@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Breadcrumb from "@/components/Breadcrumb";
 
 const baseUrl = "https://trolleyssupermarketllc.com";
 
@@ -274,6 +275,15 @@ export default async function StorePage({
 
       <div dir={isAr ? "rtl" : "ltr"} style={{ fontFamily: "Inter, system-ui, sans-serif", color: "#0f172a" }}>
 
+        {/* ── Breadcrumb ── */}
+        <Breadcrumb
+          locale={locale}
+          crumbs={[
+            { label: isAr ? "فروعنا" : "Stores", href: `/${locale}/stores` },
+            { label: name },
+          ]}
+        />
+
         {/* ── Hero ── */}
         <div style={{ position: "relative", overflow: "hidden", background: "#0f172a" }}>
           <img
@@ -287,13 +297,6 @@ export default async function StorePage({
             display: "flex", flexDirection: "column", justifyContent: "flex-end",
             padding: "24px clamp(16px, 5vw, 80px)",
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-              <Link href={`/${locale}/stores`} style={{ color: "rgba(255,255,255,.7)", textDecoration: "none", fontSize: 13 }}>
-                {t("breadcrumb")}
-              </Link>
-              <span style={{ color: "rgba(255,255,255,.4)" }}>›</span>
-              <span style={{ color: "white", fontSize: 13 }}>{store.city}</span>
-            </div>
             <h1 style={{
               color: "white",
               fontSize: "clamp(18px, 4vw, 40px)",
