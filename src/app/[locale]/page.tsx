@@ -87,12 +87,12 @@ export default function HomePage() {
 
   const slides = [
     {
-      id: 1,
-      badge: t("offers.subtitle"), title: t("offers.title"),
-      subtitle: t("offers.description"), cta: t("offers.browseCatalog"),
-      ctaLink: `/${locale}/offers`, image: "/hero-slider/trollyes-hero-slider-1.webp",
-      accent: "#1C75BC", stat: { value: "500+", label: t("offers.stats.0.label") },
-    },
+  id: 1,
+  badge: t("offers.subtitle"), title: t("offers.title"),
+  subtitle: t("offers.description"), cta: t("offers.browseCatalog"),
+  ctaLink: `/${locale}/offers`, image: "/hero-slider/trollyes-hero-slider-1.webp",
+  accent: "#1C75BC",
+},
     {
       id: 2,
       badge: t("features.fastDelivery.title"), title: t("features.fastDelivery.title"),
