@@ -127,28 +127,6 @@ export default function ContactPage() {
           </div>
         </div>
 
-        {/* İLETİŞİM KARTLARI - ÜSTTE */}
-        <div style={{ maxWidth: 1000, margin: "0 auto", padding: "48px 24px 0" }}>
-          <div className="contact-cards" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-            {contactCards.map((card, i) => (
-              <a key={i} href={card.href} target={card.href.startsWith("http") ? "_blank" : undefined} rel={card.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                className="contact-card"
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", padding: "28px 20px", background: "#fff", borderRadius: 16, border: "1px solid #f0ebe4", gap: 12 }}>
-                <div style={{ width: 56, height: 56, borderRadius: 14, background: card.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>{card.icon}</div>
-                <div>
-                  <p style={{ fontSize: 10, fontWeight: 700, color: "#a0a0a0", margin: "0 0 4px", letterSpacing: ".08em", textTransform: "uppercase" }}>{card.label}</p>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: "#1a1a1a", margin: "0 0 2px" }}>{card.value}</p>
-                  <p style={{ fontSize: 11.5, color: "#a0a0a0", margin: 0 }}>{card.sub}</p>
-                </div>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "#1C75BC", display: "flex", alignItems: "center", gap: 4 }}>
-                  {isAr ? "تواصل" : "Contact"}
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </span>
-              </a>
-            ))}
-          </div>
-        </div>
-
         {/* FORM + SAATLER YAN YANA */}
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "48px 24px 80px" }}>
           <div className="content-grid" style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: 24, alignItems: "flex-start" }}>
