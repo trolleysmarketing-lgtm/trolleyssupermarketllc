@@ -97,6 +97,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // Auth kontrolü
   useEffect(() => {
+    if (pathname === "/admin/login") {
+      setChecking(false);
+      return;
+    }
+
+    // Zaten yetkili ise tekrar kontrol etme
+    if (authorized) {
+      setChecking(false);
+      return;
+    }
+
     const checkAuth = async () => {
       try {
         const res = await fetch("/api/admin/check-auth");
@@ -110,15 +121,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
       setChecking(false);
     };
-    
-    // Login sayfasında auth kontrolü yapma
-    if (pathname === "/admin/login") {
-      setChecking(false);
-      return;
-    }
-    
+
     checkAuth();
-  }, [pathname, router]);
+  }, [pathname, router, authorized]);
 
   // Mobile check
   useEffect(() => {
