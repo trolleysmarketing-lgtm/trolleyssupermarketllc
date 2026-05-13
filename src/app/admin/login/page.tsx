@@ -52,8 +52,7 @@ export default function AdminLoginPage() {
       }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <img src="/trolleys-supermarket-llc-logo.png" alt="Trolleys" style={{ height: 50, objectFit: "contain", marginBottom: 16 }} />
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#111", margin: 0 }}>Admin Panel</h1>
-          <p style={{ fontSize: 13, color: "#666", margin: "6px 0 0" }}>Sign in to manage your website</p>
+         
         </div>
 
         <form onSubmit={handleLogin}>
