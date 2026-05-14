@@ -34,8 +34,8 @@ const getImage = (post: Post) => post.coverImage || blogImages[post.slug] || "";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return {
-    title: locale === "ar" 
-      ? "المدونة — ترولييز سوبرماركت | نصائح وأفكار تسوق" 
+    title: locale === "ar"
+      ? "المدونة — ترولييز سوبرماركت | نصائح وأفكار تسوق"
       : "Blog — Trolleys Supermarket UAE | Shopping Tips & Ideas",
     description: locale === "ar"
       ? "اقرأ أحدث المقالات عن التسوق الذكي وتوفير المال ونمط الحياة الصحي من ترولييز سوبرماركت."
@@ -62,23 +62,46 @@ export default async function BlogPage() {
   return <BlogContent posts={posts} />;
 }
 
+// Aggressively clean AI-generated text artifacts
+function cleanExcerpt(text: string, maxLen = 160): string {
+  if (!text) return "";
+
+  let clean = text
+    // Remove full JSON blocks
+    .replace(/```json[\s\S]*?```/gi, "")
+    .replace(/```[\s\S]*?```/g, "")
+    // Remove any line that starts with { or looks like JSON
+    .split("\n")
+    .filter(line => {
+      const t = line.trim();
+      // Drop lines that are JSON-like
+      if (t.startsWith("{") || t.startsWith("}")) return false;
+      if (t.startsWith('"title"') || t.startsWith('"excerpt"') || t.startsWith('"content')) return false;
+      if (/^"[a-z_]+"\s*:/.test(t)) return false;
+      return true;
+    })
+    .join(" ")
+    // Remove leftover JSON fragments
+    .replace(/\{[^}]*\}/g, "")
+    .replace(/`/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // If after cleaning it's too short or looks like garbage, return empty
+  if (clean.length < 10) return "";
+
+  return clean.slice(0, maxLen);
+}
+
 function BlogContent({ posts }: { posts: Post[] }) {
   const t = useTranslations("blog");
   const locale = useLocale();
   const isRTL = locale === "ar";
 
-  const getTitle = (post: Post) => isRTL && post.title_ar ? post.title_ar : post.title;
-  const getExcerpt = (post: Post) => isRTL && post.excerpt_ar ? post.excerpt_ar : post.excerpt;
-
-  const cleanExcerpt = (text: string) => {
-    if (!text) return "";
-    return text
-      .replace(/```json[\s\S]*?```/g, "")
-      .replace(/```[\s\S]*?```/g, "")
-      .replace(/\{[\s\S]*?\}/g, "")
-      .replace(/`/g, "")
-      .trim()
-      .slice(0, 160);
+  const getTitle   = (post: Post) => isRTL && post.title_ar   ? post.title_ar   : post.title;
+  const getExcerpt = (post: Post) => {
+    const raw = isRTL && post.excerpt_ar ? post.excerpt_ar : post.excerpt;
+    return cleanExcerpt(raw);
   };
 
   return (
@@ -219,7 +242,7 @@ function BlogContent({ posts }: { posts: Post[] }) {
                     <span style={{ fontSize: 11.5, color: "#a0a0a0", fontWeight: 500 }}>{posts[0].date}</span>
                   </div>
                   <h2 className="serif" style={{ fontSize: "clamp(18px, 2vw, 26px)", fontWeight: 700, color: "#1a1a1a", lineHeight: 1.3, marginBottom: 14 }}>{getTitle(posts[0])}</h2>
-                  <p style={{ fontSize: 13.5, color: "#7a7a7a", lineHeight: 1.7, marginBottom: 20 }}>{cleanExcerpt(getExcerpt(posts[0]))}</p>
+                  <p style={{ fontSize: 13.5, color: "#7a7a7a", lineHeight: 1.7, marginBottom: 20 }}>{getExcerpt(posts[0])}</p>
                   <span className="blog-read-more">{t("read_more")}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
                 </div>
               </Link>
@@ -244,7 +267,7 @@ function BlogContent({ posts }: { posts: Post[] }) {
                           <span style={{ fontSize: 11, color: "#a0a0a0", fontWeight: 500 }}>{post.date}</span>
                         </div>
                         <h3 className="serif" style={{ fontSize: 15, fontWeight: 700, color: "#1a1a1a", lineHeight: 1.4, marginBottom: 10, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{getTitle(post)}</h3>
-                        <p style={{ fontSize: 12.5, color: "#7a7a7a", lineHeight: 1.65, marginBottom: 16, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{cleanExcerpt(getExcerpt(post))}</p>
+                        <p style={{ fontSize: 12.5, color: "#7a7a7a", lineHeight: 1.65, marginBottom: 16, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{getExcerpt(post)}</p>
                         <span className="blog-read-more" style={{ fontSize: 12.5 }}>{t("read_more")}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
                       </div>
                     </Link>

@@ -30,32 +30,73 @@ const blogImages: Record<string, string> = {
 
 const getImage = (post: Post) => post.coverImage || blogImages[post.slug] || "";
 
-const cleanText = (text: string) => {
+// Detect if a string is predominantly Arabic
+function isArabicText(text: string): boolean {
+  if (!text) return false;
+  const arabicChars = (text.match(/[\u0600-\u06FF]/g) || []).length;
+  const latinChars  = (text.match(/[a-zA-Z]/g) || []).length;
+  return arabicChars > latinChars;
+}
+
+// Clean AI artifacts from text
+function cleanText(text: string): string {
   if (!text) return "";
   return text
     .replace(/```json[\s\S]*?```/gi, "")
     .replace(/```[\s\S]*?```/g, "")
     .replace(/`/g, "")
+    // Remove lines that look like JSON keys
+    .split("\n")
+    .filter(line => {
+      const t = line.trim();
+      if (t.startsWith("{") || t.startsWith("}")) return false;
+      if (/^"[a-z_]+"\s*:/.test(t)) return false;
+      return true;
+    })
+    .join("\n")
+    // Remove leftover JSON objects
     .replace(/^\s*\{[\s\S]*?\}\s*$/m, "")
-    .replace(/^Discover amazing[^\n]*/im, "")
-    .replace(/^Check out[^\n]*/im, "")
+    .replace(/\{[^}]{0,200}\}/g, "")
     .trim();
-};
+}
 
 export default function BlogPostClient({ post, allPosts }: { post: Post; allPosts: Post[] }) {
-  const t = useTranslations("blog");
+  const t      = useTranslations("blog");
   const locale = useLocale();
-  const isRTL = locale === "ar";
+  const isRTL  = locale === "ar";
   const [showSidebar, setShowSidebar] = useState(false);
 
   const title = isRTL && post.title_ar ? post.title_ar : post.title;
-  const rawExcerpt = isRTL && post.excerpt_ar ? post.excerpt_ar : post.excerpt;
-  const rawContent = isRTL && post.content_ar ? post.content_ar : post.content;
-  const excerpt = cleanText(rawExcerpt).slice(0, 240);
-  const cleanContent = cleanText(rawContent);
-  const image = getImage(post);
+
+  // For excerpt: use locale-appropriate field, fall back only if truly empty
+  const rawExcerpt = (() => {
+    if (isRTL) {
+      const ar = cleanText(post.excerpt_ar || "");
+      // Only use Arabic excerpt if it actually contains Arabic
+      if (ar && isArabicText(ar)) return ar;
+      return ""; // don't show English excerpt on Arabic page
+    }
+    const en = cleanText(post.excerpt || "");
+    // Don't show Arabic text on English page
+    if (en && !isArabicText(en)) return en;
+    return "";
+  })();
+
+  // For content: use locale-appropriate field
+  const rawContent = (() => {
+    if (isRTL) {
+      const ar = cleanText(post.content_ar || "");
+      if (ar && isArabicText(ar)) return ar;
+      return cleanText(post.content || ""); // fallback to English only if no Arabic
+    }
+    const en = cleanText(post.content || "");
+    return en;
+  })();
+
+  const excerpt     = rawExcerpt.slice(0, 240);
+  const image       = getImage(post);
   const recentPosts = allPosts.filter(p => p.slug !== post.slug).slice(0, 4);
-  const paragraphs = cleanContent.split("\n").filter(p => p.trim());
+  const paragraphs  = rawContent.split("\n").filter(p => p.trim());
 
   const isHeading = (para: string, i: number) =>
     i > 0 && para.length < 80 &&
@@ -73,12 +114,14 @@ export default function BlogPostClient({ post, allPosts }: { post: Post; allPost
           </h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {recentPosts.map(p => {
-              const pImg = getImage(p);
+              const pImg   = getImage(p);
               const pTitle = isRTL && p.title_ar ? p.title_ar : p.title;
               return (
                 <Link key={p.slug} href={`/${locale}/blog/${p.slug}`} className="bp-recent" onClick={() => setShowSidebar(false)}>
                   <div style={{ width: 48, height: 48, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#e8f4fd" }}>
-                    {pImg ? <img src={pImg} alt={pTitle} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : (
+                    {pImg ? (
+                      <img src={pImg} alt={pTitle} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
                       <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#1C75BC", opacity: .4 }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                       </div>
@@ -213,28 +256,37 @@ export default function BlogPostClient({ post, allPosts }: { post: Post; allPost
                   <div style={{ fontSize: 15, color: "#7a7a7a", fontWeight: 500, lineHeight: 1.8, marginBottom: 32, padding: "16px 20px", background: "#e8f4fd", borderLeft: isRTL ? "none" : "3px solid #1C75BC", borderRight: isRTL ? "3px solid #1C75BC" : "none", borderRadius: isRTL ? "10px 0 0 10px" : "0 10px 10px 0" }}>{excerpt}</div>
                 )}
 
-                <div style={{ fontSize: 14.5, color: "#4a4a4a", lineHeight: 1.9 }}>
-                  {paragraphs.map((para, i) => {
-                    if (para.toLowerCase().includes("whatsapp") || para.startsWith("Join our")) {
-                      return (
-                        <div key={i} style={{ background: "#e8f4fd", border: "1px solid #d0e8f8", borderRadius: 12, padding: "18px 22px", marginTop: 24, marginBottom: 8, display: "flex", alignItems: "center", gap: 12 }}>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
-                          <a href="https://whatsapp.com/channel/0029VbBzYPDA2pL8dOLkNl2p" target="_blank" rel="noopener noreferrer" style={{ color: "#1C75BC", fontWeight: 700, fontSize: 13.5, textDecoration: "none" }}>{isRTL ? "انضم لقناتنا على واتساب للعروض الأسبوعية" : "Join our WhatsApp Channel for weekly offers →"}</a>
-                        </div>
-                      );
-                    }
-                    if (para.startsWith("Q:") || para.startsWith("س:")) {
-                      return <div key={i} style={{ background: "#e8f4fd", border: "1px solid #d0e8f8", borderRadius: 10, padding: "14px 18px", marginBottom: 6, marginTop: 16 }}><p style={{ fontWeight: 700, color: "#1C75BC", fontSize: 14, margin: 0 }}>{para}</p></div>;
-                    }
-                    if (para.startsWith("A:") || para.startsWith("ج:")) {
-                      return <div key={i} style={{ background: "#fdfbf9", border: "1px solid #f0ebe4", borderRadius: 10, padding: "14px 18px", marginBottom: 16 }}><p style={{ color: "#4a4a4a", fontSize: 14, margin: 0 }}>{para}</p></div>;
-                    }
-                    if (isHeading(para, i)) {
-                      return <h2 key={i} className="bp-serif" style={{ fontSize: 19, fontWeight: 700, color: "#1a1a1a", marginTop: 36, marginBottom: 14, paddingBottom: 8, borderBottom: "1px solid #f0ebe4" }}>{para}</h2>;
-                    }
-                    return <p key={i} style={{ marginBottom: 16 }}>{para}</p>;
-                  })}
-                </div>
+                {/* Content */}
+                {paragraphs.length > 0 ? (
+                  <div style={{ fontSize: 14.5, color: "#4a4a4a", lineHeight: 1.9 }}>
+                    {paragraphs.map((para, i) => {
+                      if (para.toLowerCase().includes("whatsapp") || para.startsWith("Join our") || para.startsWith("انضم")) {
+                        return (
+                          <div key={i} style={{ background: "#e8f4fd", border: "1px solid #d0e8f8", borderRadius: 12, padding: "18px 22px", marginTop: 24, marginBottom: 8, display: "flex", alignItems: "center", gap: 12 }}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
+                            <a href="https://whatsapp.com/channel/0029VbBzYPDA2pL8dOLkNl2p" target="_blank" rel="noopener noreferrer" style={{ color: "#1C75BC", fontWeight: 700, fontSize: 13.5, textDecoration: "none" }}>
+                              {isRTL ? "انضم لقناتنا على واتساب للعروض الأسبوعية" : "Join our WhatsApp Channel for weekly offers →"}
+                            </a>
+                          </div>
+                        );
+                      }
+                      if (para.startsWith("Q:") || para.startsWith("س:")) {
+                        return <div key={i} style={{ background: "#e8f4fd", border: "1px solid #d0e8f8", borderRadius: 10, padding: "14px 18px", marginBottom: 6, marginTop: 16 }}><p style={{ fontWeight: 700, color: "#1C75BC", fontSize: 14, margin: 0 }}>{para}</p></div>;
+                      }
+                      if (para.startsWith("A:") || para.startsWith("ج:")) {
+                        return <div key={i} style={{ background: "#fdfbf9", border: "1px solid #f0ebe4", borderRadius: 10, padding: "14px 18px", marginBottom: 16 }}><p style={{ color: "#4a4a4a", fontSize: 14, margin: 0 }}>{para}</p></div>;
+                      }
+                      if (isHeading(para, i)) {
+                        return <h2 key={i} className="bp-serif" style={{ fontSize: 19, fontWeight: 700, color: "#1a1a1a", marginTop: 36, marginBottom: 14, paddingBottom: 8, borderBottom: "1px solid #f0ebe4" }}>{para}</h2>;
+                      }
+                      return <p key={i} style={{ marginBottom: 16 }}>{para}</p>;
+                    })}
+                  </div>
+                ) : (
+                  <p style={{ color: "#a0a0a0", fontSize: 14 }}>
+                    {isRTL ? "المحتوى غير متوفر." : "Content not available."}
+                  </p>
+                )}
 
                 <div style={{ marginTop: 48, paddingTop: 24, borderTop: "1px solid #f0ebe4" }}>
                   <Link href={`/${locale}/blog`} className="bp-back">
@@ -256,10 +308,10 @@ export default function BlogPostClient({ post, allPosts }: { post: Post; allPost
         </button>
 
         {/* MOBIL OVERLAY */}
-        <div className={`bp-overlay ${showSidebar ? 'show' : ''}`} onClick={() => setShowSidebar(false)} />
+        <div className={`bp-overlay ${showSidebar ? "show" : ""}`} onClick={() => setShowSidebar(false)} />
 
         {/* MOBIL POPUP */}
-        <div className={`bp-popup ${showSidebar ? 'show' : ''}`}>
+        <div className={`bp-popup ${showSidebar ? "show" : ""}`}>
           <button className="bp-popup-close" onClick={() => setShowSidebar(false)} aria-label={isRTL ? "إغلاق" : "Close"}>✕</button>
           <div style={{ clear: "both" }}>{sidebar}</div>
         </div>
