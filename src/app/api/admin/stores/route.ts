@@ -21,14 +21,15 @@ function isAuthorized(req: NextRequest): boolean {
   return cookie === process.env.ADMIN_SECRET || header === process.env.ADMIN_SECRET;
 }
 
-// GET — public (stores page reads this)
+// GET — public
 export async function GET() {
   const data = await getData();
   return NextResponse.json(data);
 }
 
 export async function POST(req: NextRequest) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isAuthorized(req))
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const store = await req.json();
   const data = await getData();
   data.stores.push(store);
@@ -37,17 +38,20 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isAuthorized(req))
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const store = await req.json();
   const data = await getData();
   const index = data.stores.findIndex((s: any) => s.name === store.name);
   if (index !== -1) data.stores[index] = store;
+  else data.stores.push(store);
   await writeFile(dataPath, JSON.stringify(data, null, 2));
   return NextResponse.json({ success: true });
 }
 
 export async function DELETE(req: NextRequest) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!isAuthorized(req))
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { name } = await req.json();
   const data = await getData();
   data.stores = data.stores.filter((s: any) => s.name !== name);
