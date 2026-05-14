@@ -13,9 +13,60 @@ const slugify = (text: string) =>
     .replace(/-+/g, "-")
     .slice(0, 60);
 
+async function callGemini(apiKey: string, prompt: string): Promise<string> {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.7, maxOutputTokens: 2000 },
+      }),
+    }
+  );
+  const data = await res.json();
+  if (!data.candidates?.[0]) throw new Error(data.error?.message || "Gemini failed");
+  return data.candidates[0].content.parts[0].text || "";
+}
+
+function parseJSON(raw: string): any {
+  const attempts = [
+    // 1. Strip fences, extract object
+    () => {
+      const cleaned = raw.replace(/```json/gi, "").replace(/```/g, "").trim();
+      const match = cleaned.match(/\{[\s\S]*\}/);
+      if (match) return JSON.parse(match[0]);
+    },
+    // 2. Single-line JSON
+    () => {
+      for (const line of raw.split("\n")) {
+        const t = line.trim();
+        if (t.startsWith("{") && t.endsWith("}")) return JSON.parse(t);
+      }
+    },
+    // 3. Fix unescaped newlines inside strings
+    () => {
+      const fixed = raw
+        .replace(/```json/gi, "").replace(/```/g, "").trim()
+        .replace(/("(?:[^"\\]|\\.)*")/g, m => m.replace(/\n/g, "\\n").replace(/\r/g, ""));
+      const match = fixed.match(/\{[\s\S]*\}/);
+      if (match) return JSON.parse(match[0]);
+    },
+  ];
+  for (const attempt of attempts) {
+    try { const r = attempt(); if (r) return r; } catch {}
+  }
+  return null;
+}
+
+function normalizeNewlines(str: string): string {
+  return (str || "").replace(/\\n/g, "\n");
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const { catalogTitle, catalogId, filePath, validFrom, validTo, coverBase64 } = await req.json();
+    const { catalogTitle, catalogId, validFrom, validTo, coverBase64 } = await req.json();
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return NextResponse.json({ error: "No API key" }, { status: 500 });
@@ -35,178 +86,98 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ── 2. Gemini ──
-    const prompt = `You are an SEO content writer for Trolleys Supermarket UAE.
+    const validity = validFrom && validTo
+      ? `Valid: ${validFrom} to ${validTo}.`
+      : validFrom ? `Starting from: ${validFrom}.` : "";
+
+    // ── 2. English Gemini call ──
+    const enPrompt = `You are an SEO writer for Trolleys Supermarket UAE.
 Branches: Mirdif (Dubai), Al Taawun (Sharjah), Al Khan (Sharjah), Al Nuaimia (Ajman).
+Weekly catalog: "${catalogTitle}". ${validity}
 
-Write a blog post about their weekly offers catalog titled: "${catalogTitle}".
-${validFrom && validTo ? `Offer validity: ${validFrom} to ${validTo}.` : ""}
+Write a blog post IN ENGLISH ONLY. No Arabic words whatsoever.
 
-ENGLISH RULES:
-- Title: creative, SEO-friendly, do NOT start with "Discover"
-- Excerpt: 2 sentences, do NOT start with "Discover"
-- Content: 200-250 words, 3-4 paragraphs
-  * Paragraph 1: engaging intro about the offers (do NOT start with "Discover")
-  * Paragraph 2: mention the 4 branch locations
-  * Paragraph 3: shopping tips or product highlights
-  * End with 2 FAQs in this exact format:
-    Q: question here
-    A: answer here
-  * Final line: Join our WhatsApp Channel: https://whatsapp.com/channel/0029VbBzYPDA2pL8dOLkNl2p
+Rules:
+- title: SEO-friendly, do NOT start with "Discover", max 10 words
+- excerpt: 2 sentences in English only, do NOT start with "Discover"
+- content: 3 paragraphs + 2 FAQs + WhatsApp line
+  * Paragraph 1: engaging intro (do NOT start with "Discover")
+  * Paragraph 2: mention all 4 branch locations
+  * Paragraph 3: shopping tips
+  * FAQ format exactly:
+    Q: question
+    A: answer
+  * Last line exactly: Join our WhatsApp Channel: https://whatsapp.com/channel/0029VbBzYPDA2pL8dOLkNl2p
 
-ARABIC RULES:
-- title_ar, excerpt_ar, content_ar: full Arabic translation
-- FAQ format in Arabic:
-    س: سؤال هنا
-    ج: جواب هنا
+Return ONLY raw JSON, no markdown, no backticks, no explanation.
+Use \\n for newlines inside strings.
 
-OUTPUT RULES — READ CAREFULLY:
-- Return ONLY raw JSON, nothing else
-- No markdown, no code fences, no backticks, no explanation
-- All text must be on a single line — use literal \\n for newlines inside strings
-- The JSON must be parseable with JSON.parse()
+{"title":"...","excerpt":"...","content":"para1\\n\\npara2\\n\\npara3\\n\\nQ: ...\\nA: ...\\n\\nQ: ...\\nA: ...\\n\\nJoin our WhatsApp Channel: https://whatsapp.com/channel/0029VbBzYPDA2pL8dOLkNl2p"}`;
 
-JSON structure:
-{"title":"...","excerpt":"...","content":"paragraph1\\n\\nparagraph2\\n\\nparagraph3\\n\\nQ: ...\\nA: ...\\n\\nQ: ...\\nA: ...\\n\\nJoin our WhatsApp Channel: https://whatsapp.com/channel/0029VbBzYPDA2pL8dOLkNl2p","title_ar":"...","excerpt_ar":"...","content_ar":"فقرة1\\n\\nفقرة2\\n\\nفقرة3\\n\\nس: ...\\nج: ...\\n\\nس: ...\\nج: ..."}`;
+    // ── 3. Arabic Gemini call ──
+    const arPrompt = `أنت كاتب محتوى SEO لسوبرماركت تروليز الإمارات.
+الفروع: مردف (دبي)، التعاون (الشارقة)، الخان (الشارقة)، النعيمية (عجمان).
+كتالوج الأسبوع: "${catalogTitle}". ${validity}
 
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 3000,
-          },
-        }),
-      }
-    );
+اكتب منشور مدونة باللغة العربية فقط. لا تكتب أي كلمة بالإنجليزية إطلاقاً.
 
-    const geminiData = await geminiRes.json();
-    console.log("GEMINI STATUS:", geminiRes.status);
+القواعد:
+- title_ar: عنوان SEO جذاب، لا يبدأ بـ"اكتشف"، 10 كلمات كحد أقصى
+- excerpt_ar: جملتان بالعربية فقط
+- content_ar: 3 فقرات + سؤالان وجوابان + سطر واتساب
+  * الفقرة 1: مقدمة جذابة
+  * الفقرة 2: اذكر الفروع الأربعة
+  * الفقرة 3: نصائح تسوق
+  * تنسيق الأسئلة بالضبط:
+    س: السؤال
+    ج: الجواب
+  * السطر الأخير بالضبط: انضم لقناتنا على واتساب: https://whatsapp.com/channel/0029VbBzYPDA2pL8dOLkNl2p
 
-    if (!geminiData.candidates?.[0]) {
-      console.error("NO CANDIDATES:", JSON.stringify(geminiData));
-      return NextResponse.json({ error: "Gemini failed: " + (geminiData.error?.message || "unknown") }, { status: 500 });
-    }
+أرجع JSON خام فقط، بدون markdown، بدون backticks، بدون شرح.
+استخدم \\n للأسطر الجديدة داخل النصوص.
 
-    const rawText: string = geminiData.candidates[0].content.parts[0].text || "";
-    console.log("RAW:", rawText.slice(0, 500));
+{"title_ar":"...","excerpt_ar":"...","content_ar":"فقرة1\\n\\nفقرة2\\n\\nفقرة3\\n\\nس: ...\\nج: ...\\n\\nس: ...\\nج: ...\\n\\nانضم لقناتنا على واتساب: https://whatsapp.com/channel/0029VbBzYPDA2pL8dOLkNl2p"}`;
 
-    // ── 3. Parse JSON ── (multiple strategies)
-    let blogData: any = null;
+    console.log("Calling Gemini EN...");
+    const enRaw = await callGemini(apiKey, enPrompt);
+    console.log("EN RAW:", enRaw.slice(0, 300));
 
-    // Strategy 1: strip markdown fences, extract JSON object
-    try {
-      const cleaned = rawText
-        .replace(/```json/gi, "")
-        .replace(/```/g, "")
-        .trim();
-      const match = cleaned.match(/\{[\s\S]*\}/);
-      if (match) {
-        blogData = JSON.parse(match[0]);
-        console.log("Parsed with strategy 1");
-      }
-    } catch (e) {
-      console.warn("Strategy 1 failed:", e);
-    }
+    console.log("Calling Gemini AR...");
+    const arRaw = await callGemini(apiKey, arPrompt);
+    console.log("AR RAW:", arRaw.slice(0, 300));
 
-    // Strategy 2: find first line that looks like JSON
-    if (!blogData) {
-      try {
-        const lines = rawText.split("\n");
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
-            blogData = JSON.parse(trimmed);
-            console.log("Parsed with strategy 2");
-            break;
-          }
-        }
-      } catch (e) {
-        console.warn("Strategy 2 failed:", e);
-      }
-    }
+    const enData = parseJSON(enRaw);
+    const arData = parseJSON(arRaw);
 
-    // Strategy 3: try to fix common Gemini JSON issues (unescaped newlines)
-    if (!blogData) {
-      try {
-        const fixed = rawText
-          .replace(/```json/gi, "")
-          .replace(/```/g, "")
-          .trim()
-          // Replace literal newlines inside JSON string values with \n
-          .replace(/("(?:[^"\\]|\\.)*")/g, (match) =>
-            match.replace(/\n/g, "\\n").replace(/\r/g, "")
-          );
-        const match = fixed.match(/\{[\s\S]*\}/);
-        if (match) {
-          blogData = JSON.parse(match[0]);
-          console.log("Parsed with strategy 3");
-        }
-      } catch (e) {
-        console.warn("Strategy 3 failed:", e);
-      }
-    }
+    console.log("EN parsed:", !!enData, "AR parsed:", !!arData);
 
-    // ── 4. Fallback — Gemini döndü ama parse olmadı ──
-    // Raw text'i content olarak kullan, hardcode excerpt YOK
-    if (!blogData) {
-      console.warn("All JSON parse strategies failed, using raw text as content");
-      const cleanContent = rawText
-        .replace(/```json[\s\S]*?```/g, "")
-        .replace(/```[\s\S]*?```/g, "")
-        .replace(/```/g, "")
-        .replace(/^\s*\{[\s\S]*?\}\s*$/m, "")
-        .trim();
+    // ── 4. Build post ──
+    const title    = normalizeNewlines(enData?.title    || `${catalogTitle} — Trolleys Supermarket UAE Weekly Offers`);
+    const excerpt  = normalizeNewlines(enData?.excerpt  || `This week at Trolleys Supermarket UAE, incredible savings await across all branches. Check out the latest offers${validFrom ? ` valid from ${validFrom}` : ""}.`);
+    const content  = normalizeNewlines(enData?.content  || `Shop the best weekly deals at Trolleys Supermarket across Mirdif (Dubai), Al Taawun (Sharjah), Al Khan (Sharjah), and Al Nuaimia (Ajman).\n\nVisit your nearest branch today and enjoy unbeatable prices on groceries, fresh produce, and more.\n\nJoin our WhatsApp Channel: https://whatsapp.com/channel/0029VbBzYPDA2pL8dOLkNl2p`);
 
-      blogData = {
-        title: `${catalogTitle} — Trolleys Supermarket UAE Weekly Offers`,
-        excerpt: `This week at Trolleys Supermarket UAE, incredible savings await across all branches in Dubai, Sharjah and Ajman. Check out the latest offers valid ${validFrom ? `from ${validFrom}` : "now"}.`,
-        content: cleanContent || `Shop the best weekly deals at Trolleys Supermarket across Mirdif (Dubai), Al Taawun (Sharjah), Al Khan (Sharjah), and Al Nuaimia (Ajman).\n\nVisit your nearest branch today and enjoy unbeatable prices on groceries, fresh produce, and more.\n\nJoin our WhatsApp Channel: https://whatsapp.com/channel/0029VbBzYPDA2pL8dOLkNl2p`,
-        title_ar: `${catalogTitle} — عروض ترولييز سوبرماركت الأسبوعية`,
-        excerpt_ar: `وفّر أكثر هذا الأسبوع مع ترولييز سوبرماركت في دبي والشارقة وعجمان. تحقق من أحدث العروض المتاحة ${validFrom ? `اعتباراً من ${validFrom}` : "الآن"}.`,
-        content_ar: cleanContent || `تسوّق أفضل العروض الأسبوعية في ترولييز سوبرماركت في فروعنا: مردف (دبي)، التعاون (الشارقة)، الخان (الشارقة)، والنعيمية (عجمان).\n\nزر أقرب فرع إليك اليوم واستمتع بأسعار لا تُضاهى على البقالة والمنتجات الطازجة والمزيد.`,
-      };
-    }
+    const title_ar    = normalizeNewlines(arData?.title_ar    || `${catalogTitle} — عروض ترولييز سوبرماركت الأسبوعية`);
+    const excerpt_ar  = normalizeNewlines(arData?.excerpt_ar  || `وفّر أكثر هذا الأسبوع مع ترولييز سوبرماركت في دبي والشارقة وعجمان.`);
+    const content_ar  = normalizeNewlines(arData?.content_ar  || `تسوّق أفضل العروض الأسبوعية في ترولييز سوبرماركت في فروعنا: مردف (دبي)، التعاون (الشارقة)، الخان (الشارقة)، والنعيمية (عجمان).\n\nزر أقرب فرع إليك اليوم واستمتع بأسعار لا تُضاهى.\n\nانضم لقناتنا على واتساب: https://whatsapp.com/channel/0029VbBzYPDA2pL8dOLkNl2p`);
 
-    // ── 5. Normalize \n — Gemini bazen literal "\\n" string döndürür ──
-    const normalizeNewlines = (str: string): string => {
-      if (!str) return "";
-      // If the string contains literal \n sequences (not actual newlines), convert them
-      return str.replace(/\\n/g, "\n");
-    };
-
-    blogData.content    = normalizeNewlines(blogData.content    || "");
-    blogData.content_ar = normalizeNewlines(blogData.content_ar || "");
-    blogData.excerpt    = normalizeNewlines(blogData.excerpt     || "");
-    blogData.excerpt_ar = normalizeNewlines(blogData.excerpt_ar  || "");
-
-    // ── 6. SEO Slug ──
+    // ── 5. SEO Slug ──
     const year = new Date().getFullYear();
-    const slug = `${slugify(blogData.title || catalogTitle)}-${year}`;
+    const slug = `${slugify(title)}-${year}`;
     const date = new Date().toLocaleDateString("en-US", {
       year: "numeric", month: "long", day: "numeric",
     });
 
     const newPost = {
-      slug,
-      title:      blogData.title      || catalogTitle,
-      title_ar:   blogData.title_ar   || catalogTitle,
-      date,
-      category:   "Offers",
-      excerpt:    blogData.excerpt     || "",
-      excerpt_ar: blogData.excerpt_ar  || "",
-      content:    blogData.content     || "",
-      content_ar: blogData.content_ar  || "",
+      slug, date, category: "Offers",
+      title, title_ar,
+      excerpt, excerpt_ar,
+      content, content_ar,
       coverImage: coverImagePath,
       catalogId,
       autoGenerated: true,
     };
 
-    // ── 7. Save ──
+    // ── 6. Save ──
     const blogPath = path.join(process.cwd(), "data", "blog.json");
     let blogJson: { posts: any[] } = { posts: [] };
     if (existsSync(blogPath)) {

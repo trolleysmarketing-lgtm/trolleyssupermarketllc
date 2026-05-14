@@ -34,7 +34,7 @@ const getImage = (post: Post) => post.coverImage || blogImages[post.slug] || "";
 function lineIsArabic(line: string): boolean {
   const arabicChars = (line.match(/[\u0600-\u06FF]/g) || []).length;
   const latinChars  = (line.match(/[a-zA-Z]/g) || []).length;
-  if (arabicChars === 0 && latinChars === 0) return false; // neutral line (numbers, punctuation)
+  if (arabicChars === 0 && latinChars === 0) return false;
   return arabicChars >= latinChars;
 }
 
@@ -58,23 +58,21 @@ function cleanText(text: string): string {
     .trim();
 }
 
-// Filter content lines by language — removes lines that belong to the other language
+// Filter out lines that belong to the wrong language
 function filterByLanguage(text: string, wantArabic: boolean): string {
   if (!text) return "";
   return text
     .split("\n")
     .filter(line => {
       const trimmed = line.trim();
-      if (!trimmed) return true; // keep blank lines (paragraph breaks)
-      const arabic = lineIsArabic(trimmed);
-      // Keep lines that match desired language OR are neutral (Q:/A: markers, URLs, numbers)
-      const isNeutral = /^(Q:|A:|س:|ج:)/i.test(trimmed) ||
-                        /^https?:\/\//i.test(trimmed) ||
-                        /^join our/i.test(trimmed) ||
-                        /^انضم/i.test(trimmed) ||
-                        trimmed.toLowerCase().includes("whatsapp");
-      if (isNeutral) return true;
-      return wantArabic ? arabic : !arabic;
+      if (!trimmed) return true; // keep blank lines
+      // Always keep: URLs, WhatsApp lines
+      // FAQ markers: only keep matching language
+      if (/^(Q:|A:)/.test(trimmed)) return !wantArabic;
+      if (/^(س:|ج:)/.test(trimmed)) return wantArabic;
+      if (trimmed.toLowerCase().includes("whatsapp")) return true;
+      if (/^https?:\/\//i.test(trimmed)) return true;
+      return wantArabic ? lineIsArabic(trimmed) : !lineIsArabic(trimmed);
     })
     .join("\n")
     .trim();
