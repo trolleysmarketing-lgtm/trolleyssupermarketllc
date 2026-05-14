@@ -17,6 +17,16 @@ const menuItems = [
     ),
   },
   {
+    href: "/admin/hero",
+    label: "Hero Slider",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <rect x="2" y="7" width="20" height="10" rx="2" />
+        <path d="M16 3l4 4-4 4" /><path d="M8 3L4 7l4 4" />
+      </svg>
+    ),
+  },
+  {
     href: "/admin/offers",
     label: "Offers & Catalog",
     icon: (
@@ -176,7 +186,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div style={{ padding: "20px", borderBottom: "1px solid #e2e8f0" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <img src="/trolleys-supermarket-llc-logo.png" alt="Trolleys" style={{ height: 42, objectFit: "contain" }} />
-            
             </div>
           </div>
 

@@ -2,11 +2,12 @@
 
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import HeroSlider from "@/components/HeroSlider";
+import HeroSlider, { type Slide } from "@/components/HeroSlider";
 import styles from "./homepage/homepage.module.css";
 
-/* ── Above the fold — loaded immediately ── */
+/* ── Above the fold ── */
 import CategoriesSection from "./homepage/CategoriesSection";
 
 /* ── Below the fold — lazy loaded ── */
@@ -73,26 +74,53 @@ function Ticker({ items }: { items: string[] }) {
   );
 }
 
+/* ── Hero data type ── */
+type HeroSlide = {
+  id: number;
+  active: boolean;
+  order: number;
+  image: string;
+  accent: string;
+  ctaLink: string;
+  ctaSecondaryLink: string | null;
+  badge_en: string; title_en: string; subtitle_en: string;
+  cta_en: string; ctaSecondaryLabel_en: string;
+  badge_ar: string; title_ar: string; subtitle_ar: string;
+  cta_ar: string; ctaSecondaryLabel_ar: string;
+  stat: { value: string; label_en: string; label_ar: string } | null;
+};
+
 /* ── Page ── */
 export default function HomePage() {
-  const params  = useParams();
-  const locale  = (params?.locale as string) || "en";
-  const isRTL   = locale === "ar";
-  const t       = useTranslations("home");
+  const params = useParams();
+  const locale = (params?.locale as string) || "en";
+  const isRTL  = locale === "ar";
+  const isAr   = isRTL;
+  const t      = useTranslations("home");
+
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[] | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/hero")
+      .then(r => r.json())
+      .then(d => setHeroSlides(d.slides || []))
+      .catch(() => setHeroSlides([]));
+  }, []);
 
   const stores = t.raw("stores.list") as Array<{
     name: string; address: string; phone: string;
     city: string; hours: string; wa: string;
   }>;
 
-  const slides = [
+  // Fallback slides (from translations) if hero.json not ready yet
+  const fallbackSlides: Slide[] = [
     {
-  id: 1,
-  badge: t("offers.subtitle"), title: t("offers.title"),
-  subtitle: t("offers.description"), cta: t("offers.browseCatalog"),
-  ctaLink: `/${locale}/offers`, image: "/hero-slider/trollyes-hero-slider-1.webp",
-  accent: "#1C75BC",
-},
+      id: 1,
+      badge: t("offers.subtitle"), title: t("offers.title"),
+      subtitle: t("offers.description"), cta: t("offers.browseCatalog"),
+      ctaLink: `/${locale}/offers`, image: "/hero-slider/trollyes-hero-slider-1.webp",
+      accent: "#1C75BC",
+    },
     {
       id: 2,
       badge: t("features.fastDelivery.title"), title: t("features.fastDelivery.title"),
@@ -108,6 +136,33 @@ export default function HomePage() {
       accent: "#c8956c", stat: { value: "5", label: t("stores.title") },
     },
   ];
+
+  // Convert hero.json data to Slide format
+  const buildSlides = (): Slide[] => {
+    if (!heroSlides || heroSlides.length === 0) return fallbackSlides;
+
+    const active = heroSlides
+      .filter(s => s.active)
+      .sort((a, b) => a.order - b.order);
+
+    if (active.length === 0) return fallbackSlides;
+
+    return active.map(s => ({
+      id: s.id,
+      badge:    isAr ? s.badge_ar    : s.badge_en,
+      title:    isAr ? s.title_ar    : s.title_en,
+      subtitle: isAr ? s.subtitle_ar : s.subtitle_en,
+      cta:      isAr ? s.cta_ar      : s.cta_en,
+      ctaLink:  `/${locale}${s.ctaLink}`,
+      ctaSecondaryLabel: isAr ? s.ctaSecondaryLabel_ar : s.ctaSecondaryLabel_en,
+      ctaSecondaryLink:  s.ctaSecondaryLink ? `/${locale}${s.ctaSecondaryLink}` : undefined,
+      image:    s.image,
+      accent:   s.accent,
+      stat:     s.stat ? { value: s.stat.value, label: isAr ? s.stat.label_ar : s.stat.label_en } : undefined,
+    }));
+  };
+
+  const slides = buildSlides();
 
   const tickerItems = [
     t("features.freshDaily.title"),

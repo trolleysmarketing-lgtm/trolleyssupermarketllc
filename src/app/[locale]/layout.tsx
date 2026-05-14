@@ -101,8 +101,12 @@ export default async function LocaleLayout({
   const messages = await getMessages();
   const isAr = locale === "ar";
 
- return (
+  return (
     <html lang={locale} dir={isAr ? "rtl" : "ltr"}>
+      <head>
+        <meta name="theme-color" content="#0e76bc" />
+        <meta name="msapplication-TileColor" content="#0e76bc" />
+      </head>
       <body
         className="flex flex-col min-h-screen"
         style={{ margin: 0, fontFamily: "sans-serif", background: "#f8fafc" }}
@@ -111,7 +115,9 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <Preloader />
           <Header />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1">
+            {children}
+          </main>
           <LazyWidgets locale={locale} />
           <Footer />
         </NextIntlClientProvider>
