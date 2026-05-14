@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, Children } from "react";
 import styles from "./homepage.module.css";
 
 interface HScrollProps {
@@ -9,35 +9,54 @@ interface HScrollProps {
   gap?: number;
   label?: string;
   showDots?: boolean;
+  autoPlay?: boolean;
+  autoPlayInterval?: number;
 }
 
-export function HScroll({ children, itemWidth, gap = 20, label, showDots = true }: HScrollProps) {
-  const trackRef  = useRef<HTMLDivElement>(null);
-  const [canLeft,  setCanLeft]  = useState(false);
-  const [canRight, setCanRight] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [totalItems,  setTotalItems]  = useState(0);
+export function HScroll({
+  children,
+  itemWidth,
+  gap = 20,
+  label,
+  showDots = true,
+  autoPlay = false,
+  autoPlayInterval = 4000,
+}: HScrollProps) {
+  const trackRef    = useRef<HTMLDivElement>(null);
+  const autoRef     = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [canLeft,   setCanLeft]   = useState(false);
+  const [canRight,  setCanRight]  = useState(false);
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  const items = Children.toArray(children);
+  const count = items.length;
+
+  // Duplicate items for infinite loop: [clone...] [original...] [clone...]
+  const tripled = count > 0 ? [...items, ...items, ...items] : items;
 
   const sync = useCallback(() => {
     const el = trackRef.current;
     if (!el) return;
     setCanLeft(el.scrollLeft > 8);
     setCanRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 8);
+    const itemW  = itemWidth + gap;
+    const offset = el.scrollLeft;
+    const idx    = Math.round(offset / itemW) % count;
+    setActiveIdx(idx < 0 ? 0 : idx);
+  }, [itemWidth, gap, count]);
 
-    // Calculate active index
+  // Jump to middle clone on mount so we can scroll both ways
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el || count === 0) return;
     const itemW = itemWidth + gap;
-    const idx = Math.round(el.scrollLeft / itemW);
-    setActiveIndex(idx);
-  }, [itemWidth, gap]);
+    el.scrollLeft = itemW * count; // start at middle copy
+    sync();
+  }, [count, itemWidth, gap, sync]);
 
   useEffect(() => {
     const el = trackRef.current;
     if (!el) return;
-
-    // Count children
-    const inner = el.firstElementChild;
-    if (inner) setTotalItems(inner.children.length);
-
     sync();
     el.addEventListener("scroll", sync, { passive: true });
     window.addEventListener("resize", sync, { passive: true });
@@ -45,7 +64,39 @@ export function HScroll({ children, itemWidth, gap = 20, label, showDots = true 
       el.removeEventListener("scroll", sync);
       window.removeEventListener("resize", sync);
     };
-  }, [sync, children]);
+  }, [sync]);
+
+  // Infinite loop: when reaching clone edges, silently jump back to original
+  const onScroll = useCallback(() => {
+    const el = trackRef.current;
+    if (!el || count === 0) return;
+    const itemW = itemWidth + gap;
+    const total = itemW * count;
+    // If scrolled into first clone set (left edge)
+    if (el.scrollLeft < total * 0.25) {
+      el.scrollLeft += total;
+    }
+    // If scrolled into last clone set (right edge)
+    if (el.scrollLeft > total * 2.25) {
+      el.scrollLeft -= total;
+    }
+  }, [count, itemWidth, gap]);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [onScroll]);
+
+  // AutoPlay
+  useEffect(() => {
+    if (!autoPlay || count === 0) return;
+    autoRef.current = setInterval(() => {
+      trackRef.current?.scrollBy({ left: itemWidth + gap, behavior: "smooth" });
+    }, autoPlayInterval);
+    return () => { if (autoRef.current) clearInterval(autoRef.current); };
+  }, [autoPlay, autoPlayInterval, itemWidth, gap, count]);
 
   const scroll = (dir: "l" | "r") => {
     trackRef.current?.scrollBy({
@@ -55,10 +106,11 @@ export function HScroll({ children, itemWidth, gap = 20, label, showDots = true 
   };
 
   const scrollToIndex = (i: number) => {
-    trackRef.current?.scrollTo({
-      left: i * (itemWidth + gap),
-      behavior: "smooth",
-    });
+    const el = trackRef.current;
+    if (!el) return;
+    const itemW  = itemWidth + gap;
+    const offset = itemW * count + itemW * i; // middle copy
+    el.scrollTo({ left: offset, behavior: "smooth" });
   };
 
   return (
@@ -73,10 +125,18 @@ export function HScroll({ children, itemWidth, gap = 20, label, showDots = true 
         </button>
       </div>
 
-      {/* Track */}
-      <div ref={trackRef} className={styles.hscrollTrack}>
-        <div style={{ display: "flex", gap, width: "max-content", paddingInline: 2 }}>
-          {children}
+      {/* Track — overflow visible so cards can lift on hover */}
+      <div
+        ref={trackRef}
+        className={styles.hscrollTrack}
+        style={{ overflowY: "visible" }}
+      >
+        <div style={{ display: "flex", gap, width: "max-content", paddingInline: 2, paddingBlock: 12 }}>
+          {tripled.map((child, i) => (
+            <div key={i} style={{ flexShrink: 0 }}>
+              {child}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -90,16 +150,16 @@ export function HScroll({ children, itemWidth, gap = 20, label, showDots = true 
       </div>
 
       {/* Dot indicators */}
-      {showDots && totalItems > 1 && (
+      {showDots && count > 1 && (
         <div className={styles.hscrollDots} role="tablist" aria-label="Scroll position">
-          {Array.from({ length: totalItems }).map((_, i) => (
+          {Array.from({ length: count }).map((_, i) => (
             <button
               key={i}
               role="tab"
-              aria-selected={i === activeIndex}
+              aria-selected={i === activeIdx}
               aria-label={`Item ${i + 1}`}
               onClick={() => scrollToIndex(i)}
-              className={`${styles.hscrollDot} ${i === activeIndex ? styles.hscrollDotActive : ""}`}
+              className={`${styles.hscrollDot} ${i === activeIdx ? styles.hscrollDotActive : ""}`}
             />
           ))}
         </div>
