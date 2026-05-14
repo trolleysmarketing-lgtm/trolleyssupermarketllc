@@ -10,7 +10,6 @@ import Preloader from "@/components/Preloader";
 import "../globals.css";
 import { LazyWidgets } from "@/components/LazyWidgets";
 
-
 const baseUrl = "https://trolleyssupermarketllc.com";
 
 export const viewport: Viewport = {
@@ -100,9 +99,16 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
+  const isAr = locale === "ar";
 
   return (
     <>
+      {/* Set dir and lang on <html> immediately — no flash, SSR compatible */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `document.documentElement.lang="${locale}";document.documentElement.dir="${isAr ? "rtl" : "ltr"}";`,
+        }}
+      />
       <SchemaOrg locale={locale} />
       <NextIntlClientProvider messages={messages}>
         <Preloader />
@@ -110,9 +116,7 @@ export default async function LocaleLayout({
         <main className="flex-1">
           {children}
         </main>
-        {/* Lazy loaded — don't block initial render */}
-       <LazyWidgets locale={locale} />
-
+        <LazyWidgets locale={locale} />
         <Footer />
       </NextIntlClientProvider>
     </>
