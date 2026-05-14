@@ -4,6 +4,18 @@ import Link from "next/link";
 
 const navCards = [
   {
+    href: "/admin/hero",
+    title: "Hero Slider",
+    description: "Manage homepage hero slides (EN/AR)",
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0e76bc" strokeWidth="1.8" strokeLinecap="round">
+        <rect x="2" y="7" width="20" height="10" rx="2" />
+        <path d="M16 3l4 4-4 4" /><path d="M8 3L4 7l4 4" />
+      </svg>
+    ),
+    bg: "#eff6ff",
+  },
+  {
     href: "/admin/offers",
     title: "Offers & Catalog",
     description: "Upload weekly PDF catalog, manage short links",
@@ -90,8 +102,6 @@ export default async function AdminDashboard() {
 
   return (
     <div>
-      {/* CSS burada kalabilir çünkü <style> bir layout içinde değil, 
-          ama Next.js 16 uyarısını önlemek için precedence ekleyelim */}
       <style href="admin-dashboard" precedence="default">{`
         .admin-dashboard-card {
           background: white;
@@ -124,19 +134,11 @@ export default async function AdminDashboard() {
         gap: 16,
       }}>
         {navCards.map((card) => (
-          <Link
-            key={card.href}
-            href={card.href}
-            className="admin-dashboard-card"
-          >
+          <Link key={card.href} href={card.href} className="admin-dashboard-card">
             <div style={{
-              width: 48,
-              height: 48,
-              borderRadius: 14,
+              width: 48, height: 48, borderRadius: 14,
               background: card.bg,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              display: "flex", alignItems: "center", justifyContent: "center",
               marginBottom: 14,
             }}>
               {card.icon}
