@@ -30,12 +30,12 @@ const blogImages: Record<string, string> = {
 
 const getImage = (post: Post) => post.coverImage || blogImages[post.slug] || "";
 
-// Detect if a string is predominantly Arabic
-function isArabicText(text: string): boolean {
-  if (!text) return false;
-  const arabicChars = (text.match(/[\u0600-\u06FF]/g) || []).length;
-  const latinChars  = (text.match(/[a-zA-Z]/g) || []).length;
-  return arabicChars > latinChars;
+// Check if a single line is predominantly Arabic
+function lineIsArabic(line: string): boolean {
+  const arabicChars = (line.match(/[\u0600-\u06FF]/g) || []).length;
+  const latinChars  = (line.match(/[a-zA-Z]/g) || []).length;
+  if (arabicChars === 0 && latinChars === 0) return false; // neutral line (numbers, punctuation)
+  return arabicChars >= latinChars;
 }
 
 // Clean AI artifacts from text
@@ -45,7 +45,6 @@ function cleanText(text: string): string {
     .replace(/```json[\s\S]*?```/gi, "")
     .replace(/```[\s\S]*?```/g, "")
     .replace(/`/g, "")
-    // Remove lines that look like JSON keys
     .split("\n")
     .filter(line => {
       const t = line.trim();
@@ -54,9 +53,30 @@ function cleanText(text: string): string {
       return true;
     })
     .join("\n")
-    // Remove leftover JSON objects
     .replace(/^\s*\{[\s\S]*?\}\s*$/m, "")
     .replace(/\{[^}]{0,200}\}/g, "")
+    .trim();
+}
+
+// Filter content lines by language — removes lines that belong to the other language
+function filterByLanguage(text: string, wantArabic: boolean): string {
+  if (!text) return "";
+  return text
+    .split("\n")
+    .filter(line => {
+      const trimmed = line.trim();
+      if (!trimmed) return true; // keep blank lines (paragraph breaks)
+      const arabic = lineIsArabic(trimmed);
+      // Keep lines that match desired language OR are neutral (Q:/A: markers, URLs, numbers)
+      const isNeutral = /^(Q:|A:|س:|ج:)/i.test(trimmed) ||
+                        /^https?:\/\//i.test(trimmed) ||
+                        /^join our/i.test(trimmed) ||
+                        /^انضم/i.test(trimmed) ||
+                        trimmed.toLowerCase().includes("whatsapp");
+      if (isNeutral) return true;
+      return wantArabic ? arabic : !arabic;
+    })
+    .join("\n")
     .trim();
 }
 
@@ -68,29 +88,31 @@ export default function BlogPostClient({ post, allPosts }: { post: Post; allPost
 
   const title = isRTL && post.title_ar ? post.title_ar : post.title;
 
-  // For excerpt: use locale-appropriate field, fall back only if truly empty
+  // For excerpt: use locale-appropriate field, filter lines by language
   const rawExcerpt = (() => {
     if (isRTL) {
-      const ar = cleanText(post.excerpt_ar || "");
-      // Only use Arabic excerpt if it actually contains Arabic
-      if (ar && isArabicText(ar)) return ar;
+      const ar = filterByLanguage(cleanText(post.excerpt_ar || ""), true);
+      if (ar.length > 10) return ar;
       return ""; // don't show English excerpt on Arabic page
     }
-    const en = cleanText(post.excerpt || "");
-    // Don't show Arabic text on English page
-    if (en && !isArabicText(en)) return en;
-    return "";
+    const en = filterByLanguage(cleanText(post.excerpt || ""), false);
+    return en;
   })();
 
-  // For content: use locale-appropriate field
+  // For content: use locale-appropriate field, then filter lines by language
   const rawContent = (() => {
     if (isRTL) {
+      // Prefer content_ar, but also filter content in case they're mixed
       const ar = cleanText(post.content_ar || "");
-      if (ar && isArabicText(ar)) return ar;
-      return cleanText(post.content || ""); // fallback to English only if no Arabic
+      const arFiltered = filterByLanguage(ar, true);
+      if (arFiltered.length > 50) return arFiltered;
+      // Fallback: try filtering Arabic lines out of the English content field
+      const mixed = cleanText(post.content || "");
+      return filterByLanguage(mixed, true);
     }
+    // English: filter out any Arabic lines that leaked in
     const en = cleanText(post.content || "");
-    return en;
+    return filterByLanguage(en, false);
   })();
 
   const excerpt     = rawExcerpt.slice(0, 240);
