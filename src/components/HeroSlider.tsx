@@ -192,13 +192,13 @@ export default function HeroSlider({
           font-weight: 600;
           letter-spacing: .12em;
           text-transform: uppercase;
-          color: #ffffff;
+          color: #ffffff !important;
         }
         .hero-slider__title {
           font-family: Georgia, 'Times New Roman', serif;
           font-size: clamp(32px, 5vw, 58px);
           font-weight: 400;
-          color: #fff;
+          color: #ffffff !important;
           line-height: 1.08;
           letter-spacing: -.02em;
           margin: 0 0 16px;
@@ -211,11 +211,11 @@ export default function HeroSlider({
         }
         .hero-slider__title em {
           font-style: italic;
-          color: #ffffff;
+          color: #ffffff !important;
         }
         .hero-slider__sub {
           font-size: 15px;
-          color: rgba(255, 255, 255, 0.93);
+          color: rgba(255,255,255,0.93) !important;
           line-height: 1.7;
           margin: 0 0 32px;
           max-width: 440px;
@@ -240,29 +240,40 @@ export default function HeroSlider({
           display: inline-flex; align-items: center; gap: 8px;
           padding: 12px 26px; border-radius: 999px;
           font-size: 13px; font-weight: 600;
-          color: #ffffff; text-decoration: none;
+          color: #ffffff !important;
+          text-decoration: none !important;
           background: #1C75BC;
           transition: all .3s;
           letter-spacing: .02em;
-          box-shadow: 0 4px 16px rgba(255, 255, 255, 0.25);
+          box-shadow: 0 4px 16px rgba(28,117,188,0.4);
         }
         .hero-slider__btn-primary:hover {
-          background: #1C75BC;
+          background: #155a9e;
+          color: #ffffff !important;
           transform: translateY(-2px);
-          box-shadow: 0 8px 28px rgba(200,149,108,.35);
+          box-shadow: 0 8px 28px rgba(28,117,188,.5);
+        }
+        .hero-slider__btn-primary:visited {
+          color: #ffffff !important;
         }
         .hero-slider__btn-ghost {
           display: inline-flex; align-items: center; gap: 7px;
           padding: 11px 22px; border-radius: 999px;
           font-size: 13px; font-weight: 500;
-          color: #fff; text-decoration: none;
-          background: rgba(255, 255, 255, 0);
-          border: 1.5px solid rgba(255,255,255,.12);
+          color: #ffffff !important;
+          text-decoration: none !important;
+          background: rgba(255,255,255,0.08);
+          border: 1.5px solid rgba(255,255,255,.25);
           transition: all .3s;
         }
         .hero-slider__btn-ghost:hover {
-          background: rgba(255,255,255,.1);
+          background: rgba(255,255,255,.18);
+          color: #ffffff !important;
           transform: translateY(-1px);
+          border-color: rgba(255,255,255,.4);
+        }
+        .hero-slider__btn-ghost:visited {
+          color: #ffffff !important;
         }
         .hero-slider__stat {
           position: absolute;
@@ -284,13 +295,13 @@ export default function HeroSlider({
         }
         .hero-slider__stat-num {
           font-family: Georgia, 'Times New Roman', serif;
-          font-size: 28px; color: #fff;
+          font-size: 28px; color: #fff !important;
           line-height: 1; margin-bottom: 4px;
         }
         .hero-slider__stat-lbl {
           font-size: 10px; font-weight: 500;
           letter-spacing: .1em; text-transform: uppercase;
-          color: rgb(255, 255, 255);
+          color: rgba(255,255,255,0.8) !important;
         }
         .hero-slider__arrows {
           position: absolute; inset: 0;
@@ -304,7 +315,7 @@ export default function HeroSlider({
           border-radius: 50%;
           background: rgba(255,255,255,.06);
           border: 1px solid rgba(255,255,255,.12);
-          color: #fff; cursor: pointer;
+          color: #fff !important; cursor: pointer;
           display: flex; align-items: center;
           justify-content: center;
           transition: all .3s;
@@ -351,13 +362,13 @@ export default function HeroSlider({
         }
         .hero-slider__counter {
           font-size: 11px;
-          color: rgb(252, 252, 252);
+          color: rgba(255,255,255,0.7) !important;
           letter-spacing: .08em;
           display: flex; align-items: center; gap: 3px;
         }
         .hero-slider__counter strong {
           font-weight: 500; font-size: 13px;
-          color: rgb(255, 255, 255);
+          color: #ffffff !important;
         }
         .hero-slider__thumbs {
           position: absolute;
@@ -392,7 +403,7 @@ export default function HeroSlider({
           border-radius: 50%;
           background: rgba(0,0,0,.25);
           border: 1px solid rgba(255,255,255,.12);
-          color: rgba(255,255,255,.6);
+          color: rgba(255,255,255,.6) !important;
           cursor: pointer;
           display: flex; align-items: center;
           justify-content: center;
@@ -400,7 +411,7 @@ export default function HeroSlider({
         }
         .hero-slider__pause:hover {
           background: rgba(0,0,0,.45);
-          color: rgba(255,255,255,.9);
+          color: rgba(255,255,255,.9) !important;
         }
 
         @keyframes heroPulse {
