@@ -176,10 +176,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div style={{ padding: "20px", borderBottom: "1px solid #e2e8f0" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <img src="/trolleys-supermarket-llc-logo.png" alt="Trolleys" style={{ height: 42, objectFit: "contain" }} />
-              <div>
-                <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#0f172a" }}>Admin Panel</p>
-                <p style={{ margin: 0, fontSize: 10, color: "#94a3b8" }}>Trolleys Supermarket LLC</p>
-              </div>
+            
             </div>
           </div>
 
