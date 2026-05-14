@@ -84,105 +84,51 @@ export default function OffersMiniFlipbook({ locale }: { locale: string }) {
     );
   }
 
-  /* ── MOBILE: simple PDF viewer card ── */
-  if (isMobile) {
-    return (
-      <div style={{
-        background: "rgba(255,255,255,0.05)",
+ /* ── MOBILE: simple card ── */
+if (isMobile) {
+  return (
+    <Link
+      href={`/${locale}/offers`}
+      style={{
+        display: "block",
         borderRadius: 16,
         overflow: "hidden",
-        border: "1px solid rgba(255,255,255,0.1)",
+        border: "1px solid #e8e3dc",
+        textDecoration: "none",
+        background: "linear-gradient(135deg, #1C75BC 0%, #155a90 100%)",
+        padding: "32px 24px",
+        textAlign: "center",
+      }}
+    >
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" strokeLinecap="round" style={{ margin: "0 auto 16px", display: "block" }}>
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+      </svg>
+      <p style={{ fontSize: 16, fontWeight: 700, color: "white", margin: "0 0 6px", fontFamily: "'Outfit', sans-serif" }}>
+        {catalog.title}
+      </p>
+      {catalog.validTo && (
+        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", margin: "0 0 20px", fontFamily: "'Outfit', sans-serif" }}>
+          {locale === "ar" ? "صالح حتى:" : "Valid until:"} {catalog.validTo}
+        </p>
+      )}
+      <div style={{
+        display: "inline-flex", alignItems: "center", gap: 8,
+        background: "white", color: "#1C75BC",
+        padding: "11px 24px", borderRadius: 50,
+        fontFamily: "'Outfit', sans-serif", fontWeight: 700, fontSize: 13,
       }}>
-        {/* PDF Preview — first page via embed */}
-        <div style={{ position: "relative", width: "100%", paddingBottom: "141%" /* A4 ratio */ }}>
-          <iframe
-            src={`${catalog.filePath}#toolbar=0&navpanes=0&scrollbar=0&page=1&view=FitH`}
-            style={{
-              position: "absolute",
-              top: 0, left: 0,
-              width: "100%",
-              height: "100%",
-              border: "none",
-              background: "white",
-              pointerEvents: "none",
-            }}
-            title={catalog.title}
-          />
-          {/* Tap overlay */}
-          <Link
-            href={`/${locale}/offers`}
-            style={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "flex-end",
-              padding: "0 0 20px",
-              textDecoration: "none",
-              background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)",
-            }}
-          >
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              background: "#0e76bc",
-              color: "white",
-              padding: "10px 20px",
-              borderRadius: 50,
-              fontFamily: "'Outfit', sans-serif",
-              fontWeight: 600,
-              fontSize: 13,
-            }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-              {locale === "ar" ? "عرض الكتالوج كاملاً" : "View Full Catalog"}
-            </div>
-          </Link>
-        </div>
-
-        {/* Catalog info bar */}
-        <div style={{
-          padding: "14px 16px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 8,
-        }}>
-          <div>
-            <p style={{ fontSize: 13, fontWeight: 600, color: "white", margin: 0, fontFamily: "'Outfit', sans-serif" }}>
-              {catalog.title}
-            </p>
-            {catalog.validTo && (
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", margin: "2px 0 0", fontFamily: "'Outfit', sans-serif" }}>
-                {locale === "ar" ? "صالح حتى:" : "Valid until:"} {catalog.validTo}
-              </p>
-            )}
-          </div>
-          
-            <a href={catalog.filePath}
-            download
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 5,
-              color: "rgba(255,255,255,0.8)",
-              padding: "7px 12px",
-              borderRadius: 8,
-              fontSize: 11,
-              fontWeight: 600,
-              textDecoration: "none",
-              fontFamily: "'Outfit', sans-serif",
-              whiteSpace: "nowrap",
-            }}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            PDF
-          </a>
-        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+        </svg>
+        {locale === "ar" ? "عرض الكتالوج كاملاً" : "View Full Catalog"}
       </div>
-    );
-  }
+    </Link>
+  );
+}
 
   /* ── DESKTOP: full flipbook ── */
   return (
