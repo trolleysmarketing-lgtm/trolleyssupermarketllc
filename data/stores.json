@@ -1,3 +1,59 @@
 {
-  "stores": []
+  "stores": [
+    {
+      "name": "Trolleys - Mirdif",
+      "city": "Dubai",
+      "address": "Golden Gate Shopping Centre - Mirdif - Dubai",
+      "phone": "+971 4 232 2966",
+      "whatsapp": "971504986988",
+      "maps": "https://www.google.com/maps/place/?q=place_id:ChIJZUCb8PBhXz4R6WVzYGgrCbg",
+      "hours": "7 AM - 2 AM (Daily)",
+      "lat": 25.2169,
+      "lng": 55.4175
+    },
+    {
+      "name": "Trolleys - Al Taawun",
+      "city": "Sharjah",
+      "address": "895C+XXP - Al Khan - Sharjah",
+      "phone": "+971 6 554 4505",
+      "whatsapp": "971504059699",
+      "maps": "https://www.google.com/maps/place/?q=place_id:ChIJA2zBYWZbXz4RueLlNhbVf_4",
+      "hours": "7 AM - 3 AM (Daily)",
+      "lat": 25.3185,
+      "lng": 55.3890
+    },
+    {
+      "name": "Trolleys - Al Khan",
+      "city": "Sharjah",
+      "address": "Al Khan Street - Al Khalidiya - Sharjah",
+      "phone": "+971 6 575 7010",
+      "whatsapp": "971547695919",
+      "maps": "https://www.google.com/maps/place/?q=place_id:ChIJ2ZtxfsVbXz4R2A-fxX703hs",
+      "hours": "7 AM - 2 AM (Daily)",
+      "lat": 25.3295,
+      "lng": 55.3894
+    },
+    {
+      "name": "Trolleys - Al Nuaimiya",
+      "city": "Ajman",
+      "address": "Manama Market - Al Nuaimiya 1 - Ajman",
+      "phone": "+971 6 749 9919",
+      "whatsapp": "971563291296",
+      "maps": "https://www.google.com/maps/place/?q=place_id:ChIJ-6wNlfZZXz4REPMp59PqnpE",
+      "hours": "7 AM - 2 AM (Daily)",
+      "lat": 25.4052,
+      "lng": 55.5136
+    },
+    {
+      "name": "Trolleys - Oasis Street",
+      "city": "Ajman",
+      "address": "Oasis Street - Al Nuaimia 1 - Ajman - UAE",
+      "phone": "+971 50 790 4355",
+      "whatsapp": "971507904355",
+      "maps": "https://www.google.com/maps/place/Trolleys+Supermarket+Oasis+Street+Al+Nuaimia+Ajman/@25.387256,55.458812",
+      "hours": "7 AM - 3 AM (Daily)",
+      "lat": 25.38725635534364,
+      "lng": 55.45881250000001
+    }
+  ]
 }

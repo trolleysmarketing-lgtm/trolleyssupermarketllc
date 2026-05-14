@@ -16,11 +16,13 @@ async function getData() {
 }
 
 function isAuthorized(req: NextRequest): boolean {
-  return req.cookies.get("admin_token")?.value === process.env.ADMIN_SECRET;
+  const cookie = req.cookies.get("admin_token")?.value;
+  const header = req.headers.get("x-admin-token");
+  return cookie === process.env.ADMIN_SECRET || header === process.env.ADMIN_SECRET;
 }
 
-export async function GET(req: NextRequest) {
-  if (!isAuthorized(req)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+// GET — public (stores page reads this)
+export async function GET() {
   const data = await getData();
   return NextResponse.json(data);
 }
