@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {};
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params?: { locale?: string };
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>

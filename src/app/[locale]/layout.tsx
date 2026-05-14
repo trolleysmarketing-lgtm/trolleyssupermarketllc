@@ -101,24 +101,21 @@ export default async function LocaleLayout({
   const messages = await getMessages();
   const isAr = locale === "ar";
 
-  return (
-    <>
-      {/* Set dir and lang on <html> immediately — no flash, SSR compatible */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `document.documentElement.lang="${locale}";document.documentElement.dir="${isAr ? "rtl" : "ltr"}";`,
-        }}
-      />
-      <SchemaOrg locale={locale} />
-      <NextIntlClientProvider messages={messages}>
-        <Preloader />
-        <Header />
-        <main className="flex-1">
-          {children}
-        </main>
-        <LazyWidgets locale={locale} />
-        <Footer />
-      </NextIntlClientProvider>
-    </>
+ return (
+    <html lang={locale} dir={isAr ? "rtl" : "ltr"}>
+      <body
+        className="flex flex-col min-h-screen"
+        style={{ margin: 0, fontFamily: "sans-serif", background: "#f8fafc" }}
+      >
+        <SchemaOrg locale={locale} />
+        <NextIntlClientProvider messages={messages}>
+          <Preloader />
+          <Header />
+          <main className="flex-1">{children}</main>
+          <LazyWidgets locale={locale} />
+          <Footer />
+        </NextIntlClientProvider>
+      </body>
+    </html>
   );
 }
