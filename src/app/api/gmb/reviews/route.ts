@@ -1,108 +1,159 @@
 // src/app/api/gmb/reviews/route.ts
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { NextRequest, NextResponse } from "next/server";
+import { getValidToken } from "@/lib/gmb-token";
+import { isAuthenticated } from "@/lib/auth";
 
-// ── Cache: 30 dakika ─────────────────────────────────────────────────────────
-const cache = new Map<string, { data: unknown; exp: number }>();
-const TTL   = 30 * 60 * 1000;
+const STAR_MAP: Record<string, number> = {
+  ONE: 1, TWO: 2, THREE: 3, FOUR: 4, FIVE: 5,
+};
 
-function getCache(key: string) {
-  const h = cache.get(key);
-  if (!h) return null;
-  if (Date.now() > h.exp) { cache.delete(key); return null; }
-  return h.data;
-}
-function setCache(key: string, data: unknown) {
-  cache.set(key, { data, exp: Date.now() + TTL });
+function toStarNumber(rating: string): number {
+  return STAR_MAP[rating] ?? 0;
 }
 
-function starToNum(star: string): number {
-  return ({ ONE: 1, TWO: 2, THREE: 3, FOUR: 4, FIVE: 5 } as Record<string, number>)[star] ?? 0;
+function getSentiment(rating: string): "positive" | "neutral" | "negative" {
+  const n = toStarNumber(rating);
+  if (n >= 4) return "positive";
+  if (n === 3) return "neutral";
+  return "negative";
+}
+
+interface RawReview {
+  reviewId: string;
+  reviewer: { displayName: string; profilePhotoUrl?: string };
+  starRating: string;
+  comment?: string;
+  createTime: string;
+  updateTime: string;
+  reviewReply?: { comment: string; updateTime: string };
+}
+
+interface PageResult {
+  reviews: RawReview[];
+  averageRating: number;
+  totalReviewCount: number;
+  nextPageToken?: string;
 }
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  const token   = (session as { access_token?: string })?.access_token;
-  if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await isAuthenticated();
+  if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  let token: string;
+  try {
+    token = await getValidToken();
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "Unknown";
+    return NextResponse.json(
+      { error: msg === "NOT_CONNECTED" ? "NOT_CONNECTED" : msg },
+      { status: 401 }
+    );
+  }
 
   const { searchParams } = new URL(req.url);
   const accountId  = searchParams.get("accountId");
   const locationId = searchParams.get("locationId");
-  const pageToken  = searchParams.get("pageToken") ?? "";
-  const pageSize   = searchParams.get("pageSize") ?? "50";
-  const refresh    = searchParams.get("refresh") === "1";
+  const pageToken  = searchParams.get("pageToken") ?? undefined;
+  const pageSize   = Math.min(Number(searchParams.get("pageSize") ?? 50), 50);
+  const dateFrom   = searchParams.get("dateFrom") ?? undefined;
+  const dateTo     = searchParams.get("dateTo") ?? undefined;
+  const sentiment  = searchParams.get("sentiment") ?? undefined;
+  const replied    = searchParams.get("replied") ?? undefined;
+  const fetchAll   = searchParams.get("fetchAll") === "true";
 
-  if (!accountId || !locationId)
-    return NextResponse.json({ error: "accountId and locationId required" }, { status: 400 });
-
-  const key = `reviews:${accountId}:${locationId}:${pageToken}`;
-
-  if (!refresh) {
-    const cached = getCache(key);
-    if (cached) {
-      console.log("[GMB reviews] cache hit:", key);
-      return NextResponse.json(cached);
-    }
+  if (!accountId || !locationId) {
+    return NextResponse.json({ error: "accountId and locationId are required" }, { status: 400 });
   }
 
-  console.log("[GMB reviews] fetching from API:", locationId);
-
-  try {
+  async function fetchPage(cursor: string | undefined): Promise<PageResult> {
     const params = new URLSearchParams({
-      pageSize,
+      pageSize: String(pageSize),
       orderBy: "updateTime desc",
-      ...(pageToken ? { pageToken } : {}),
     });
+    if (cursor) params.set("pageToken", cursor);
 
-    const res  = await fetch(
+    const res = await fetch(
       `https://mybusiness.googleapis.com/v4/accounts/${accountId}/locations/${locationId}/reviews?${params}`,
       { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" }
     );
-    const data = await res.json();
 
     if (!res.ok) {
-      const msg = data?.error?.message ?? "Reviews API error";
-      console.error("[GMB reviews] API error:", msg);
-      return NextResponse.json({ error: msg, details: data }, { status: res.status });
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.error?.message ?? `GMB API error: ${res.status}`);
+    }
+    return res.json();
+  }
+
+  try {
+    let allReviews: RawReview[] = [];
+    let nextPageToken: string | undefined;
+    let averageRating = 0;
+    let totalReviewCount = 0;
+
+    if (fetchAll) {
+      let cursor: string | undefined;
+      let first = true;
+      do {
+        const data = await fetchPage(cursor);
+        if (first) {
+          averageRating    = data.averageRating;
+          totalReviewCount = data.totalReviewCount;
+          first = false;
+        }
+        allReviews.push(...(data.reviews ?? []));
+        cursor = data.nextPageToken;
+      } while (cursor);
+    } else {
+      const data = await fetchPage(pageToken);
+      allReviews       = data.reviews ?? [];
+      nextPageToken    = data.nextPageToken;
+      averageRating    = data.averageRating;
+      totalReviewCount = data.totalReviewCount;
     }
 
-    const reviews = (data.reviews ?? []).map((r: {
-      reviewId: string;
-      reviewer?: { displayName?: string; profilePhotoUrl?: string; isAnonymous?: boolean };
-      starRating: string;
-      comment?: string;
-      createTime: string;
-      updateTime: string;
-      reviewReply?: { comment: string; updateTime: string };
-    }) => ({
-      reviewId:   r.reviewId,
-      author:     r.reviewer?.displayName ?? "Anonymous",
-      photo:      r.reviewer?.profilePhotoUrl ?? null,
-      rating:     starToNum(r.starRating),
-      text:       r.comment ?? "",
-      createTime: r.createTime,
-      updateTime: r.updateTime,
-      timeMs:     new Date(r.createTime).getTime(),
-      reply:      r.reviewReply
-        ? { text: r.reviewReply.comment, time: r.reviewReply.updateTime }
-        : null,
+    let filtered = allReviews;
+
+    if (dateFrom) {
+      const from = new Date(dateFrom);
+      filtered = filtered.filter(r => new Date(r.updateTime) >= from);
+    }
+    if (dateTo) {
+      const to = new Date(dateTo);
+      to.setHours(23, 59, 59, 999);
+      filtered = filtered.filter(r => new Date(r.updateTime) <= to);
+    }
+    if (sentiment) filtered = filtered.filter(r => getSentiment(r.starRating) === sentiment);
+    if (replied === "true")  filtered = filtered.filter(r => !!r.reviewReply);
+    if (replied === "false") filtered = filtered.filter(r => !r.reviewReply);
+
+    const enriched = filtered.map(r => ({
+      ...r,
+      starNumber:   toStarNumber(r.starRating),
+      sentiment:    getSentiment(r.starRating),
+      hasReply:     !!r.reviewReply,
+      updateTimeMs: new Date(r.updateTime).getTime(),
     }));
 
-    const payload = {
-      reviews,
-      totalReviewCount: data.totalReviewCount ?? reviews.length,
-      averageRating:    data.averageRating ?? null,
-      nextPageToken:    data.nextPageToken ?? null,
-    };
+    const filteredAvg = enriched.length
+      ? enriched.reduce((s, r) => s + r.starNumber, 0) / enriched.length : 0;
 
-    setCache(key, payload);
-    console.log("[GMB reviews] cached 30 min:", locationId, reviews.length, "reviews");
-    return NextResponse.json(payload);
-
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Unknown error";
-    console.error("[GMB reviews] exception:", msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return NextResponse.json({
+      reviews:           enriched,
+      averageRating,
+      filteredAvgRating: Math.round(filteredAvg * 10) / 10,
+      totalReviewCount,
+      filteredCount:     enriched.length,
+      nextPageToken:     fetchAll ? undefined : nextPageToken,
+      summary: {
+        positive:  enriched.filter(r => r.sentiment === "positive").length,
+        neutral:   enriched.filter(r => r.sentiment === "neutral").length,
+        negative:  enriched.filter(r => r.sentiment === "negative").length,
+        replied:   enriched.filter(r => r.hasReply).length,
+        unreplied: enriched.filter(r => !r.hasReply).length,
+      },
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
