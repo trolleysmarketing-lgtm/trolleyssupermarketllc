@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getAdminHeaders } from "@/app/admin/layout";
 
 type Stat = { value: string; label_en: string; label_ar: string } | null;
@@ -36,12 +36,17 @@ const empty = (): Slide => ({
 });
 
 export default function AdminHeroPage() {
-  const [slides, setSlides]     = useState<Slide[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [saving, setSaving]     = useState(false);
-  const [saved, setSaved]       = useState(false);
-  const [editing, setEditing]   = useState<Slide | null>(null);
-  const [tab, setTab]           = useState<"en" | "ar">("en");
+  const [slides, setSlides]   = useState<Slide[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving]   = useState(false);
+  const [saved, setSaved]     = useState(false);
+  const [editing, setEditing] = useState<Slide | null>(null);
+  const [tab, setTab]         = useState<"en" | "ar">("en");
+
+  /* ── Upload state ── */
+  const [imgUploading, setImgUploading] = useState(false);
+  const [imgError, setImgError]         = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch("/api/admin/hero")
@@ -93,15 +98,8 @@ export default function AdminHeroPage() {
     save(updated);
   };
 
-  const openEdit = (slide: Slide) => {
-    setEditing({ ...slide });
-    setTab("en");
-  };
-
-  const openNew = () => {
-    setEditing(empty());
-    setTab("en");
-  };
+  const openEdit = (slide: Slide) => { setEditing({ ...slide }); setTab("en"); setImgError(""); };
+  const openNew  = () => { setEditing(empty()); setTab("en"); setImgError(""); };
 
   const saveEdit = () => {
     if (!editing) return;
@@ -112,6 +110,38 @@ export default function AdminHeroPage() {
     setSlides(updated);
     save(updated);
     setEditing(null);
+  };
+
+  /* ── Image upload handler ── */
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImgError("");
+
+    // Instant local preview
+    const reader = new FileReader();
+    reader.onload = ev => setEditing(p => p ? { ...p, image: ev.target?.result as string } : p);
+    reader.readAsDataURL(file);
+
+    setImgUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("folder", "hero-slider");
+
+      const res = await fetch("/api/admin/save-cover", { method: "POST", body: fd });
+      if (res.ok) {
+        const data = await res.json();
+        const url = data.url || data.path || data.coverUrl || "";
+        setEditing(p => p ? { ...p, image: url } : p);
+      } else {
+        setImgError("Upload failed. You can still paste a URL below.");
+      }
+    } catch {
+      setImgError("Upload error. You can still paste a URL below.");
+    } finally {
+      setImgUploading(false);
+    }
   };
 
   const field = (key: keyof Slide, label: string, multiline = false) => (
@@ -147,8 +177,8 @@ export default function AdminHeroPage() {
           <p style={{ fontSize: 13, color: "#94a3b8", margin: "4px 0 0" }}>Manage homepage hero slides — EN & AR</p>
         </div>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          {saved && <span style={{ fontSize: 13, color: "#22c55e", fontWeight: 600 }}>✓ Saved</span>}
-          {saving && <span style={{ fontSize: 13, color: "#94a3b8" }}>Saving...</span>}
+          {saved   && <span style={{ fontSize: 13, color: "#22c55e", fontWeight: 600 }}>✓ Saved</span>}
+          {saving  && <span style={{ fontSize: 13, color: "#94a3b8" }}>Saving...</span>}
           <button onClick={openNew} style={btnPrimary}>+ Add Slide</button>
         </div>
       </div>
@@ -167,7 +197,6 @@ export default function AdminHeroPage() {
               padding: "16px 20px", display: "flex", alignItems: "center", gap: 16,
               opacity: s.active ? 1 : 0.6,
             }}>
-              {/* Thumb */}
               <div style={{ width: 80, height: 50, borderRadius: 8, overflow: "hidden", flexShrink: 0, background: "#e8f4fd" }}>
                 {s.image ? (
                   <img src={s.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -175,8 +204,6 @@ export default function AdminHeroPage() {
                   <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🖼</div>
                 )}
               </div>
-
-              {/* Info */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
                   <span style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>{s.title_en || "Untitled"}</span>
@@ -187,11 +214,9 @@ export default function AdminHeroPage() {
                 <div style={{ fontSize: 12, color: "#64748b" }}>{s.title_ar || "—"}</div>
                 <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 3 }}>{s.ctaLink}</div>
               </div>
-
-              {/* Actions */}
               <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                <button onClick={() => moveUp(i)} disabled={i === 0} style={iconBtn} title="Move up">↑</button>
-                <button onClick={() => moveDown(i)} disabled={i === slides.length - 1} style={iconBtn} title="Move down">↓</button>
+                <button onClick={() => moveUp(i)}   disabled={i === 0}                  style={iconBtn} title="Move up">↑</button>
+                <button onClick={() => moveDown(i)} disabled={i === slides.length - 1}  style={iconBtn} title="Move down">↓</button>
                 <button onClick={() => toggle(s.id)} style={{ ...iconBtn, color: s.active ? "#f59e0b" : "#22c55e" }} title={s.active ? "Hide" : "Show"}>
                   {s.active ? "👁" : "🚫"}
                 </button>
@@ -203,10 +228,11 @@ export default function AdminHeroPage() {
         </div>
       )}
 
-      {/* Edit Modal */}
+      {/* ── Edit Modal ── */}
       {editing && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 999, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
           <div style={{ background: "#fff", borderRadius: 18, width: "100%", maxWidth: 620, maxHeight: "90vh", overflow: "auto", padding: 28 }}>
+
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
               <h2 style={{ fontSize: 17, fontWeight: 700, margin: 0 }}>
                 {slides.find(s => s.id === editing.id) ? "Edit Slide" : "New Slide"}
@@ -214,15 +240,78 @@ export default function AdminHeroPage() {
               <button onClick={() => setEditing(null)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: "#94a3b8" }}>✕</button>
             </div>
 
-            {/* Common fields */}
+            {/* ── Cover image upload ── */}
             <div style={{ marginBottom: 16 }}>
-              <label style={lbl}>Image path</label>
-              <input value={editing.image} onChange={e => setEditing(p => p ? { ...p, image: e.target.value } : p)} style={inp} placeholder="/hero-slider/image.webp" />
-              {editing.image && (
-                <img src={editing.image} alt="" style={{ width: "100%", height: 120, objectFit: "cover", borderRadius: 8, marginTop: 8 }} onError={e => (e.currentTarget.style.display = "none")} />
+              <label style={lbl}>Slide Image</label>
+
+              {editing.image ? (
+                /* Preview */
+                <div style={{ position: "relative", display: "inline-block", width: "100%" }}>
+                  <img
+                    src={editing.image}
+                    alt="Slide preview"
+                    style={{ width: "100%", height: 150, objectFit: "cover", borderRadius: 10, border: "1.5px solid #e2e8f0", display: "block" }}
+                    onError={e => (e.currentTarget.style.display = "none")}
+                  />
+                  {imgUploading && (
+                    <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.7)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: "#64748b", fontWeight: 600 }}>
+                      ⏳ Uploading…
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => { setEditing(p => p ? { ...p, image: "" } : p); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                    style={{ position: "absolute", top: 8, right: 8, background: "rgba(0,0,0,0.55)", color: "white", border: "none", borderRadius: "50%", width: 28, height: 28, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                    title="Remove image"
+                  >✕</button>
+                  {/* Change image button */}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{ position: "absolute", bottom: 8, right: 8, background: "rgba(0,0,0,0.55)", color: "white", border: "none", borderRadius: 8, padding: "5px 10px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+                  >🔄 Change</button>
+                </div>
+              ) : (
+                /* Upload zone */
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    border: "2px dashed #d1d5db", borderRadius: 10, padding: "28px 16px",
+                    textAlign: "center", cursor: "pointer", background: "#fafafa",
+                    transition: "border-color 0.2s",
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = "#1C75BC")}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = "#d1d5db")}
+                >
+                  {imgUploading ? (
+                    <p style={{ margin: 0, fontSize: 14, color: "#6b7280" }}>⏳ Uploading…</p>
+                  ) : (
+                    <>
+                      <div style={{ fontSize: 28, marginBottom: 6 }}>🖼️</div>
+                      <p style={{ margin: 0, fontSize: 14, color: "#374151", fontWeight: 600 }}>Click to upload slide image</p>
+                      <p style={{ margin: "4px 0 0", fontSize: 12, color: "#9ca3af" }}>JPG, PNG, WebP — recommended 1440×600px</p>
+                    </>
+                  )}
+                </div>
+              )}
+
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+
+              {imgError && <p style={{ margin: "6px 0 0", fontSize: 12, color: "#ef4444" }}>{imgError}</p>}
+
+              {/* URL fallback */}
+              {!editing.image && (
+                <input
+                  type="text"
+                  value=""
+                  onChange={e => setEditing(p => p ? { ...p, image: e.target.value } : p)}
+                  style={{ ...inp, marginTop: 8 }}
+                  placeholder="Or paste image URL (optional)"
+                />
               )}
             </div>
 
+            {/* CTA + Accent */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
               <div>
                 <label style={lbl}>CTA Link</label>
@@ -237,7 +326,7 @@ export default function AdminHeroPage() {
               </div>
             </div>
 
-            {/* Stat */}
+            {/* Stat badge */}
             <div style={{ marginBottom: 16 }}>
               <label style={{ ...lbl, display: "flex", alignItems: "center", gap: 8 }}>
                 <input type="checkbox" checked={!!editing.stat} onChange={e => setEditing(p => p ? { ...p, stat: e.target.checked ? { value: "", label_en: "", label_ar: "" } : null } : p)} />
@@ -245,18 +334,9 @@ export default function AdminHeroPage() {
               </label>
               {editing.stat && (
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginTop: 10 }}>
-                  <div>
-                    <label style={lbl}>Value</label>
-                    <input value={editing.stat.value} onChange={e => setEditing(p => p ? { ...p, stat: { ...p.stat!, value: e.target.value } } : p)} style={inp} placeholder="2h" />
-                  </div>
-                  <div>
-                    <label style={lbl}>Label EN</label>
-                    <input value={editing.stat.label_en} onChange={e => setEditing(p => p ? { ...p, stat: { ...p.stat!, label_en: e.target.value } } : p)} style={inp} />
-                  </div>
-                  <div>
-                    <label style={lbl}>Label AR</label>
-                    <input value={editing.stat.label_ar} onChange={e => setEditing(p => p ? { ...p, stat: { ...p.stat!, label_ar: e.target.value } } : p)} style={{ ...inp, direction: "rtl" }} />
-                  </div>
+                  <div><label style={lbl}>Value</label><input value={editing.stat.value} onChange={e => setEditing(p => p ? { ...p, stat: { ...p.stat!, value: e.target.value } } : p)} style={inp} placeholder="2h" /></div>
+                  <div><label style={lbl}>Label EN</label><input value={editing.stat.label_en} onChange={e => setEditing(p => p ? { ...p, stat: { ...p.stat!, label_en: e.target.value } } : p)} style={inp} /></div>
+                  <div><label style={lbl}>Label AR</label><input value={editing.stat.label_ar} onChange={e => setEditing(p => p ? { ...p, stat: { ...p.stat!, label_ar: e.target.value } } : p)} style={{ ...inp, direction: "rtl" }} /></div>
                 </div>
               )}
             </div>
@@ -277,19 +357,19 @@ export default function AdminHeroPage() {
 
             {tab === "en" ? (
               <div dir="ltr">
-                {field("badge_en", "Badge")}
-                {field("title_en", "Title (use \\n for line break)", true)}
-                {field("subtitle_en", "Subtitle", true)}
-                {field("cta_en", "CTA Button")}
-                {field("ctaSecondaryLabel_en", "Secondary Button")}
+                {field("badge_en",            "Badge")}
+                {field("title_en",            "Title (use \\n for line break)", true)}
+                {field("subtitle_en",         "Subtitle", true)}
+                {field("cta_en",              "CTA Button")}
+                {field("ctaSecondaryLabel_en","Secondary Button")}
               </div>
             ) : (
               <div dir="rtl">
-                {field("badge_ar", "Badge")}
-                {field("title_ar", "Title (use \\n for line break)", true)}
-                {field("subtitle_ar", "Subtitle", true)}
-                {field("cta_ar", "CTA Button")}
-                {field("ctaSecondaryLabel_ar", "Secondary Button")}
+                {field("badge_ar",            "Badge")}
+                {field("title_ar",            "Title (use \\n for line break)", true)}
+                {field("subtitle_ar",         "Subtitle", true)}
+                {field("cta_ar",              "CTA Button")}
+                {field("ctaSecondaryLabel_ar","Secondary Button")}
               </div>
             )}
 
@@ -304,7 +384,9 @@ export default function AdminHeroPage() {
 
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
               <button onClick={() => setEditing(null)} style={btnSecondary}>Cancel</button>
-              <button onClick={saveEdit} style={btnPrimary}>Save Slide</button>
+              <button onClick={saveEdit} disabled={imgUploading} style={{ ...btnPrimary, opacity: imgUploading ? 0.6 : 1, cursor: imgUploading ? "not-allowed" : "pointer" }}>
+                {imgUploading ? "Uploading…" : "Save Slide"}
+              </button>
             </div>
           </div>
         </div>
@@ -315,6 +397,6 @@ export default function AdminHeroPage() {
 
 const lbl: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 5 };
 const inp: React.CSSProperties = { width: "100%", padding: "9px 12px", border: "1.5px solid #e2e8f0", borderRadius: 8, fontSize: 14, outline: "none", fontFamily: "inherit", boxSizing: "border-box" };
-const btnPrimary: React.CSSProperties = { padding: "10px 20px", borderRadius: 10, background: "#1C75BC", color: "#fff", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600 };
-const btnSecondary: React.CSSProperties = { padding: "10px 20px", borderRadius: 10, background: "#f1f5f9", color: "#374151", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600 };
-const iconBtn: React.CSSProperties = { width: 34, height: 34, borderRadius: 8, border: "1px solid #e2e8f0", background: "#f8fafc", cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" };
+const btnPrimary: React.CSSProperties    = { padding: "10px 20px", borderRadius: 10, background: "#1C75BC", color: "#fff", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600 };
+const btnSecondary: React.CSSProperties  = { padding: "10px 20px", borderRadius: 10, background: "#f1f5f9", color: "#374151", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600 };
+const iconBtn: React.CSSProperties       = { width: 34, height: 34, borderRadius: 8, border: "1px solid #e2e8f0", background: "#f8fafc", cursor: "pointer", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" };

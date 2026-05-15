@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import ConfirmDialog from "@/components/ConfirmDialog";
-import { adminFetch } from "@/lib/adminFetch";
-
-
 
 type BlogPost = {
   slug: string;
@@ -14,6 +12,7 @@ type BlogPost = {
   category: string;
   excerpt: string;
   content: string;
+  coverImage?: string;
 };
 
 type Message = { type: "success" | "error"; text: string };
@@ -25,11 +24,16 @@ export default function AdminBlogPage() {
   const [editing, setEditing] = useState<BlogPost | null>(null);
   const [message, setMessage] = useState<Message | null>(null);
 
+  /* ── Cover image upload state ── */
+  const [coverPreview,    setCoverPreview]    = useState<string>("");
+  const [coverUploading,  setCoverUploading]  = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   /* ── Confirm dialog state ── */
-  const [confirmOpen,    setConfirmOpen]    = useState(false);
-  const [confirmSlug,    setConfirmSlug]    = useState<string>("");
-  const [confirmTitle,   setConfirmTitle]   = useState<string>("");
-  const [deleting,       setDeleting]       = useState(false);
+  const [confirmOpen,  setConfirmOpen]  = useState(false);
+  const [confirmSlug,  setConfirmSlug]  = useState<string>("");
+  const [confirmTitle, setConfirmTitle] = useState<string>("");
+  const [deleting,     setDeleting]     = useState(false);
 
   const emptyPost: BlogPost = {
     slug: "",
@@ -38,6 +42,7 @@ export default function AdminBlogPage() {
     category: "News",
     excerpt: "",
     content: "",
+    coverImage: "",
   };
 
   const [form, setForm] = useState<BlogPost>(emptyPost);
@@ -59,6 +64,51 @@ export default function AdminBlogPage() {
     setTimeout(() => setMessage(null), 4000);
   };
 
+  /* ── Cover image upload ── */
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Preview
+    const reader = new FileReader();
+    reader.onload = (ev) => setCoverPreview(ev.target?.result as string);
+    reader.readAsDataURL(file);
+
+    // Upload
+    setCoverUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("folder", "blog");
+
+      const res = await fetch("/api/admin/save-cover", {
+        method: "POST",
+        body: fd,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const url = data.url || data.path || data.coverUrl || "";
+        setForm(prev => ({ ...prev, coverImage: url }));
+        showMessage({ type: "success", text: "Cover image uploaded!" });
+      } else {
+        showMessage({ type: "error", text: "Image upload failed." });
+        setCoverPreview("");
+      }
+    } catch {
+      showMessage({ type: "error", text: "Upload error. Please try again." });
+      setCoverPreview("");
+    } finally {
+      setCoverUploading(false);
+    }
+  };
+
+  const removeCover = () => {
+    setCoverPreview("");
+    setForm(prev => ({ ...prev, coverImage: "" }));
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -71,6 +121,7 @@ export default function AdminBlogPage() {
     if (res.ok) {
       showMessage({ type: "success", text: editing ? "Post updated successfully!" : "Post published successfully!" });
       setForm(emptyPost);
+      setCoverPreview("");
       setEditing(null);
       fetchPosts();
     } else {
@@ -82,17 +133,16 @@ export default function AdminBlogPage() {
   const handleEdit = (post: BlogPost) => {
     setEditing(post);
     setForm(post);
+    setCoverPreview(post.coverImage || "");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  /* ── Open confirm dialog ── */
   const askDelete = (post: BlogPost) => {
     setConfirmSlug(post.slug);
     setConfirmTitle(post.title);
     setConfirmOpen(true);
   };
 
-  /* ── Confirmed delete ── */
   const handleDelete = async () => {
     setDeleting(true);
     try {
@@ -139,7 +189,6 @@ export default function AdminBlogPage() {
   return (
     <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
 
-      {/* ── Confirm Delete Dialog ── */}
       <ConfirmDialog
         open={confirmOpen}
         title="Delete Blog Post"
@@ -160,16 +209,14 @@ export default function AdminBlogPage() {
 
       <div style={{ maxWidth: 900, margin: "32px auto", padding: "0 24px" }}>
 
-        {/* ── Global message ── */}
+        {/* ── Message ── */}
         {message && (
           <div style={{
             background: message.type === "success" ? "#f0fdf4" : "#fef2f2",
             border: "1px solid " + (message.type === "success" ? "#bbf7d0" : "#fecaca"),
             borderRadius: 12, padding: "12px 16px", fontSize: 14,
             color: message.type === "success" ? "#16a34a" : "#dc2626",
-            marginBottom: 20,
-            display: "flex", alignItems: "center", gap: 10,
-            fontWeight: 500,
+            marginBottom: 20, display: "flex", alignItems: "center", gap: 10, fontWeight: 500,
           }}>
             <span>{message.type === "success" ? "✓" : "⚠"}</span>
             {message.text}
@@ -184,6 +231,8 @@ export default function AdminBlogPage() {
 
           <form onSubmit={handleSave}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+
+              {/* Title */}
               <div style={{ gridColumn: "1 / -1" }}>
                 <label style={labelStyle}>Title</label>
                 <input
@@ -195,6 +244,8 @@ export default function AdminBlogPage() {
                   placeholder="Post title"
                 />
               </div>
+
+              {/* Slug */}
               <div>
                 <label style={labelStyle}>Slug (URL)</label>
                 <input
@@ -206,6 +257,8 @@ export default function AdminBlogPage() {
                   placeholder="post-url-slug"
                 />
               </div>
+
+              {/* Category */}
               <div>
                 <label style={labelStyle}>Category</label>
                 <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} style={inputStyle}>
@@ -216,6 +269,8 @@ export default function AdminBlogPage() {
                   <option>Offers</option>
                 </select>
               </div>
+
+              {/* Date */}
               <div>
                 <label style={labelStyle}>Date</label>
                 <input
@@ -226,6 +281,98 @@ export default function AdminBlogPage() {
                   style={inputStyle}
                 />
               </div>
+
+              {/* Cover Image Upload */}
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label style={labelStyle}>Cover Image</label>
+
+                {/* Preview */}
+                {coverPreview ? (
+                  <div style={{ position: "relative", display: "inline-block", marginBottom: 10 }}>
+                    <img
+                      src={coverPreview}
+                      alt="Cover preview"
+                      style={{
+                        width: "100%",
+                        maxWidth: 420,
+                        height: 200,
+                        objectFit: "cover",
+                        borderRadius: 10,
+                        border: "1.5px solid #e5e7eb",
+                        display: "block",
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={removeCover}
+                      style={{
+                        position: "absolute",
+                        top: 8, right: 8,
+                        background: "rgba(0,0,0,0.55)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "50%",
+                        width: 28, height: 28,
+                        fontSize: 14,
+                        cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        lineHeight: 1,
+                      }}
+                      title="Remove image"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  /* Upload zone */
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{
+                      border: "2px dashed #d1d5db",
+                      borderRadius: 10,
+                      padding: "28px 16px",
+                      textAlign: "center",
+                      cursor: "pointer",
+                      background: coverUploading ? "#f9fafb" : "#fafafa",
+                      transition: "border-color 0.2s",
+                      marginBottom: 8,
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = "#1C75BC")}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = "#d1d5db")}
+                  >
+                    {coverUploading ? (
+                      <p style={{ margin: 0, fontSize: 14, color: "#6b7280" }}>⏳ Uploading…</p>
+                    ) : (
+                      <>
+                        <div style={{ fontSize: 28, marginBottom: 6 }}>🖼️</div>
+                        <p style={{ margin: 0, fontSize: 14, color: "#374151", fontWeight: 600 }}>Click to upload cover image</p>
+                        <p style={{ margin: "4px 0 0", fontSize: 12, color: "#9ca3af" }}>JPG, PNG, WebP — recommended 1200×630px</p>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCoverUpload}
+                  style={{ display: "none" }}
+                />
+
+                {/* Manual URL fallback */}
+                {!coverPreview && (
+                  <input
+                    type="text"
+                    value={form.coverImage || ""}
+                    onChange={e => setForm({ ...form, coverImage: e.target.value })}
+                    style={{ ...inputStyle, marginTop: 6 }}
+                    placeholder="Or paste image URL (optional)"
+                  />
+                )}
+              </div>
+
+              {/* Excerpt */}
               <div style={{ gridColumn: "1 / -1" }}>
                 <label style={labelStyle}>Excerpt</label>
                 <textarea
@@ -237,6 +384,8 @@ export default function AdminBlogPage() {
                   placeholder="Short description..."
                 />
               </div>
+
+              {/* Content */}
               <div style={{ gridColumn: "1 / -1" }}>
                 <label style={labelStyle}>Content</label>
                 <textarea
@@ -253,12 +402,12 @@ export default function AdminBlogPage() {
             <div style={{ display: "flex", gap: 10 }}>
               <button
                 type="submit"
-                disabled={saving}
+                disabled={saving || coverUploading}
                 style={{
-                  background: saving ? "#9ca3af" : "#1C75BC",
+                  background: (saving || coverUploading) ? "#9ca3af" : "#1C75BC",
                   color: "white", border: "none", borderRadius: 10,
                   padding: "11px 24px", fontSize: 14, fontWeight: 600,
-                  cursor: saving ? "not-allowed" : "pointer",
+                  cursor: (saving || coverUploading) ? "not-allowed" : "pointer",
                 }}
               >
                 {saving ? "Saving…" : editing ? "Update Post" : "Publish Post"}
@@ -266,7 +415,7 @@ export default function AdminBlogPage() {
               {editing && (
                 <button
                   type="button"
-                  onClick={() => { setEditing(null); setForm(emptyPost); }}
+                  onClick={() => { setEditing(null); setForm(emptyPost); setCoverPreview(""); }}
                   style={{
                     background: "#f3f4f6", color: "#374151",
                     border: "1px solid #e5e7eb", borderRadius: 10,
@@ -304,14 +453,37 @@ export default function AdminBlogPage() {
                     flexWrap: "wrap",
                   }}
                 >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3, flexWrap: "wrap" }}>
-                      <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#111" }}>{post.title}</p>
-                      <span style={{ background: "#eff8ff", color: "#1C75BC", fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20, whiteSpace: "nowrap" }}>
-                        {post.category}
-                      </span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, minWidth: 0 }}>
+                    {/* Thumbnail */}
+                    {post.coverImage ? (
+                      <img
+                        src={post.coverImage}
+                        alt={post.title}
+                        style={{
+                          width: 56, height: 40,
+                          objectFit: "cover",
+                          borderRadius: 6,
+                          border: "1px solid #e5e7eb",
+                          flexShrink: 0,
+                        }}
+                      />
+                    ) : (
+                      <div style={{
+                        width: 56, height: 40, borderRadius: 6,
+                        background: "#f3f4f6", border: "1px solid #e5e7eb",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 18, flexShrink: 0,
+                      }}>🖼️</div>
+                    )}
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3, flexWrap: "wrap" }}>
+                        <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#111" }}>{post.title}</p>
+                        <span style={{ background: "#eff8ff", color: "#1C75BC", fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 20, whiteSpace: "nowrap" }}>
+                          {post.category}
+                        </span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: 12, color: "#666" }}>{post.date} · /{post.slug}</p>
                     </div>
-                    <p style={{ margin: 0, fontSize: 12, color: "#666" }}>{post.date} · /{post.slug}</p>
                   </div>
                   <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
                     <button
@@ -321,9 +493,7 @@ export default function AdminBlogPage() {
                         border: "1px solid #bfdbfe", borderRadius: 8,
                         padding: "6px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer",
                       }}
-                    >
-                      ✏️ Edit
-                    </button>
+                    >✏️ Edit</button>
                     <button
                       onClick={() => askDelete(post)}
                       style={{
@@ -331,9 +501,7 @@ export default function AdminBlogPage() {
                         border: "1px solid #fecaca", borderRadius: 8,
                         padding: "6px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer",
                       }}
-                    >
-                      🗑️ Delete
-                    </button>
+                    >🗑️ Delete</button>
                   </div>
                 </div>
               ))}
