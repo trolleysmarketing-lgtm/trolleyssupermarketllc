@@ -41,6 +41,31 @@ const navCards = [
   ),
   bg: "#eff6ff",
 },
+{
+  href: "/admin/announcement",
+  title: "Announcement",
+  description: "Show/hide banner with custom message (EN/AR)",
+  icon: (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0e76bc" strokeWidth="1.8" strokeLinecap="round">
+      <path d="M22 17H2a3 3 0 000 6h20a3 3 0 000-6z"/>
+      <path d="M22 11V7a2 2 0 00-2-2H4a2 2 0 00-2 2v4"/>
+    </svg>
+  ),
+  bg: "#eff6ff",
+},
+{
+  href: "/admin/survey-results",
+  title: "Survey Results",
+  description: "View charts, responses and export CSV",
+  icon: (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0891b2" strokeWidth="1.8" strokeLinecap="round">
+      <line x1="18" y1="20" x2="18" y2="10"/>
+      <line x1="12" y1="20" x2="12" y2="4"/>
+      <line x1="6"  y1="20" x2="6"  y2="14"/>
+    </svg>
+  ),
+  bg: "#ecfeff",
+},
   {
     href: "/admin/blog",
     title: "Blog Posts",
