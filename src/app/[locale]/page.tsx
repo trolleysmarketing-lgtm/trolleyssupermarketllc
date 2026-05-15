@@ -7,16 +7,13 @@ import dynamic from "next/dynamic";
 import HeroSlider, { type Slide } from "@/components/HeroSlider";
 import styles from "./homepage/homepage.module.css";
 
-/* ── Above the fold ── */
 import CategoriesSection from "./homepage/CategoriesSection";
 
-/* ── Below the fold — lazy loaded ── */
 const OffersSection  = dynamic(() => import("./homepage/OffersSection"),  { ssr: false });
 const ReviewsSection = dynamic(() => import("./homepage/ReviewsSection"), { ssr: false });
 const BlogSection    = dynamic(() => import("./homepage/BlogSection"),    { ssr: false });
 const StoresSection  = dynamic(() => import("./homepage/StoresSection"),  { ssr: false });
 
-/* ── Structured Data ── */
 function buildJsonLd(stores: Array<{ name: string; address: string; phone: string; city: string }>) {
   return {
     "@context": "https://schema.org",
@@ -56,8 +53,8 @@ function buildJsonLd(stores: Array<{ name: string; address: string; phone: strin
   };
 }
 
-/* ── Ticker ── */
 function Ticker({ items }: { items: string[] }) {
+  if (items.length === 0) return null;
   return (
     <div className={styles.ticker} aria-hidden="true" role="marquee">
       <div className={styles.tickerTrack}>
@@ -74,15 +71,9 @@ function Ticker({ items }: { items: string[] }) {
   );
 }
 
-/* ── Hero data type ── */
 type HeroSlide = {
-  id: number;
-  active: boolean;
-  order: number;
-  image: string;
-  accent: string;
-  ctaLink: string;
-  ctaSecondaryLink: string | null;
+  id: number; active: boolean; order: number;
+  image: string; accent: string; ctaLink: string; ctaSecondaryLink: string | null;
   badge_en: string; title_en: string; subtitle_en: string;
   cta_en: string; ctaSecondaryLabel_en: string;
   badge_ar: string; title_ar: string; subtitle_ar: string;
@@ -90,7 +81,10 @@ type HeroSlide = {
   stat: { value: string; label_en: string; label_ar: string } | null;
 };
 
-/* ── Page ── */
+type TickerItem = {
+  id: number; text_en: string; text_ar: string; active: boolean;
+};
+
 export default function HomePage() {
   const params = useParams();
   const locale = (params?.locale as string) || "en";
@@ -98,7 +92,8 @@ export default function HomePage() {
   const isAr   = isRTL;
   const t      = useTranslations("home");
 
-  const [heroSlides, setHeroSlides] = useState<HeroSlide[] | null>(null);
+  const [heroSlides,  setHeroSlides]  = useState<HeroSlide[] | null>(null);
+  const [tickerItems, setTickerItems] = useState<string[] | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/hero")
@@ -107,12 +102,23 @@ export default function HomePage() {
       .catch(() => setHeroSlides([]));
   }, []);
 
+  useEffect(() => {
+    fetch("/api/admin/ticker")
+      .then(r => r.json())
+      .then(d => {
+        const active = (d.items || [])
+          .filter((i: TickerItem) => i.active)
+          .map((i: TickerItem) => isAr ? i.text_ar : i.text_en);
+        setTickerItems(active);
+      })
+      .catch(() => setTickerItems(null));
+  }, [isAr]);
+
   const stores = t.raw("stores.list") as Array<{
     name: string; address: string; phone: string;
     city: string; hours: string; wa: string;
   }>;
 
-  // Fallback slides (from translations) if hero.json not ready yet
   const fallbackSlides: Slide[] = [
     {
       id: 1,
@@ -137,16 +143,18 @@ export default function HomePage() {
     },
   ];
 
-  // Convert hero.json data to Slide format
+  const fallbackTicker = [
+    t("features.freshDaily.title"),
+    t("features.weeklyOffers.title"),
+    t("features.fastDelivery.title"),
+    t("features.fourStores.title"),
+    t("offers.subtitle"),
+  ];
+
   const buildSlides = (): Slide[] => {
     if (!heroSlides || heroSlides.length === 0) return fallbackSlides;
-
-    const active = heroSlides
-      .filter(s => s.active)
-      .sort((a, b) => a.order - b.order);
-
+    const active = heroSlides.filter(s => s.active).sort((a, b) => a.order - b.order);
     if (active.length === 0) return fallbackSlides;
-
     return active.map(s => ({
       id: s.id,
       badge:    isAr ? s.badge_ar    : s.badge_en,
@@ -156,21 +164,13 @@ export default function HomePage() {
       ctaLink:  `/${locale}${s.ctaLink}`,
       ctaSecondaryLabel: isAr ? s.ctaSecondaryLabel_ar : s.ctaSecondaryLabel_en,
       ctaSecondaryLink:  s.ctaSecondaryLink ? `/${locale}${s.ctaSecondaryLink}` : undefined,
-      image:    s.image,
-      accent:   s.accent,
-      stat:     s.stat ? { value: s.stat.value, label: isAr ? s.stat.label_ar : s.stat.label_en } : undefined,
+      image: s.image, accent: s.accent,
+      stat: s.stat ? { value: s.stat.value, label: isAr ? s.stat.label_ar : s.stat.label_en } : undefined,
     }));
   };
 
-  const slides = buildSlides();
-
-  const tickerItems = [
-    t("features.freshDaily.title"),
-    t("features.weeklyOffers.title"),
-    t("features.fastDelivery.title"),
-    t("features.fourStores.title"),
-    t("offers.subtitle"),
-  ];
+  const slides        = buildSlides();
+  const displayTicker = tickerItems ?? fallbackTicker;
 
   return (
     <>
@@ -179,12 +179,9 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(buildJsonLd(stores)) }}
       />
       <div className={styles.hp} dir={isRTL ? "rtl" : "ltr"} lang={locale}>
-        {/* ── Critical path ── */}
         <HeroSlider locale={locale} slides={slides} ariaLabel={t("offers.browseCatalog")} />
-        <Ticker items={tickerItems} />
+        <Ticker items={displayTicker} />
         <CategoriesSection locale={locale} isRTL={isRTL} />
-
-        {/* ── Deferred ── */}
         <OffersSection  locale={locale} isRTL={isRTL} />
         <ReviewsSection locale={locale} />
         <BlogSection    locale={locale} isRTL={isRTL} />

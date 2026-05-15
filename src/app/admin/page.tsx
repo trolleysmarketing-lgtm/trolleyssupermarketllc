@@ -31,6 +31,17 @@ const navCards = [
     bg: "#eff6ff",
   },
   {
+  href: "/admin/ticker",
+  title: "Ticker / Marquee",
+  description: "Manage homepage scrolling banner (EN/AR)",
+  icon: (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0e76bc" strokeWidth="1.8" strokeLinecap="round">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+    </svg>
+  ),
+  bg: "#eff6ff",
+},
+  {
     href: "/admin/blog",
     title: "Blog Posts",
     description: "Add, edit and delete blog articles (EN/AR)",

@@ -1,0 +1,9 @@
+{
+  "items": [
+    { "id": 1, "text_en": "Fresh Daily", "text_ar": "طازج يومياً", "active": true },
+    { "id": 2, "text_en": "Weekly Offers", "text_ar": "عروض أسبوعية", "active": true },
+    { "id": 3, "text_en": "2-Hour Delivery", "text_ar": "توصيل خلال ساعتين", "active": true },
+    { "id": 4, "text_en": "5 Stores Across UAE", "text_ar": "5 فروع في أنحاء الإمارات", "active": true },
+    { "id": 5, "text_en": "This Week's Catalog", "text_ar": "كتالوج هذا الأسبوع", "active": true }
+  ]
+}
