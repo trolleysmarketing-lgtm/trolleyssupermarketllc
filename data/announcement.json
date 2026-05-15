@@ -1,0 +1,12 @@
+{
+  "active": false,
+  "dismissible": true,
+  "bg": "#1C75BC",
+  "textColor": "#ffffff",
+  "text_en": "🎉 This week's special offers are live! Shop now and save big.",
+  "text_ar": "🎉 عروض هذا الأسبوع متاحة الآن! تسوق وفر أكثر.",
+  "link_en": "/en/offers",
+  "link_ar": "/ar/offers",
+  "link_label_en": "View Offers →",
+  "link_label_ar": "عرض العروض ←"
+}

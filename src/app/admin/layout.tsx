@@ -56,6 +56,15 @@ const menuItems = [
     </svg>
   ),
 },
+{
+  href: "/admin/announcement",
+  label: "Announcement",
+  icon: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M22 17H2a3 3 0 000 6h20a3 3 0 000-6z"/><path d="M22 11V7a2 2 0 00-2-2H4a2 2 0 00-2 2v4"/>
+    </svg>
+  ),
+},
   {
     href: "/admin/categories",
     label: "Categories",

@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SchemaOrg from "@/components/SchemaOrg";
 import Preloader from "@/components/Preloader";
+import AnnouncementBar from "@/components/AnnouncementBar";
 import "../globals.css";
 import { LazyWidgets } from "@/components/LazyWidgets";
 
@@ -114,6 +115,7 @@ export default async function LocaleLayout({
         <SchemaOrg locale={locale} />
         <NextIntlClientProvider messages={messages}>
           <Preloader />
+          <AnnouncementBar />
           <Header />
           <main className="flex-1">
             {children}
