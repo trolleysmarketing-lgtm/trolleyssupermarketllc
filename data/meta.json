@@ -1,0 +1,52 @@
+{
+  "pages": {
+    "home": {
+      "title_en": "Trolleys Supermarket UAE — Fresh Groceries, Weekly Offers | Dubai, Sharjah & Ajman",
+      "title_ar": "ترولييز سوبرماركت — دبي والشارقة وعجمان",
+      "description_en": "Trolleys Supermarket UAE — Fresh groceries, weekly catalog offers and fast delivery across Dubai, Sharjah and Ajman.",
+      "description_ar": "ترولييز سوبرماركت في الإمارات — أطازج المنتجات وأفضل الأسعار. فروع في دبي والشارقة وعجمان."
+    },
+    "about": {
+      "title_en": "About Us — Trolleys Supermarket UAE",
+      "title_ar": "من نحن — ترولييز سوبرماركت",
+      "description_en": "Learn about Trolleys Supermarket, your trusted grocery destination in Dubai, Sharjah and Ajman.",
+      "description_ar": "تعرف على ترولييز سوبرماركت، وجهتك الموثوقة للبقالة في دبي والشارقة وعجمان."
+    },
+    "stores": {
+      "title_en": "Our Stores — Trolleys Supermarket UAE",
+      "title_ar": "فروعنا — ترولييز سوبرماركت",
+      "description_en": "Find Trolleys Supermarket branches across Dubai, Sharjah and Ajman. Get directions, hours and contact info.",
+      "description_ar": "اعثر على فروع ترولييز سوبرماركت في دبي والشارقة وعجمان. احصل على الاتجاهات وساعات العمل."
+    },
+    "offers": {
+      "title_en": "Weekly Offers — Trolleys Supermarket UAE",
+      "title_ar": "العروض الأسبوعية — ترولييز سوبرماركت",
+      "description_en": "Discover hundreds of products on sale every week at Trolleys Supermarket across Dubai, Sharjah and Ajman.",
+      "description_ar": "اكتشف مئات المنتجات المخفضة كل أسبوع في ترولييز سوبرماركت في دبي والشارقة وعجمان."
+    },
+    "blog": {
+      "title_en": "Blog — Trolleys Supermarket UAE | Shopping Tips & Ideas",
+      "title_ar": "المدونة — ترولييز سوبرماركت | نصائح وأفكار تسوق",
+      "description_en": "Read the latest articles on smart shopping, saving money, and healthy lifestyle from Trolleys Supermarket.",
+      "description_ar": "اقرأ أحدث المقالات عن التسوق الذكي وتوفير المال ونمط الحياة الصحي من ترولييز سوبرماركت."
+    },
+    "contact": {
+      "title_en": "Contact Us — Trolleys Supermarket UAE",
+      "title_ar": "اتصل بنا — ترولييز سوبرماركت",
+      "description_en": "Get in touch with Trolleys Supermarket. Find our phone numbers, WhatsApp and store locations.",
+      "description_ar": "تواصل مع ترولييز سوبرماركت. اعثر على أرقام هواتفنا وواتساب ومواقع الفروع."
+    },
+    "delivery": {
+      "title_en": "Delivery Information — Trolleys Supermarket UAE",
+      "title_ar": "معلومات التوصيل — ترولييز سوبرماركت",
+      "description_en": "Fast and reliable grocery delivery across Dubai, Sharjah and Ajman. 2-hour delivery available.",
+      "description_ar": "توصيل بقالة سريع وموثوق في دبي والشارقة وعجمان. توصيل خلال ساعتين متاح."
+    },
+    "faqs": {
+      "title_en": "FAQs — Trolleys Supermarket UAE",
+      "title_ar": "الأسئلة الشائعة — ترولييز سوبرماركت",
+      "description_en": "Find answers to frequently asked questions about Trolleys Supermarket — hours, delivery, returns and more.",
+      "description_ar": "اعثر على إجابات الأسئلة الشائعة حول ترولييز سوبرماركت — ساعات العمل والتوصيل والإرجاع والمزيد."
+    }
+  }
+}

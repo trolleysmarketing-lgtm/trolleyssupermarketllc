@@ -10,8 +10,7 @@ import Preloader from "@/components/Preloader";
 import AnnouncementBar from "@/components/AnnouncementBar";
 import "../globals.css";
 import { LazyWidgets } from "@/components/LazyWidgets";
-
-const baseUrl = "https://trolleyssupermarketllc.com";
+import { getPageMeta } from "@/lib/getPageMeta";
 
 export const viewport: Viewport = {
   themeColor: "#0e76bc",
@@ -24,48 +23,20 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const isAr = locale === "ar";
+  const meta = await getPageMeta("home", locale);
 
   return {
-    metadataBase: new URL(baseUrl),
+    ...meta,
     title: {
-      default: isAr
-        ? "ترولييز سوبرماركت — دبي والشارقة وعجمان"
-        : "Trolleys Supermarket UAE — Fresh Groceries, Weekly Offers | Dubai, Sharjah & Ajman",
-      template: isAr
-        ? "%s | ترولييز سوبرماركت الإمارات"
-        : "%s | Trolleys Supermarket UAE",
+      default: meta.title,
+      template: isAr ? "%s | ترولييز سوبرماركت الإمارات" : "%s | Trolleys Supermarket UAE",
     },
-    description: isAr
-      ? "ترولييز سوبرماركت في الإمارات — أطازج المنتجات وأفضل الأسعار. فروع في دبي والشارقة وعجمان. عروض أسبوعية، توصيل سريع، تسوق أونلاين."
-      : "Trolleys Supermarket UAE — Fresh groceries, weekly catalog offers and fast delivery across Dubai, Sharjah and Ajman. Shop fresh produce, dairy, meat, bakery and more.",
     keywords: isAr
-      ? ["ترولييز سوبرماركت","سوبرماركت الإمارات","سوبرماركت دبي","سوبرماركت الشارقة","سوبرماركت عجمان","بقالة دبي","توصيل بقالة الإمارات","عروض أسبوعية الإمارات","منتجات طازجة دبي","سوبرماركت مردف","سوبرماركت التعاون"]
-      : ["Trolleys Supermarket UAE","supermarket Dubai","supermarket Sharjah","supermarket Ajman","grocery store UAE","fresh food Dubai","weekly offers UAE","grocery delivery Dubai","supermarket Mirdif","supermarket Al Taawun","online grocery UAE","best supermarket UAE"],
+      ? ["ترولييز سوبرماركت","سوبرماركت الإمارات","سوبرماركت دبي","سوبرماركت الشارقة","سوبرماركت عجمان","بقالة دبي","توصيل بقالة الإمارات","عروض أسبوعية الإمارات","منتجات طازجة دبي"]
+      : ["Trolleys Supermarket UAE","supermarket Dubai","supermarket Sharjah","supermarket Ajman","grocery store UAE","fresh food Dubai","weekly offers UAE","grocery delivery Dubai"],
     authors: [{ name: "Trolleys Supermarket LLC" }],
     creator: "Trolleys Supermarket LLC",
     publisher: "Trolleys Supermarket LLC",
-    alternates: {
-      canonical: `${baseUrl}/${locale}`,
-      languages: { "en": `${baseUrl}/en`, "ar": `${baseUrl}/ar`, "x-default": `${baseUrl}/en` },
-    },
-    openGraph: {
-      type: "website",
-      locale: isAr ? "ar_AE" : "en_AE",
-      alternateLocale: isAr ? "en_AE" : "ar_AE",
-      url: `${baseUrl}/${locale}`,
-      siteName: "Trolleys Supermarket",
-      title: isAr ? "ترولييز سوبرماركت — دبي والشارقة وعجمان" : "Trolleys Supermarket UAE — Fresh Groceries & Weekly Offers",
-      description: isAr ? "أطازج المنتجات وأفضل العروض الأسبوعية في الإمارات. فروع في دبي والشارقة وعجمان." : "Fresh groceries, weekly catalog offers and fast delivery across Dubai, Sharjah and Ajman.",
-      images: [{ url: `${baseUrl}/og-image.jpg`, width: 1200, height: 630, alt: isAr ? "ترولييز سوبرماركت الإمارات" : "Trolleys Supermarket UAE", type: "image/jpeg" }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      site: "@trolleysuae",
-      creator: "@trolleysuae",
-      title: isAr ? "ترولييز سوبرماركت — دبي والشارقة وعجمان" : "Trolleys Supermarket UAE — Fresh Groceries & Weekly Offers",
-      description: isAr ? "أطازج المنتجات وأفضل العروض الأسبوعية في الإمارات" : "Fresh groceries, weekly offers and fast delivery in UAE",
-      images: [`${baseUrl}/og-image.jpg`],
-    },
     robots: {
       index: true, follow: true,
       googleBot: { index: true, follow: true, "max-video-preview": -1, "max-image-preview": "large", "max-snippet": -1 },
@@ -80,7 +51,7 @@ export async function generateMetadata({
       "business:contact_data:country_name": "United Arab Emirates",
       "business:contact_data:locality": "Dubai",
       "business:contact_data:region": "Dubai",
-      "business:contact_data:website": baseUrl,
+      "business:contact_data:website": "https://trolleyssupermarketllc.com",
       "msapplication-TileColor": "#0e76bc",
     },
   };

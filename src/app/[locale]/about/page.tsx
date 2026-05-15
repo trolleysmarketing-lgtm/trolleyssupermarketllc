@@ -3,55 +3,11 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import Breadcrumb from "@/components/Breadcrumb";
 import type { Metadata } from "next";
+import { getPageMeta } from "@/lib/getPageMeta";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "about" });
-  const isArabic = locale === "ar";
-
-  return {
-    title: t("title") + " — Trolleys Supermarket UAE",
-    description: t("hero_description"),
-    openGraph: {
-      title: t("title") + " — Trolleys Supermarket UAE",
-      description: t("hero_description"),
-      images: [
-        {
-          url: "/about/trolleys-store-front.webp",
-          width: 1200,
-          height: 630,
-          alt: t("hero_title_line1") + " " + t("hero_title_line2"),
-        },
-      ],
-      type: "website",
-      siteName: "Trolleys Supermarket UAE",
-      locale: isArabic ? "ar_AE" : "en_AE",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: t("title") + " — Trolleys Supermarket UAE",
-      description: t("hero_description"),
-      images: ["/about/trolleys-store-front.webp"],
-    },
-    alternates: {
-      canonical: `https://trolleys.ae/${locale}/about`,
-      languages: {
-        en: "https://trolleys.ae/en/about",
-        ar: "https://trolleys.ae/ar/about",
-      },
-    },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-video-preview": -1,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-      },
-    },
-  };
+  return getPageMeta("about", locale);
 }
 
 function getOrganizationSchema(locale: string) {
@@ -140,7 +96,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
       <main className="cp" style={{ minHeight: "100vh", direction: isRTL ? "rtl" : "ltr" }}>
         <Breadcrumb locale={locale} crumbs={[{ label: t("breadcrumb") }]} />
 
-        {/* HERO - Marka Mavisi */}
+        {/* HERO */}
         <header style={{
           background: "linear-gradient(135deg, #1C75BC 0%, #1C75BC 100%)",
           position: "relative", overflow: "hidden", padding: "48px 32px 52px"
@@ -182,12 +138,10 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           </div>
         </header>
 
-        {/* STORY - Buzlu Mavi */}
+        {/* STORY */}
         <section aria-labelledby="story-heading" style={{
           padding: "80px 0",
           background: "linear-gradient(135deg, rgba(28,117,188,.04) 0%, rgba(255,255,255,.5) 100%)",
-          backdropFilter: "blur(28px) saturate(180%)",
-          WebkitBackdropFilter: "blur(28px) saturate(180%)",
         }}>
           <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 clamp(20px, 4vw, 40px)" }}>
             <div style={{ textAlign: "center", marginBottom: 48 }}>
@@ -221,7 +175,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           </div>
         </section>
 
-        {/* VALUES - Beyaz */}
+        {/* VALUES */}
         <section aria-labelledby="values-heading" style={{ padding: "80px 0", background: "#fff" }}>
           <div style={{ maxWidth: 1000, margin: "0 auto", padding: "0 clamp(20px, 4vw, 40px)" }}>
             <div style={{ textAlign: "center", marginBottom: 48 }}>
@@ -256,12 +210,10 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           </div>
         </section>
 
-        {/* BRANCHES - Buzlu Mavi */}
+        {/* BRANCHES */}
         <section aria-labelledby="branches-heading" style={{
           padding: "80px 0",
           background: "linear-gradient(135deg, rgba(28,117,188,.04) 0%, rgba(255,255,255,.5) 100%)",
-          backdropFilter: "blur(28px) saturate(180%)",
-          WebkitBackdropFilter: "blur(28px) saturate(180%)",
         }}>
           <div style={{ maxWidth: 1000, margin: "0 auto", padding: "0 clamp(20px, 4vw, 40px)" }}>
             <div style={{ textAlign: "center", marginBottom: 48 }}>
@@ -296,9 +248,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                     </svg>
                   </div>
                   <h3 style={{ fontSize: 13, fontWeight: 700, color: "#1a1a1a", marginBottom: 4 }}>{branch.name}</h3>
-                  <address style={{
-                    fontSize: 11, color: "#a0a0a0", marginBottom: 8, fontStyle: "normal"
-                  }}>{branch.city}</address>
+                  <address style={{ fontSize: 11, color: "#a0a0a0", marginBottom: 8, fontStyle: "normal" }}>{branch.city}</address>
                   <time style={{
                     fontSize: 10, fontWeight: 600, color: "#1C75BC",
                     background: "#e8f4fd", padding: "3px 10px", borderRadius: 999, display: "inline-block"
@@ -323,7 +273,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           </div>
         </section>
 
-        {/* CTA - Marka Mavisi */}
+        {/* CTA */}
         <section aria-labelledby="cta-heading" style={{
           padding: "72px 0",
           background: "linear-gradient(135deg, #1C75BC 0%, #1C75BC 100%)",

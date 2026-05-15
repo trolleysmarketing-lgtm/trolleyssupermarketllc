@@ -6,6 +6,7 @@ import { existsSync } from "fs";
 import path from "path";
 import Breadcrumb from "@/components/Breadcrumb";
 import type { Metadata } from "next";
+import { getPageMeta } from "@/lib/getPageMeta";
 
 type Post = {
   slug: string;
@@ -21,31 +22,19 @@ type Post = {
 };
 
 const blogImages: Record<string, string> = {
-  "smart-grocery-shopping-uae-save-money-2026": "/blog/smart-grocery-shopping-uae.webp",
+  "smart-grocery-shopping-uae-save-money-2026":       "/blog/smart-grocery-shopping-uae.webp",
   "healthy-eating-dubai-affordable-supermarket-foods": "/blog/healthy-eating-dubai-supermarket.webp",
-  "how-to-choose-fresh-meat-fruits-vegetables-uae": "/blog/fresh-food-uae-supermarket-guide.webp",
-  "best-weekly-supermarket-deals-uae-trolleys": "/blog/uae-supermarket-weekly-offers.webp",
-  "daily-life-uae-supermarkets-shopping-guide": "/blog/supermarket-lifestyle-uae-dubai.webp",
-  "top-imported-foods-uae-supermarkets-trolleys": "/blog/imported-foods-uae-supermarket.webp",
+  "how-to-choose-fresh-meat-fruits-vegetables-uae":   "/blog/fresh-food-uae-supermarket-guide.webp",
+  "best-weekly-supermarket-deals-uae-trolleys":       "/blog/uae-supermarket-weekly-offers.webp",
+  "daily-life-uae-supermarkets-shopping-guide":       "/blog/supermarket-lifestyle-uae-dubai.webp",
+  "top-imported-foods-uae-supermarkets-trolleys":     "/blog/imported-foods-uae-supermarket.webp",
 };
 
 const getImage = (post: Post) => post.coverImage || blogImages[post.slug] || "";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  return {
-    title: locale === "ar"
-      ? "المدونة — ترولييز سوبرماركت | نصائح وأفكار تسوق"
-      : "Blog — Trolleys Supermarket UAE | Shopping Tips & Ideas",
-    description: locale === "ar"
-      ? "اقرأ أحدث المقالات عن التسوق الذكي وتوفير المال ونمط الحياة الصحي من ترولييز سوبرماركت."
-      : "Read the latest articles on smart shopping, saving money, and healthy lifestyle from Trolleys Supermarket.",
-    openGraph: {
-      title: locale === "ar" ? "المدونة — ترولييز سوبرماركت" : "Blog — Trolleys Supermarket UAE",
-      description: locale === "ar" ? "نصائح وأفكار تسوق" : "Shopping Tips & Ideas",
-      images: ["/blog/blog-og.webp"],
-    },
-  };
+  return getPageMeta("blog", locale);
 }
 
 async function getPosts(): Promise<Post[]> {
@@ -62,34 +51,25 @@ export default async function BlogPage() {
   return <BlogContent posts={posts} />;
 }
 
-// Aggressively clean AI-generated text artifacts
 function cleanExcerpt(text: string, maxLen = 160): string {
   if (!text) return "";
-
   let clean = text
-    // Remove full JSON blocks
     .replace(/```json[\s\S]*?```/gi, "")
     .replace(/```[\s\S]*?```/g, "")
-    // Remove any line that starts with { or looks like JSON
     .split("\n")
     .filter(line => {
       const t = line.trim();
-      // Drop lines that are JSON-like
       if (t.startsWith("{") || t.startsWith("}")) return false;
       if (t.startsWith('"title"') || t.startsWith('"excerpt"') || t.startsWith('"content')) return false;
       if (/^"[a-z_]+"\s*:/.test(t)) return false;
       return true;
     })
     .join(" ")
-    // Remove leftover JSON fragments
     .replace(/\{[^}]*\}/g, "")
     .replace(/`/g, "")
     .replace(/\s+/g, " ")
     .trim();
-
-  // If after cleaning it's too short or looks like garbage, return empty
   if (clean.length < 10) return "";
-
   return clean.slice(0, maxLen);
 }
 
@@ -109,86 +89,19 @@ function BlogContent({ posts }: { posts: Post[] }) {
       <style>{`
         .cp { font-family: 'Inter', system-ui, sans-serif; }
         .serif { font-family: Georgia, 'Times New Roman', serif; }
-        
-        .blog-card {
-          background: #fff;
-          border: 1px solid #f0ebe4;
-          border-radius: 16px;
-          overflow: hidden;
-          transition: all .35s cubic-bezier(.25,.46,.45,.94);
-          text-decoration: none;
-          display: block;
-          height: 100%;
-          box-shadow: 0 1px 3px rgba(0,0,0,.03);
-        }
-        .blog-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 16px 40px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.03);
-          border-color: #1C75BC;
-        }
-        .blog-card-img {
-          transition: transform .6s cubic-bezier(.25,.46,.45,.94);
-        }
-        .blog-card:hover .blog-card-img {
-          transform: scale(1.06);
-        }
-        
-        .blog-featured {
-          background: #fff;
-          border-radius: 18px;
-          overflow: hidden;
-          border: 1px solid #f0ebe4;
-          box-shadow: 0 2px 8px rgba(0,0,0,.04);
-          transition: all .35s cubic-bezier(.25,.46,.45,.94);
-          text-decoration: none;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-        }
-        .blog-featured:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 20px 48px rgba(0,0,0,.07), 0 6px 16px rgba(0,0,0,.04);
-        }
-        .blog-featured-img {
-          transition: transform .7s cubic-bezier(.25,.46,.45,.94);
-        }
-        .blog-featured:hover .blog-featured-img {
-          transform: scale(1.05);
-        }
-        
-        .blog-category-badge {
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: .06em;
-          text-transform: uppercase;
-          padding: 4px 12px;
-          border-radius: 999px;
-          background: #e8f4fd;
-          color: #1C75BC;
-        }
-        
-        .blog-read-more {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 13px;
-          font-weight: 600;
-          color: #1C75BC;
-          transition: gap .3s;
-        }
-        .blog-card:hover .blog-read-more,
-        .blog-featured:hover .blog-read-more {
-          gap: 10px;
-        }
-
-        @keyframes pulse { 
-          0%,100%{opacity:.5;transform:scale(1)} 
-          50%{opacity:1;transform:scale(1.5)} 
-        }
-
-        @media(max-width: 768px) {
-          .blog-featured { grid-template-columns: 1fr !important; }
-          .blog-featured-content { padding: 28px 24px !important; }
-        }
+        .blog-card { background: #fff; border: 1px solid #f0ebe4; border-radius: 16px; overflow: hidden; transition: all .35s cubic-bezier(.25,.46,.45,.94); text-decoration: none; display: block; height: 100%; box-shadow: 0 1px 3px rgba(0,0,0,.03); }
+        .blog-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.03); border-color: #1C75BC; }
+        .blog-card-img { transition: transform .6s cubic-bezier(.25,.46,.45,.94); }
+        .blog-card:hover .blog-card-img { transform: scale(1.06); }
+        .blog-featured { background: #fff; border-radius: 18px; overflow: hidden; border: 1px solid #f0ebe4; box-shadow: 0 2px 8px rgba(0,0,0,.04); transition: all .35s cubic-bezier(.25,.46,.45,.94); text-decoration: none; display: grid; grid-template-columns: 1fr 1fr; }
+        .blog-featured:hover { transform: translateY(-4px); box-shadow: 0 20px 48px rgba(0,0,0,.07), 0 6px 16px rgba(0,0,0,.04); }
+        .blog-featured-img { transition: transform .7s cubic-bezier(.25,.46,.45,.94); }
+        .blog-featured:hover .blog-featured-img { transform: scale(1.05); }
+        .blog-category-badge { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 4px 12px; border-radius: 999px; background: #e8f4fd; color: #1C75BC; }
+        .blog-read-more { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #1C75BC; transition: gap .3s; }
+        .blog-card:hover .blog-read-more, .blog-featured:hover .blog-read-more { gap: 10px; }
+        @keyframes pulse { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.5)} }
+        @media(max-width: 768px) { .blog-featured { grid-template-columns: 1fr !important; } .blog-featured-content { padding: 28px 24px !important; } }
       `}</style>
 
       <div className="cp" style={{ background: "#fff", minHeight: "100vh", direction: isRTL ? "rtl" : "ltr" }}>

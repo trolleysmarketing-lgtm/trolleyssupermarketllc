@@ -1,0 +1,37 @@
+import { NextRequest, NextResponse } from "next/server";
+import { readFile, writeFile, mkdir } from "fs/promises";
+import { existsSync } from "fs";
+import path from "path";
+
+const dataPath = path.join(process.cwd(), "data", "meta.json");
+
+async function getData() {
+  if (!existsSync(dataPath)) {
+    const dir = path.join(process.cwd(), "data");
+    if (!existsSync(dir)) await mkdir(dir, { recursive: true });
+    const def = { pages: {} };
+    await writeFile(dataPath, JSON.stringify(def, null, 2));
+    return def;
+  }
+  return JSON.parse(await readFile(dataPath, "utf-8"));
+}
+
+function isAuthorized(req: NextRequest): boolean {
+  const cookie = req.cookies.get("admin_token")?.value;
+  const header = req.headers.get("x-admin-token");
+  return cookie === process.env.ADMIN_SECRET || header === process.env.ADMIN_SECRET;
+}
+
+// Public GET — pages use this
+export async function GET() {
+  const data = await getData();
+  return NextResponse.json(data);
+}
+
+export async function PUT(req: NextRequest) {
+  if (!isAuthorized(req))
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const body = await req.json();
+  await writeFile(dataPath, JSON.stringify(body, null, 2));
+  return NextResponse.json({ success: true });
+}

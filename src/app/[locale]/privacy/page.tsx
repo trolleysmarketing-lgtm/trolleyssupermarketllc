@@ -1,10 +1,19 @@
-import { useTranslations } from "next-intl";
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { getPageMeta } from "@/lib/getPageMeta";
 import LegalPage from "@/components/LegalPage";
 
 type Section = { title: string; content: string };
 
-export default function PrivacyPage() {
-  const t = useTranslations("privacy");
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return getPageMeta("privacy", locale);
+}
+
+export default async function PrivacyPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "privacy" });
+  
   return (
     <LegalPage
       title={t("title")}

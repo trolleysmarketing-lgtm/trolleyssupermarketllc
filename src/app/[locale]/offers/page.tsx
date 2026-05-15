@@ -17,23 +17,11 @@ type Catalog = {
   active: boolean;
 };
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
+import { getPageMeta } from "@/lib/getPageMeta";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "offers" });
-  
-  return {
-    title: t("title"),
-    description: t("hero_description"),
-    openGraph: {
-      title: t("hero_title_line1") + " — Trolleys Supermarket UAE",
-      description: t("hero_description"),
-      images: ["/offers/offers-og.webp"],
-    },
-  };
+  return getPageMeta("offers", locale);
 }
 
 async function getLatestCatalog(): Promise<Catalog | null> {
