@@ -1,82 +1,150 @@
+// src/app/api/gmb/places/route.ts
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 
-const API_KEY = process.env.GOOGLE_PLACES_API_KEY;
+const API_KEY   = process.env.GOOGLE_PLACES_API_KEY;
 const DATA_FILE = path.join(process.cwd(), "data", "reviews-cache.json");
 
 const PLACES = [
-  { placeId: "ChIJZUCb8PBhXz4R6WVzYGgrCbg", name: "Trolleys - Mirdif", city: "Dubai" },
-  { placeId: "ChIJA2zBYWZbXz4RueLlNhbVf_4", name: "Trolleys - Al Taawun", city: "Sharjah" },
-  { placeId: "ChIJ2ZtxfsVbXz4R2A-fxX703hs", name: "Trolleys - Al Khan", city: "Sharjah" },
-  { placeId: "ChIJ-6wNlfZZXz4REPMp59PqnpE", name: "Trolleys - Al Nuaimia", city: "Ajman" },
+  { placeId: "ChIJZUCb8PBhXz4R6WVzYGgrCbg", name: "Trolleys - Mirdif",     city: "Dubai"   },
+  { placeId: "ChIJA2zBYWZbXz4RueLlNhbVf_4", name: "Trolleys - Al Taawun",  city: "Sharjah" },
+  { placeId: "ChIJ2ZtxfsVbXz4R2A-fxX703hs", name: "Trolleys - Al Khan",    city: "Sharjah" },
+  { placeId: "ChIJ-6wNlfZZXz4REPMp59PqnpE", name: "Trolleys - Al Nuaimia", city: "Ajman"   },
 ];
 
-// Cache'den oku
-function loadCache(): Record<string, any[]> {
+interface CachedReview {
+  reviewId: string;
+  author:   string;
+  rating:   number;
+  text:     string;
+  time:     string;
+  timeMs:   number;
+  photo:    string;
+}
+
+interface CacheStore {
+  [placeId: string]: CachedReview[];
+}
+
+function loadCache(): CacheStore {
   try {
-    if (fs.existsSync(DATA_FILE)) {
+    if (fs.existsSync(DATA_FILE))
       return JSON.parse(fs.readFileSync(DATA_FILE, "utf-8"));
-    }
-  } catch (e) {}
+  } catch { /* ignore */ }
   return {};
 }
 
-// Cache'e yaz
-function saveCache(data: Record<string, any[]>) {
+function saveCache(data: CacheStore) {
   const dir = path.dirname(DATA_FILE);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
 export async function GET() {
-  if (!API_KEY) {
+  if (!API_KEY)
     return NextResponse.json({ error: "API key not configured" }, { status: 500 });
-  }
 
   const cache = loadCache();
 
   try {
     const results = await Promise.all(
       PLACES.map(async (place) => {
-        const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.placeId}&fields=name,rating,user_ratings_total,reviews&reviews_sort=newest&key=${API_KEY}`;
-        const res = await fetch(url);
+        const url =
+          `https://maps.googleapis.com/maps/api/place/details/json` +
+          `?place_id=${place.placeId}` +
+          `&fields=name,rating,user_ratings_total,reviews` +
+          `&reviews_sort=newest` +
+          `&key=${API_KEY}`;
+
+        const res  = await fetch(url, { cache: "no-store" });
         const data = await res.json();
 
-        if (data.status !== "OK") return null;
+        if (data.status !== "OK") {
+          // Return cached data if API fails for this place
+          const existing = cache[place.placeId] ?? [];
+          return {
+            placeId:      place.placeId,
+            name:         place.name,
+            city:         place.city,
+            rating:       0,
+            totalRatings: 0,
+            isOpen:       null,
+            phone:        "",
+            url:          "",
+            reviews:      existing,
+          };
+        }
 
-        // Yeni yorumları cache'e ekle
-        const newReviews = (data.result.reviews || []).map((r: any) => ({
-          reviewId: `${place.placeId}-${r.time}`,
-          author: r.author_name || "Anonymous",
-          rating: r.rating || 0,
-          text: r.text || "",
-          time: r.relative_time_description || "",
-          timeMs: (r.time || 0) * 1000,
-          photo: r.profile_photo_url || "",
+        // Map incoming reviews
+        const incoming: CachedReview[] = (data.result.reviews ?? []).map((r: {
+          author_name?:           string;
+          rating?:                number;
+          text?:                  string;
+          relative_time_description?: string;
+          time?:                  number;
+          profile_photo_url?:     string;
+        }) => ({
+          reviewId: `${place.placeId}-${r.time ?? Date.now()}`,
+          author:   r.author_name                ?? "Anonymous",
+          rating:   r.rating                     ?? 0,
+          text:     r.text                       ?? "",
+          time:     r.relative_time_description  ?? "",
+          timeMs:   (r.time ?? 0) * 1000,
+          photo:    r.profile_photo_url          ?? "",
         }));
 
-        // Eski yorumları getir, yenilerle birleştir
-        const existing = cache[place.placeId] || [];
-        const existingIds = new Set(existing.map((r: any) => r.reviewId));
-        const merged = [...existing, ...newReviews.filter((r: any) => !existingIds.has(r.reviewId))];
-        
-        cache[place.placeId] = merged.slice(0, 50); // Max 50 yorum sakla
+        // Merge: keep all existing, add only new ones (no limit)
+        const existing    = cache[place.placeId] ?? [];
+        const existingIds = new Set(existing.map(r => r.reviewId));
+        const newOnes     = incoming.filter(r => !existingIds.has(r.reviewId));
+
+        // Put newest first
+        const merged = [...newOnes, ...existing].sort((a, b) => b.timeMs - a.timeMs);
+
+        cache[place.placeId] = merged;
 
         return {
-          placeId: place.placeId,
-          name: data.result.name || place.name,
-          city: place.city,
-          rating: data.result.rating || 0,
-          totalRatings: data.result.user_ratings_total || 0,
-          reviews: merged,
+          placeId:      place.placeId,
+          name:         data.result.name        ?? place.name,
+          city:         place.city,
+          rating:       data.result.rating      ?? 0,
+          totalRatings: data.result.user_ratings_total ?? 0,
+          isOpen:       null,
+          phone:        "",
+          url:          "",
+          reviews:      merged,
         };
       })
     );
 
     saveCache(cache);
-    return NextResponse.json({ branches: results.filter(Boolean) });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+
+    return NextResponse.json({
+      branches: results,
+      cachedCounts: Object.fromEntries(
+        Object.entries(cache).map(([id, reviews]) => [id, reviews.length])
+      ),
+    });
+
+  } catch (error: unknown) {
+    // On total failure, return whatever is in cache
+    const fallback = PLACES.map(place => ({
+      placeId:      place.placeId,
+      name:         place.name,
+      city:         place.city,
+      rating:       0,
+      totalRatings: 0,
+      isOpen:       null,
+      phone:        "",
+      url:          "",
+      reviews:      cache[place.placeId] ?? [],
+    }));
+
+    return NextResponse.json({
+      branches: fallback,
+      error:    error instanceof Error ? error.message : "Unknown error",
+      fromCache: true,
+    });
   }
 }
