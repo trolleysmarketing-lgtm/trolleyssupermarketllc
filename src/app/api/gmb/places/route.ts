@@ -6,13 +6,12 @@ import path from "path";
 const API_KEY   = process.env.GOOGLE_PLACES_API_KEY;
 const DATA_FILE = path.join(process.cwd(), "data", "reviews-cache.json");
 
-// ── Correct Place IDs from Google Maps URLs ───────────────────────────────────
+// ── Verified Place IDs ────────────────────────────────────────────────────────
 const PLACES = [
-  { placeId: "ChIJZUCb8PBhXz7pZXNgaCsJuA", name: "Trolleys - Mirdif",        city: "Dubai"   },
-  { placeId: "ChIJA2zBYWZbXz654uU2FtV__g", name: "Trolleys - Al Taawun",      city: "Sharjah" },
-  { placeId: "ChIJ2ZtxfsVbXz7YD5_FfvTeGw", name: "Trolleys - Al Khan",        city: "Sharjah" },
-  { placeId: "ChIJ-6wNlfZZXz4Q8ynn0-qekQ", name: "Trolleys - Al Nuaimia",     city: "Ajman"   },
-  { placeId: "ChIJ0wZJIzNZXz7dXUlvkLbpQw", name: "Trolleys - Oasis Street",   city: "Ajman"   },
+  { placeId: "ChIJZQCb8PBhXz4R6WVzYGgrCbg", name: "Trolleys - Mirdif",    city: "Dubai"   },
+  { placeId: "ChIJA2zBYWZbXz4RueLlNhbVf_4", name: "Trolleys - Al Taawun", city: "Sharjah" },
+  { placeId: "ChIJ2ZtxfsVbXz4R2A-fxX703hs", name: "Trolleys - Al Khan",   city: "Sharjah" },
+  { placeId: "ChIJ-6wNlfZZXz4REPMp59PqnpE", name: "Trolleys - Al Nuaimia",city: "Ajman"   },
 ];
 
 interface CachedReview {
@@ -43,6 +42,8 @@ function saveCache(data: CacheStore) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   if (!API_KEY)
     return NextResponse.json({ error: "API key not configured" }, { status: 500 });
@@ -63,20 +64,17 @@ export async function GET() {
         const data = await res.json();
 
         if (data.status !== "OK") {
-          console.error(`[GMB Places] ${place.name}: ${data.status} - ${data.error_message ?? ""}`);
-          const existing = cache[place.placeId] ?? [];
+          console.error(`[GMB] ${place.name}: ${data.status}`);
           return {
             placeId:      place.placeId,
             name:         place.name,
             city:         place.city,
             rating:       0,
             totalRatings: 0,
-            reviews:      existing,
-            error:        data.status,
+            reviews:      cache[place.placeId] ?? [],
           };
         }
 
-        // Map incoming reviews
         const incoming: CachedReview[] = (data.result.reviews ?? []).map((r: {
           author_name?:               string;
           rating?:                    number;
@@ -104,9 +102,9 @@ export async function GET() {
 
         return {
           placeId:      place.placeId,
-          name:         data.result.name             ?? place.name,
+          name:         data.result.name              ?? place.name,
           city:         place.city,
-          rating:       data.result.rating           ?? 0,
+          rating:       data.result.rating            ?? 0,
           totalRatings: data.result.user_ratings_total ?? 0,
           reviews:      merged,
         };
@@ -117,7 +115,6 @@ export async function GET() {
     return NextResponse.json({ branches: results });
 
   } catch (error: unknown) {
-    // On total failure, return cached data
     const fallback = PLACES.map(place => ({
       placeId:      place.placeId,
       name:         place.name,
