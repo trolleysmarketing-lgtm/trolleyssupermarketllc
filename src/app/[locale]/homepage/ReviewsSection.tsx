@@ -16,6 +16,13 @@ type Review = {
   branch?: string;
 };
 
+const BRANCH_NAMES: Record<string, string> = {
+  "ChIJZQCb8PBhXz4R6WVzYGgrCbg": "Mirdif — Dubai",
+  "ChIJA2zBYWZbXz4RueLlNhbVf_4": "Al Taawun — Sharjah",
+  "ChIJ2ZtxfsVbXz4R2A-fxX703hs": "Al Khan — Sharjah",
+  "ChIJ-6wNlfZZXz4REPMp59PqnpE": "Al Nuaimia — Ajman",
+};
+
 function ReviewSkeleton() {
   return (
     <div className={styles.skCard} role="status" aria-label="Loading review">
@@ -45,26 +52,43 @@ export default function ReviewsSection({ locale: _locale }: Props) {
 
   useEffect(() => {
     const controller = new AbortController();
+
     fetch("/api/gmb/places", { signal: controller.signal })
       .then((r) => r.json())
       .then((d) => {
-        const all: Review[] = (d.branches || []).flatMap((b: any) =>
-          (b.reviews || [])
-            .filter((r: any) => r.rating >= 4)
-            .map((r: any) => ({
-              ...r,
-              branch: b.name?.split("—")[0]?.trim() || b.city,
-            }))
-        );
-        setReviews(all.sort((a, b) => b.rating - a.rating).slice(0, 6));
+        const picked: Review[] = [];
+
+        for (const b of (d.branches || [])) {
+          const branchName = BRANCH_NAMES[b.placeId] || b.city;
+
+          // 5 yıldız + anlamlı text (min 20 karakter)
+          const fiveStars = (b.reviews || [])
+            .filter((r: any) => r.rating === 5 && r.text?.trim().length > 20)
+            .slice(0, 2)
+            .map((r: any) => ({ ...r, branch: branchName }));
+
+          // Yetmezse 4 yıldız + anlamlı text
+          const fourStars = (b.reviews || [])
+            .filter((r: any) => r.rating === 4 && r.text?.trim().length > 20)
+            .slice(0, 1)
+            .map((r: any) => ({ ...r, branch: branchName }));
+
+          picked.push(...(fiveStars.length > 0 ? fiveStars : fourStars));
+        }
+
+        setReviews(picked.slice(0, 6));
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        // Fallback: translations'dan statik yorumlar
+        setLoading(false);
+      });
+
     return () => controller.abort();
   }, []);
 
   const isGoogleReviews = reviews.length > 0;
-  const displayReviews = isGoogleReviews
+  const displayReviews  = isGoogleReviews
     ? reviews
     : (t.raw("reviews.items") as Review[]);
 
