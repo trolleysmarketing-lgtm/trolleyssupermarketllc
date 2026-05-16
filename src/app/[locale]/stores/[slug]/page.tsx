@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+﻿import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -6,7 +6,7 @@ import Breadcrumb from "@/components/Breadcrumb";
 
 const baseUrl = "https://trolleyssupermarketllc.com";
 
-/* ── Store data ── */
+/* â”€â”€ Store data â”€â”€ */
 type Store = {
   slug: string;
   name: string;
@@ -29,92 +29,92 @@ type Store = {
 const STORES: Store[] = [
   {
     slug: "mirdif-dubai",
-    name: "Trolleys Supermarket Mirdif – Dubai",
-    name_ar: "تروليز سوبرماركت مردف – دبي",
+    name: "Trolleys Supermarket Mirdif â€“ Dubai",
+    name_ar: "ØªØ±ÙˆÙ„ÙŠØ² Ø³ÙˆØ¨Ø±Ù…Ø§Ø±ÙƒØª Ù…Ø±Ø¯Ù â€“ Ø¯Ø¨ÙŠ",
     city: "Dubai",
     address: "Golden Gate Shopping Centre - Mirdif - Dubai - UAE",
-    address_ar: "مركز جولدن جيت التجاري - مردف - دبي - الإمارات",
+    address_ar: "Ù…Ø±ÙƒØ² Ø¬ÙˆÙ„Ø¯Ù† Ø¬ÙŠØª Ø§Ù„ØªØ¬Ø§Ø±ÙŠ - Ù…Ø±Ø¯Ù - Ø¯Ø¨ÙŠ - Ø§Ù„Ø¥Ù…Ø§Ø±Ø§Øª",
     phone: "+971 4 232 2966",
     whatsapp: "971504986988",
-    maps: "https://www.google.com/maps/place/?q=place_id:ChIJZUCb8PBhXz4R6WVzYGgrCbg",
-    hours: "7 AM – 2 AM (Daily)",
+    maps: "https://www.google.com/maps/place/?q=place_id:ChIJZQCb8PBhXz4R6WVzYGgrCbg",
+    hours: "7 AM â€“ 2 AM (Daily)",
     lat: 25.2169,
     lng: 55.4175,
     image: "/store/Mirdif-Dubai.webp",
     description: "Trolleys Supermarket Mirdif is your neighbourhood grocery store in Golden Gate Shopping Centre, Dubai. Shop fresh produce, dairy, meat, bakery, and thousands of products at great prices.",
-    description_ar: "تروليز سوبرماركت مردف هو متجر البقالة المجاور في مركز جولدن جيت التجاري، دبي.",
+    description_ar: "ØªØ±ÙˆÙ„ÙŠØ² Ø³ÙˆØ¨Ø±Ù…Ø§Ø±ÙƒØª Ù…Ø±Ø¯Ù Ù‡Ùˆ Ù…ØªØ¬Ø± Ø§Ù„Ø¨Ù‚Ø§Ù„Ø© Ø§Ù„Ù…Ø¬Ø§ÙˆØ± ÙÙŠ Ù…Ø±ÙƒØ² Ø¬ÙˆÙ„Ø¯Ù† Ø¬ÙŠØª Ø§Ù„ØªØ¬Ø§Ø±ÙŠØŒ Ø¯Ø¨ÙŠ.",
     keywords: ["supermarket mirdif", "grocery store mirdif dubai", "trolleys mirdif", "fresh food mirdif"],
   },
   {
     slug: "al-taawun-sharjah",
-    name: "Trolleys Supermarket Al Taawun – Sharjah",
-    name_ar: "تروليز سوبرماركت التعاون – الشارقة",
+    name: "Trolleys Supermarket Al Taawun â€“ Sharjah",
+    name_ar: "ØªØ±ÙˆÙ„ÙŠØ² Ø³ÙˆØ¨Ø±Ù…Ø§Ø±ÙƒØª Ø§Ù„ØªØ¹Ø§ÙˆÙ† â€“ Ø§Ù„Ø´Ø§Ø±Ù‚Ø©",
     city: "Sharjah",
     address: "895C+XXP - Al Khan - Sharjah - UAE",
-    address_ar: "895C+XXP - الخان - الشارقة - الإمارات",
+    address_ar: "895C+XXP - Ø§Ù„Ø®Ø§Ù† - Ø§Ù„Ø´Ø§Ø±Ù‚Ø© - Ø§Ù„Ø¥Ù…Ø§Ø±Ø§Øª",
     phone: "+971 6 554 4505",
     whatsapp: "971504059699",
     maps: "https://www.google.com/maps/place/?q=place_id:ChIJA2zBYWZbXz4RueLlNhbVf_4",
-    hours: "7 AM – 3 AM (Daily)",
+    hours: "7 AM â€“ 3 AM (Daily)",
     lat: 25.3185,
     lng: 55.3890,
     image: "/store/Al-Taawun-Sharjah.webp",
     description: "Trolleys Supermarket Al Taawun is a leading grocery store in Sharjah, offering fresh produce, weekly deals, and a wide range of local and imported products.",
-    description_ar: "تروليز سوبرماركت التعاون هو متجر بقالة رائد في الشارقة.",
+    description_ar: "ØªØ±ÙˆÙ„ÙŠØ² Ø³ÙˆØ¨Ø±Ù…Ø§Ø±ÙƒØª Ø§Ù„ØªØ¹Ø§ÙˆÙ† Ù‡Ùˆ Ù…ØªØ¬Ø± Ø¨Ù‚Ø§Ù„Ø© Ø±Ø§Ø¦Ø¯ ÙÙŠ Ø§Ù„Ø´Ø§Ø±Ù‚Ø©.",
     keywords: ["supermarket al taawun sharjah", "grocery sharjah", "trolleys sharjah", "supermarket sharjah"],
   },
   {
     slug: "al-khan-sharjah",
-    name: "Trolleys Supermarket Al Khan – Sharjah",
-    name_ar: "تروليز سوبرماركت الخان – الشارقة",
+    name: "Trolleys Supermarket Al Khan â€“ Sharjah",
+    name_ar: "ØªØ±ÙˆÙ„ÙŠØ² Ø³ÙˆØ¨Ø±Ù…Ø§Ø±ÙƒØª Ø§Ù„Ø®Ø§Ù† â€“ Ø§Ù„Ø´Ø§Ø±Ù‚Ø©",
     city: "Sharjah",
     address: "Al Khan Street - Al Khalidiya - Sharjah - UAE",
-    address_ar: "شارع الخان - الخالدية - الشارقة - الإمارات",
+    address_ar: "Ø´Ø§Ø±Ø¹ Ø§Ù„Ø®Ø§Ù† - Ø§Ù„Ø®Ø§Ù„Ø¯ÙŠØ© - Ø§Ù„Ø´Ø§Ø±Ù‚Ø© - Ø§Ù„Ø¥Ù…Ø§Ø±Ø§Øª",
     phone: "+971 6 575 7010",
     whatsapp: "971547695919",
     maps: "https://www.google.com/maps/place/?q=place_id:ChIJ2ZtxfsVbXz4R2A-fxX703hs",
-    hours: "7 AM – 2 AM (Daily)",
+    hours: "7 AM â€“ 2 AM (Daily)",
     lat: 25.3295,
     lng: 55.3894,
     image: "/store/Al-Khan-Sharjah.webp",
     description: "Trolleys Supermarket Al Khan serves the Al Khalidiya and Al Khan communities in Sharjah with fresh groceries, household products, and weekly offers.",
-    description_ar: "تروليز سوبرماركت الخان يخدم مجتمعات الخالدية والخان في الشارقة.",
+    description_ar: "ØªØ±ÙˆÙ„ÙŠØ² Ø³ÙˆØ¨Ø±Ù…Ø§Ø±ÙƒØª Ø§Ù„Ø®Ø§Ù† ÙŠØ®Ø¯Ù… Ù…Ø¬ØªÙ…Ø¹Ø§Øª Ø§Ù„Ø®Ø§Ù„Ø¯ÙŠØ© ÙˆØ§Ù„Ø®Ø§Ù† ÙÙŠ Ø§Ù„Ø´Ø§Ø±Ù‚Ø©.",
     keywords: ["supermarket al khan sharjah", "grocery al khan", "trolleys al khan", "supermarket khalidiya sharjah"],
   },
   {
     slug: "al-nuaimiya-ajman",
-    name: "Trolleys Supermarket Al Nuaimiya – Ajman",
-    name_ar: "تروليز سوبرماركت النعيمية – عجمان",
+    name: "Trolleys Supermarket Al Nuaimiya â€“ Ajman",
+    name_ar: "ØªØ±ÙˆÙ„ÙŠØ² Ø³ÙˆØ¨Ø±Ù…Ø§Ø±ÙƒØª Ø§Ù„Ù†Ø¹ÙŠÙ…ÙŠØ© â€“ Ø¹Ø¬Ù…Ø§Ù†",
     city: "Ajman",
     address: "Manama Market - Al Nuaimiya 1 - Ajman - UAE",
-    address_ar: "سوق المنامة - النعيمية 1 - عجمان - الإمارات",
+    address_ar: "Ø³ÙˆÙ‚ Ø§Ù„Ù…Ù†Ø§Ù…Ø© - Ø§Ù„Ù†Ø¹ÙŠÙ…ÙŠØ© 1 - Ø¹Ø¬Ù…Ø§Ù† - Ø§Ù„Ø¥Ù…Ø§Ø±Ø§Øª",
     phone: "+971 6 749 9919",
     whatsapp: "971563291296",
     maps: "https://www.google.com/maps/place/?q=place_id:ChIJ-6wNlfZZXz4REPMp59PqnpE",
-    hours: "7 AM – 2 AM (Daily)",
+    hours: "7 AM â€“ 2 AM (Daily)",
     lat: 25.4052,
     lng: 55.5136,
     image: "/store/Al-Nuaimia-Ajman.webp",
     description: "Trolleys Supermarket Al Nuaimiya in Ajman offers fresh produce, quality groceries, and great weekly deals for the Al Nuaimiya community.",
-    description_ar: "تروليز سوبرماركت النعيمية في عجمان يقدم منتجات طازجة وبقالة عالية الجودة.",
+    description_ar: "ØªØ±ÙˆÙ„ÙŠØ² Ø³ÙˆØ¨Ø±Ù…Ø§Ø±ÙƒØª Ø§Ù„Ù†Ø¹ÙŠÙ…ÙŠØ© ÙÙŠ Ø¹Ø¬Ù…Ø§Ù† ÙŠÙ‚Ø¯Ù… Ù…Ù†ØªØ¬Ø§Øª Ø·Ø§Ø²Ø¬Ø© ÙˆØ¨Ù‚Ø§Ù„Ø© Ø¹Ø§Ù„ÙŠØ© Ø§Ù„Ø¬ÙˆØ¯Ø©.",
     keywords: ["supermarket ajman", "grocery ajman", "trolleys ajman", "supermarket al nuaimiya", "fresh food ajman"],
   },
   {
     slug: "oasis-street-ajman",
-    name: "Trolleys Supermarket Oasis Street – Ajman",
-    name_ar: "تروليز سوبرماركت شارع الواحة – عجمان",
+    name: "Trolleys Supermarket Oasis Street â€“ Ajman",
+    name_ar: "ØªØ±ÙˆÙ„ÙŠØ² Ø³ÙˆØ¨Ø±Ù…Ø§Ø±ÙƒØª Ø´Ø§Ø±Ø¹ Ø§Ù„ÙˆØ§Ø­Ø© â€“ Ø¹Ø¬Ù…Ø§Ù†",
     city: "Ajman",
     address: "Oasis Street - Al Nuaimia 1 - Ajman - UAE",
-    address_ar: "شارع الواحة - النعيمية 1 - عجمان - الإمارات",
+    address_ar: "Ø´Ø§Ø±Ø¹ Ø§Ù„ÙˆØ§Ø­Ø© - Ø§Ù„Ù†Ø¹ÙŠÙ…ÙŠØ© 1 - Ø¹Ø¬Ù…Ø§Ù† - Ø§Ù„Ø¥Ù…Ø§Ø±Ø§Øª",
     phone: "+971 50 790 4355",
     whatsapp: "971507904355",
     maps: "https://maps.google.com/?q=25.387256,55.458812",
-    hours: "7 AM – 3 AM (Daily)",
+    hours: "7 AM â€“ 3 AM (Daily)",
     lat: 25.38725635534364,
     lng: 55.45881250000001,
     image: "/store/oasis-ajman.webp",
     description: "Trolleys Supermarket on Oasis Street in Ajman is open late every day, offering a full range of groceries, fresh produce, and household essentials.",
-    description_ar: "تروليز سوبرماركت في شارع الواحة بعجمان مفتوح متأخراً كل يوم.",
+    description_ar: "ØªØ±ÙˆÙ„ÙŠØ² Ø³ÙˆØ¨Ø±Ù…Ø§Ø±ÙƒØª ÙÙŠ Ø´Ø§Ø±Ø¹ Ø§Ù„ÙˆØ§Ø­Ø© Ø¨Ø¹Ø¬Ù…Ø§Ù† Ù…ÙØªÙˆØ­ Ù…ØªØ£Ø®Ø±Ø§Ù‹ ÙƒÙ„ ÙŠÙˆÙ….",
     keywords: ["supermarket oasis street ajman", "grocery oasis ajman", "trolleys oasis ajman", "24 hour supermarket ajman"],
   },
 ];
@@ -127,7 +127,7 @@ export function getAllStoreSlugs() {
   return STORES.map(s => s.slug);
 }
 
-/* ── Metadata ── */
+/* â”€â”€ Metadata â”€â”€ */
 export async function generateMetadata({
   params,
 }: {
@@ -159,7 +159,7 @@ export async function generateMetadata({
   };
 }
 
-/* ── Static params ── */
+/* â”€â”€ Static params â”€â”€ */
 export async function generateStaticParams() {
   const locales = ["en", "ar"];
   return locales.flatMap(locale =>
@@ -167,7 +167,7 @@ export async function generateStaticParams() {
   );
 }
 
-/* ── Page ── */
+/* â”€â”€ Page â”€â”€ */
 export default async function StorePage({
   params,
 }: {
@@ -183,7 +183,7 @@ export default async function StorePage({
   const addr = isAr ? store.address_ar : store.address;
   const desc = isAr ? store.description_ar : store.description;
 
-  /* ── LocalBusiness JSON-LD ── */
+  /* â”€â”€ LocalBusiness JSON-LD â”€â”€ */
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "GroceryStore",
@@ -266,22 +266,22 @@ export default async function StorePage({
 
       <div dir={isAr ? "rtl" : "ltr"} style={{ fontFamily: "Inter, system-ui, sans-serif", color: "#0f172a" }}>
 
-        {/* ── Breadcrumb ── */}
+        {/* â”€â”€ Breadcrumb â”€â”€ */}
         <Breadcrumb
           locale={locale}
           crumbs={[
-            { label: isAr ? "فروعنا" : "Stores", href: `/${locale}/stores` },
+            { label: isAr ? "ÙØ±ÙˆØ¹Ù†Ø§" : "Stores", href: `/${locale}/stores` },
             { label: name },
           ]}
         />
 
-        {/* ── Hero ── */}
+        {/* â”€â”€ Hero â”€â”€ */}
         <div style={{ background: "linear-gradient(135deg, #1C75BC 0%, #1C75BC 100%)", position: "relative", overflow: "hidden", padding: "48px 32px 52px" }}>
           {/* Nokta desen */}
           <div style={{ position: "absolute", inset: 0, opacity: .02, backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)", backgroundSize: "24px 24px", pointerEvents: "none" }} />
           {/* Dekoratif daire */}
           <div style={{ position: "absolute", top: -60, right: -60, width: 200, height: 200, borderRadius: "50%", background: "radial-gradient(circle, rgba(200,149,108,.1) 0%, transparent 70%)", pointerEvents: "none" }} />
-          {/* Mağaza resmi sağda — sadece büyük ekranda */}
+          {/* MaÄŸaza resmi saÄŸda â€” sadece bÃ¼yÃ¼k ekranda */}
           <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: "35%", overflow: "hidden", pointerEvents: "none" }}>
             <img
               src={store.image}
@@ -297,39 +297,39 @@ export default async function StorePage({
             <div style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.08)", padding: "5px 14px", borderRadius: 999, marginBottom: 16 }}>
               <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff", animation: "pulse 2s ease-in-out infinite" }} />
               <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", color: "#fff" }}>
-                {store.city} · UAE
+                {store.city} Â· UAE
               </span>
             </div>
-            {/* Başlık */}
+            {/* BaÅŸlÄ±k */}
             <h1 className="serif" style={{ fontSize: "clamp(24px, 4vw, 44px)", fontStyle: "italic", fontWeight: 400, color: "#fff", margin: "0 0 12px", lineHeight: 1.12, letterSpacing: "-.02em" }}>
               {name}
             </h1>
             {/* Adres */}
             <p style={{ fontSize: 14, color: "rgba(255,255,255,.6)", margin: "0 0 6px", maxWidth: 500 }}>
-              📍 {addr}
+              ðŸ“ {addr}
             </p>
             {/* Saat */}
             <p style={{ fontSize: 14, color: "rgba(255,255,255,.48)", margin: 0, maxWidth: 500 }}>
-              🕐 {store.hours}
+              ðŸ• {store.hours}
             </p>
           </div>
         </div>
 
-        {/* ── Content ── */}
+        {/* â”€â”€ Content â”€â”€ */}
         <div style={{ maxWidth: 960, margin: "0 auto", padding: "40px clamp(16px, 4vw, 48px)" }}>
           <div className="store-layout">
 
-            {/* ── Left ── */}
+            {/* â”€â”€ Left â”€â”€ */}
             <div>
               <p style={{ fontSize: 16, color: "#475569", lineHeight: 1.8, marginBottom: 32 }}>{desc}</p>
 
               {/* Info cards */}
               <div className="info-grid">
                 {[
-                  { icon: "🕐", label: isAr ? "ساعات العمل" : "Hours",   value: store.hours },
-                  { icon: "📞", label: isAr ? "الهاتف"     : "Phone",   value: store.phone },
-                  { icon: "📍", label: isAr ? "العنوان"    : "Address", value: addr },
-                  { icon: "🏙️", label: isAr ? "المدينة"    : "City",    value: store.city + ", UAE" },
+                  { icon: "ðŸ•", label: isAr ? "Ø³Ø§Ø¹Ø§Øª Ø§Ù„Ø¹Ù…Ù„" : "Hours",   value: store.hours },
+                  { icon: "ðŸ“ž", label: isAr ? "Ø§Ù„Ù‡Ø§ØªÙ"     : "Phone",   value: store.phone },
+                  { icon: "ðŸ“", label: isAr ? "Ø§Ù„Ø¹Ù†ÙˆØ§Ù†"    : "Address", value: addr },
+                  { icon: "ðŸ™ï¸", label: isAr ? "Ø§Ù„Ù…Ø¯ÙŠÙ†Ø©"    : "City",    value: store.city + ", UAE" },
                 ].map(({ icon, label, value }) => (
                   <div key={label} style={{
                     background: "#f8fafc",
@@ -348,21 +348,21 @@ export default async function StorePage({
               {/* Action buttons */}
               <div className="action-btns">
                 <a href={`tel:${store.phone}`} style={actionBtn("#1C75BC", "#fff")}>
-                  📞 {isAr ? "اتصل بنا" : "Call Store"}
+                  ðŸ“ž {isAr ? "Ø§ØªØµÙ„ Ø¨Ù†Ø§" : "Call Store"}
                 </a>
                 <a href={`https://wa.me/${store.whatsapp}`} target="_blank" rel="noopener noreferrer" style={actionBtn("#22c55e", "#fff")}>
-                  💬 WhatsApp
+                  ðŸ’¬ WhatsApp
                 </a>
                 <a href={store.maps} target="_blank" rel="noopener noreferrer" style={actionBtn("#0f172a", "#fff")}>
-                  🗺️ {isAr ? "الاتجاهات" : "Get Directions"}
+                  ðŸ—ºï¸ {isAr ? "Ø§Ù„Ø§ØªØ¬Ø§Ù‡Ø§Øª" : "Get Directions"}
                 </a>
               </div>
             </div>
 
-            {/* ── Right: Other stores ── */}
+            {/* â”€â”€ Right: Other stores â”€â”€ */}
             <div>
               <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginBottom: 16 }}>
-                {isAr ? "فروعنا الأخرى" : "Other Branches"}
+                {isAr ? "ÙØ±ÙˆØ¹Ù†Ø§ Ø§Ù„Ø£Ø®Ø±Ù‰" : "Other Branches"}
               </h2>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {STORES.filter(s => s.slug !== slug).map(s => (
@@ -382,7 +382,7 @@ export default async function StorePage({
                         {isAr ? s.name_ar : s.name}
                       </p>
                       <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>
-                        {s.city} · {s.hours}
+                        {s.city} Â· {s.hours}
                       </p>
                     </div>
                   </Link>
@@ -395,7 +395,7 @@ export default async function StorePage({
                 border: "1.5px solid #1C75BC",
                 color: "#1C75BC", fontWeight: 600, fontSize: 13, textDecoration: "none",
               }}>
-                {isAr ? "عرض جميع الفروع" : "View All Stores"}
+                {isAr ? "Ø¹Ø±Ø¶ Ø¬Ù…ÙŠØ¹ Ø§Ù„ÙØ±ÙˆØ¹" : "View All Stores"}
               </Link>
             </div>
           </div>
