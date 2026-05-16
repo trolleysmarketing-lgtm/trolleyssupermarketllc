@@ -1,19 +1,11 @@
-// src/app/[locale]/page.tsx
-// Server Component — no "use client"
-
+// src/app/[locale]/page.tsx — Server Component
 import { getTranslations } from "next-intl/server";
-import dynamic from "next/dynamic";
 import HeroSlider, { type Slide } from "@/components/HeroSlider";
 import styles from "./homepage/homepage.module.css";
 import CategoriesSection from "./homepage/CategoriesSection";
 import TickerServer from "./homepage/TickerServer";
+import DynamicSections from "./homepage/DynamicSections";
 
-const OffersSection  = dynamic(() => import("./homepage/OffersSection"),  { ssr: false });
-const ReviewsSection = dynamic(() => import("./homepage/ReviewsSection"), { ssr: false });
-const BlogSection    = dynamic(() => import("./homepage/BlogSection"),    { ssr: false });
-const StoresSection  = dynamic(() => import("./homepage/StoresSection"),  { ssr: false });
-
-// ── Types ────────────────────────────────────────────────────────────────────
 type HeroSlide = {
   id: number; active: boolean; order: number;
   image: string; accent: string; ctaLink: string; ctaSecondaryLink: string | null;
@@ -28,7 +20,6 @@ type TickerItem = {
   id: number; text_en: string; text_ar: string; active: boolean;
 };
 
-// ── JSON-LD ──────────────────────────────────────────────────────────────────
 function buildJsonLd(stores: Array<{ name: string; address: string; phone: string; city: string }>) {
   return {
     "@context": "https://schema.org",
@@ -68,14 +59,12 @@ function buildJsonLd(stores: Array<{ name: string; address: string; phone: strin
   };
 }
 
-// ── Server-side data fetching ─────────────────────────────────────────────────
 async function getHeroSlides(): Promise<HeroSlide[]> {
   try {
     const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
     const res = await fetch(`${baseUrl}/api/admin/hero`, { next: { revalidate: 60 } });
     if (!res.ok) return [];
-    const d = await res.json();
-    return d.slides ?? [];
+    return (await res.json()).slides ?? [];
   } catch { return []; }
 }
 
@@ -84,25 +73,21 @@ async function getTickerItems(): Promise<TickerItem[]> {
     const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
     const res = await fetch(`${baseUrl}/api/admin/ticker`, { next: { revalidate: 60 } });
     if (!res.ok) return [];
-    const d = await res.json();
-    return d.items ?? [];
+    return (await res.json()).items ?? [];
   } catch { return []; }
 }
 
-// ── Page ─────────────────────────────────────────────────────────────────────
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const isAr = locale === "ar";
+  const isAr  = locale === "ar";
   const isRTL = isAr;
-  const t = await getTranslations({ locale, namespace: "home" });
+  const t     = await getTranslations({ locale, namespace: "home" });
 
-  // Fetch data on server
   const [heroSlides, tickerItems] = await Promise.all([
     getHeroSlides(),
     getTickerItems(),
   ]);
 
-  // Build slides
   const fallbackSlides: Slide[] = [
     {
       id: 1,
@@ -141,7 +126,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     stat: s.stat ? { value: s.stat.value, label: isAr ? s.stat.label_ar : s.stat.label_en } : undefined,
   }));
 
-  // Build ticker
   const fallbackTicker = [
     t("features.freshDaily.title"),
     t("features.weeklyOffers.title"),
@@ -150,10 +134,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     t("offers.subtitle"),
   ];
 
-  const activeTickerItems = tickerItems
-    .filter(i => i.active)
-    .map(i => isAr ? i.text_ar : i.text_en);
-
+  const activeTickerItems = tickerItems.filter(i => i.active).map(i => isAr ? i.text_ar : i.text_en);
   const tickerTexts = activeTickerItems.length > 0 ? activeTickerItems : fallbackTicker;
 
   const stores = t.raw("stores.list") as Array<{
@@ -170,10 +151,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <HeroSlider locale={locale} slides={slides} ariaLabel={t("offers.browseCatalog")} />
         <TickerServer items={tickerTexts} />
         <CategoriesSection locale={locale} isRTL={isRTL} />
-        <OffersSection  locale={locale} isRTL={isRTL} />
-        <ReviewsSection locale={locale} />
-        <BlogSection    locale={locale} isRTL={isRTL} />
-        <StoresSection  locale={locale} isRTL={isRTL} />
+        <DynamicSections locale={locale} isRTL={isRTL} />
       </div>
     </>
   );
