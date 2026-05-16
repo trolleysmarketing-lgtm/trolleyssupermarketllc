@@ -185,7 +185,9 @@ export default async function AdminDashboard() {
           color: #9ca3af;
         }
       `}</style>
-<div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
+
+      {/* Header */}
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
   <div>
     <p style={{ fontSize: 13, color: "#9ca3af", margin: "0 0 2px" }}>{greeting}</p>
     <h1 style={{ fontSize: 26, fontWeight: 700, color: "#111827", margin: "0 0 6px" }}>Welcome back 👋</h1>
@@ -193,16 +195,6 @@ export default async function AdminDashboard() {
   </div>
   <ClearCacheButton />
 </div>
-      {/* Header */}
-      <div style={{ marginBottom: 32 }}>
-        <p style={{ fontSize: 13, color: "#9ca3af", margin: "0 0 2px", fontWeight: 500 }}>{greeting}</p>
-        <h1 style={{ fontSize: 26, fontWeight: 700, color: "#111827", margin: "0 0 6px", letterSpacing: "-.4px" }}>
-          Welcome back 👋
-        </h1>
-        <p style={{ fontSize: 14, color: "#6b7280", margin: 0 }}>
-          Here's what you can manage today.
-        </p>
-      </div>
 
       {/* Stats */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 36 }}>
