@@ -6,11 +6,13 @@ import path from "path";
 const API_KEY   = process.env.GOOGLE_PLACES_API_KEY;
 const DATA_FILE = path.join(process.cwd(), "data", "reviews-cache.json");
 
+// ── Correct Place IDs from Google Maps URLs ───────────────────────────────────
 const PLACES = [
-  { placeId: "ChIJZUCb8PBhXz4R6WVzYGgrCbg", name: "Trolleys - Mirdif",     city: "Dubai"   },
-  { placeId: "ChIJA2zBYWZbXz4RueLlNhbVf_4", name: "Trolleys - Al Taawun",  city: "Sharjah" },
-  { placeId: "ChIJ2ZtxfsVbXz4R2A-fxX703hs", name: "Trolleys - Al Khan",    city: "Sharjah" },
-  { placeId: "ChIJ-6wNlfZZXz4REPMp59PqnpE", name: "Trolleys - Al Nuaimia", city: "Ajman"   },
+  { placeId: "ChIJZUCb8PBhXz7pZXNgaCsJuA", name: "Trolleys - Mirdif",        city: "Dubai"   },
+  { placeId: "ChIJA2zBYWZbXz654uU2FtV__g", name: "Trolleys - Al Taawun",      city: "Sharjah" },
+  { placeId: "ChIJ2ZtxfsVbXz7YD5_FfvTeGw", name: "Trolleys - Al Khan",        city: "Sharjah" },
+  { placeId: "ChIJ-6wNlfZZXz4Q8ynn0-qekQ", name: "Trolleys - Al Nuaimia",     city: "Ajman"   },
+  { placeId: "ChIJ0wZJIzNZXz7dXUlvkLbpQw", name: "Trolleys - Oasis Street",   city: "Ajman"   },
 ];
 
 interface CachedReview {
@@ -61,7 +63,7 @@ export async function GET() {
         const data = await res.json();
 
         if (data.status !== "OK") {
-          // Return cached data if API fails for this place
+          console.error(`[GMB Places] ${place.name}: ${data.status} - ${data.error_message ?? ""}`);
           const existing = cache[place.placeId] ?? [];
           return {
             placeId:      place.placeId,
@@ -69,82 +71,65 @@ export async function GET() {
             city:         place.city,
             rating:       0,
             totalRatings: 0,
-            isOpen:       null,
-            phone:        "",
-            url:          "",
             reviews:      existing,
+            error:        data.status,
           };
         }
 
         // Map incoming reviews
         const incoming: CachedReview[] = (data.result.reviews ?? []).map((r: {
-          author_name?:           string;
-          rating?:                number;
-          text?:                  string;
+          author_name?:               string;
+          rating?:                    number;
+          text?:                      string;
           relative_time_description?: string;
-          time?:                  number;
-          profile_photo_url?:     string;
+          time?:                      number;
+          profile_photo_url?:         string;
         }) => ({
           reviewId: `${place.placeId}-${r.time ?? Date.now()}`,
-          author:   r.author_name                ?? "Anonymous",
-          rating:   r.rating                     ?? 0,
-          text:     r.text                       ?? "",
-          time:     r.relative_time_description  ?? "",
+          author:   r.author_name               ?? "Anonymous",
+          rating:   r.rating                    ?? 0,
+          text:     r.text                      ?? "",
+          time:     r.relative_time_description ?? "",
           timeMs:   (r.time ?? 0) * 1000,
-          photo:    r.profile_photo_url          ?? "",
+          photo:    r.profile_photo_url         ?? "",
         }));
 
-        // Merge: keep all existing, add only new ones (no limit)
+        // Merge with cache — no limit, newest first
         const existing    = cache[place.placeId] ?? [];
         const existingIds = new Set(existing.map(r => r.reviewId));
         const newOnes     = incoming.filter(r => !existingIds.has(r.reviewId));
-
-        // Put newest first
-        const merged = [...newOnes, ...existing].sort((a, b) => b.timeMs - a.timeMs);
+        const merged      = [...newOnes, ...existing].sort((a, b) => b.timeMs - a.timeMs);
 
         cache[place.placeId] = merged;
 
         return {
           placeId:      place.placeId,
-          name:         data.result.name        ?? place.name,
+          name:         data.result.name             ?? place.name,
           city:         place.city,
-          rating:       data.result.rating      ?? 0,
+          rating:       data.result.rating           ?? 0,
           totalRatings: data.result.user_ratings_total ?? 0,
-          isOpen:       null,
-          phone:        "",
-          url:          "",
           reviews:      merged,
         };
       })
     );
 
     saveCache(cache);
-
-    return NextResponse.json({
-      branches: results,
-      cachedCounts: Object.fromEntries(
-        Object.entries(cache).map(([id, reviews]) => [id, reviews.length])
-      ),
-    });
+    return NextResponse.json({ branches: results });
 
   } catch (error: unknown) {
-    // On total failure, return whatever is in cache
+    // On total failure, return cached data
     const fallback = PLACES.map(place => ({
       placeId:      place.placeId,
       name:         place.name,
       city:         place.city,
       rating:       0,
       totalRatings: 0,
-      isOpen:       null,
-      phone:        "",
-      url:          "",
       reviews:      cache[place.placeId] ?? [],
     }));
-
     return NextResponse.json({
-      branches: fallback,
-      error:    error instanceof Error ? error.message : "Unknown error",
+      branches:  fallback,
       fromCache: true,
+      error:     error instanceof Error ? error.message : "Unknown error",
     });
   }
 }
