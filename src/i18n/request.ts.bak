@@ -1,17 +1,15 @@
 import { getRequestConfig } from "next-intl/server";
 import { routing } from "./routing";
-import { readFile } from "fs/promises";
-import path from "path";
 
 export default getRequestConfig(async ({ requestLocale }) => {
   let locale = await requestLocale;
+
   if (!locale || !routing.locales.includes(locale as "en" | "ar")) {
     locale = routing.defaultLocale;
   }
 
-  // Dynamic file read — her request'te güncel dosyayı okur
-  const filePath = path.join(process.cwd(), "messages", `${locale}.json`);
-  const messages = JSON.parse(await readFile(filePath, "utf-8"));
-
-  return { locale, messages };
+  return {
+    locale,
+    messages: (await import(`../../messages/${locale}.json`)).default,
+  };
 });
