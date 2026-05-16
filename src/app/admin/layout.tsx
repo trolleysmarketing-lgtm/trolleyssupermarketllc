@@ -5,147 +5,71 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-const menuItems = [
+// ─── Navigation ───────────────────────────────────────────────────────────────
+const NAV = [
   {
-    href: "/admin",
-    label: "Dashboard",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-      </svg>
-    ),
-  },
-  { type: "divider", label: "Content" },
-  {
-    href: "/admin/hero",
-    label: "Hero Slider",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <rect x="2" y="6" width="20" height="12" rx="2"/>
-        <path d="M1 12h2M21 12h2"/>
-      </svg>
-    ),
+    group: null,
+    items: [
+      { href: "/admin", label: "Dashboard", exact: true, icon: <IconDashboard /> },
+    ],
   },
   {
-    href: "/admin/ticker",
-    label: "Ticker / Marquee",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <rect x="2" y="9" width="20" height="6" rx="3"/>
-        <path d="M20 6l2 3-2 3M4 6L2 9l2 3"/>
-      </svg>
-    ),
+    group: "Content",
+    items: [
+      { href: "/admin/hero",         label: "Hero Slider",     icon: <IconSlider />    },
+      { href: "/admin/ticker",       label: "Ticker",          icon: <IconTicker />    },
+      { href: "/admin/announcement", label: "Announcement",    icon: <IconMega />      },
+      { href: "/admin/offers",       label: "Offers & Catalog",icon: <IconOffer />     },
+      { href: "/admin/blog",         label: "Blog Posts",      icon: <IconBlog />      },
+      { href: "/admin/categories",   label: "Categories",      icon: <IconGrid />      },
+    ],
   },
   {
-    href: "/admin/announcement",
-    label: "Announcement",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <path d="M22 17H2a3 3 0 000 6h20a3 3 0 000-6z"/>
-        <path d="M6 5l1.5 4M18 5l-1.5 4"/>
-      </svg>
-    ),
+    group: "Customers",
+    items: [
+      { href: "/admin/surveys",        label: "Surveys",        icon: <IconSurvey />   },
+      { href: "/admin/survey-results", label: "Survey Results", icon: <IconChart />    },
+    ],
   },
   {
-    href: "/admin/offers",
-    label: "Offers & Catalog",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/>
-        <path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/>
-        <path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/>
-      </svg>
-    ),
+    group: "Locations",
+    items: [
+      { href: "/admin/stores",          label: "Stores",          icon: <IconStore />   },
+      { href: "/admin/google-business", label: "Google Business", icon: <IconGoogle />  },
+    ],
   },
   {
-    href: "/admin/blog",
-    label: "Blog Posts",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/admin/categories",
-    label: "Categories",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-      </svg>
-    ),
-  },
-  { type: "divider", label: "Customers" },
-  {
-    href: "/admin/surveys",
-    label: "Surveys",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-        <polyline points="14 2 14 8 20 8"/>
-        <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/admin/survey-results",
-    label: "Survey Results",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <line x1="18" y1="20" x2="18" y2="10"/>
-        <line x1="12" y1="20" x2="12" y2="4"/>
-        <line x1="6"  y1="20" x2="6"  y2="14"/>
-        <path d="M6 12l6-5 6 4"/>
-      </svg>
-    ),
-  },
-  { type: "divider", label: "Locations" },
-  {
-    href: "/admin/stores",
-    label: "Stores",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/admin/google-business",
-    label: "Google Business",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-        <circle cx="12" cy="10" r="3"/>
-      </svg>
-    ),
-  },
-  { type: "divider", label: "Settings" },
-  {
-    href: "/admin/translations",
-    label: "Translations",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="2" y1="12" x2="22" y2="12"/>
-        <path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/admin/meta",
-    label: "Meta Tags / SEO",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
-        <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
-      </svg>
-    ),
+    group: "Settings",
+    items: [
+      { href: "/admin/translations", label: "Translations",  icon: <IconLang />  },
+      { href: "/admin/meta",         label: "SEO / Meta",    icon: <IconSeo />   },
+    ],
   },
 ];
+
+// ─── Icon components ──────────────────────────────────────────────────────────
+function Ico({ d, d2 }: { d: string; d2?: string }) {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d={d}/>{d2 && <path d={d2}/>}
+    </svg>
+  );
+}
+function IconDashboard() { return <Ico d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/>; }
+function IconSlider()    { return <Ico d="M2 6h20v12H2z" d2="M1 12h2M21 12h2"/>; }
+function IconTicker()    { return <Ico d="M2 9h20v6H2z" d2="M20 6l2 3-2 3M4 6L2 9l2 3"/>; }
+function IconMega()      { return <Ico d="M22 17H2a3 3 0 000 6h20" d2="M6 5l1.5 4M18 5l-1.5 4"/>; }
+function IconOffer()     { return <Ico d="M20 12V22H4V12" d2="M22 7H2v5h20V7zM12 22V7"/>; }
+function IconBlog()      { return <Ico d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" d2="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/>; }
+function IconGrid()      { return <Ico d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/>; }
+function IconSurvey()    { return <Ico d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" d2="M14 2v6h6M16 13H8M16 17H8"/>; }
+function IconChart()     { return <Ico d="M18 20V10M12 20V4M6 20v-6"/>; }
+function IconStore()     { return <Ico d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" d2="M9 22V12h6v10"/>; }
+function IconGoogle()    { return <Ico d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" d2="M12 10m-3 0a3 3 0 106 0 3 3 0 00-6 0"/>; }
+function IconLang()      { return <Ico d="M12 2a10 10 0 100 20A10 10 0 0012 2z" d2="M2 12h20M12 2a15.3 15.3 0 010 20"/>; }
+function IconSeo()       { return <Ico d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" d2="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>; }
+function IconSignOut()   { return <Ico d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" d2="M16 17l5-5-5-5M21 12H9"/>; }
+function IconExternal()  { return <Ico d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" d2="M15 3h6v6M10 14L21 3"/>; }
 
 export function getAdminHeaders(): HeadersInit {
   if (typeof window === "undefined") return {};
@@ -153,47 +77,47 @@ export function getAdminHeaders(): HeadersInit {
   return token ? { "x-admin-token": token } : {};
 }
 
+// ─── Main layout ──────────────────────────────────────────────────────────────
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isMobile,    setIsMobile]    = useState(false);
-  const [authorized,  setAuthorized]  = useState(false);
-  const [checking,    setChecking]    = useState(true);
+  const [open,       setOpen]       = useState(false);
+  const [mobile,     setMobile]     = useState(false);
+  const [authorized, setAuthorized] = useState(false);
+  const [checking,   setChecking]   = useState(true);
   const pathname = usePathname();
   const router   = useRouter();
 
   useEffect(() => {
     if (pathname === "/admin/login") { setChecking(false); return; }
-    if (authorized)                  { setChecking(false); return; }
-    const check = async () => {
+    if (authorized) { setChecking(false); return; }
+    (async () => {
       try {
         const token = localStorage.getItem("admin_token") ?? "";
-        const res = await fetch("/api/admin/check-auth", { headers: token ? { "x-admin-token": token } : {} });
-        if (res.ok) { setAuthorized(true); }
+        const res   = await fetch("/api/admin/check-auth", { headers: token ? { "x-admin-token": token } : {} });
+        if (res.ok) setAuthorized(true);
         else { localStorage.removeItem("admin_token"); router.push("/admin/login"); }
       } catch { router.push("/admin/login"); }
       setChecking(false);
-    };
-    check();
+    })();
   }, [pathname, router, authorized]);
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 1024);
+    const check = () => setMobile(window.innerWidth < 1024);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  useEffect(() => { if (isMobile) setSidebarOpen(false); }, [pathname, isMobile]);
+  useEffect(() => { if (mobile) setOpen(false); }, [pathname, mobile]);
+
+  const isActive = (href: string, exact?: boolean) =>
+    exact ? pathname === href : pathname === href || pathname.startsWith(href + "/");
 
   if (checking && pathname !== "/admin/login") return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc" }}>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0f1117" }}>
       <div style={{ textAlign: "center" }}>
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1C75BC" strokeWidth="2" style={{ animation: "spin 0.8s linear infinite" }}>
-          <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity="0.3"/>
-          <path d="M21 12a9 9 0 01-9 9"/>
-        </svg>
-        <p style={{ marginTop: 12, fontSize: 14, color: "#94a3b8" }}>Checking authentication...</p>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <div style={{ width: 32, height: 32, border: "2px solid #ffffff20", borderTopColor: "#1C75BC", borderRadius: "50%", animation: "spin .7s linear infinite", margin: "0 auto 14px" }}/>
+        <p style={{ fontSize: 13, color: "#ffffff50", margin: 0 }}>Authenticating…</p>
+        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
     </div>
   );
@@ -203,85 +127,129 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <SessionProvider>
-      <div style={{ display: "flex", minHeight: "100vh", background: "#f8fafc" }}>
-        {sidebarOpen && (
-          <div onClick={() => setSidebarOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 40, display: isMobile ? "block" : "none" }} />
+      <div style={{ display: "flex", minHeight: "100vh", background: "#f4f5f7" }}>
+
+        {/* Mobile overlay */}
+        {open && mobile && (
+          <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.6)", zIndex: 40, backdropFilter: "blur(2px)" }}/>
         )}
 
+        {/* ── Sidebar ── */}
         <aside style={{
-          position: "fixed", top: 0, left: sidebarOpen ? 0 : isMobile ? "-280px" : 0, bottom: 0,
-          width: 260, background: "white", borderRight: "1px solid #e2e8f0", zIndex: 50,
-          transition: "left 0.3s cubic-bezier(0.4,0,0.2,1)", display: "flex", flexDirection: "column", overflowY: "auto",
+          position:   "fixed",
+          top: 0, bottom: 0,
+          left:       mobile ? (open ? 0 : -260) : 0,
+          width:      260,
+          background: "#0f1117",
+          zIndex:     50,
+          display:    "flex",
+          flexDirection: "column",
+          transition: "left .28s cubic-bezier(.4,0,.2,1)",
+          borderRight: "1px solid #ffffff08",
         }}>
-          <div style={{ padding: "20px", borderBottom: "1px solid #e2e8f0" }}>
-            <img src="/trolleys-supermarket-llc-logo.png" alt="Trolleys" style={{ height: 42, objectFit: "contain" }} />
+
+          {/* Logo */}
+          <div style={{ padding: "22px 20px 18px", borderBottom: "1px solid #ffffff0a", flexShrink: 0 }}>
+            <img src="/trolleys-supermarket-llc-logo.png" alt="Trolleys" style={{ height: 36, objectFit: "contain", filter: "brightness(0) invert(1)", opacity: .92 }}/>
           </div>
 
-          <nav style={{ flex: 1, padding: "12px" }}>
-            {menuItems.map((item, i) => {
-              if ((item as any).type === "divider") return (
-                <div key={i} style={{ padding: "14px 14px 6px", fontSize: 10, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                  {(item as any).label}
-                </div>
-              );
-              const isActive = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href!));
-              return (
-                <Link key={item.href} href={item.href!} onClick={() => isMobile && setSidebarOpen(false)} style={{
-                  display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 10,
-                  marginBottom: 2, textDecoration: "none", fontSize: 13.5,
-                  fontWeight: isActive ? 600 : 400,
-                  color: isActive ? "#0f172a" : "#64748b",
-                  background: isActive ? "#f1f5f9" : "transparent",
-                  transition: "all 0.15s",
-                }}>
-                  <span style={{ opacity: isActive ? 1 : 0.55, flexShrink: 0 }}>{item.icon}</span>
-                  {item.label}
-                  {isActive && <span style={{ marginLeft: "auto", width: 5, height: 5, borderRadius: "50%", background: "#1C75BC" }} />}
-                </Link>
-              );
-            })}
+          {/* Nav */}
+          <nav style={{ flex: 1, overflowY: "auto", padding: "10px 10px", scrollbarWidth: "none" }}>
+            <style>{`nav::-webkit-scrollbar{display:none}`}</style>
+
+            {NAV.map((section, si) => (
+              <div key={si} style={{ marginBottom: 4 }}>
+                {section.group && (
+                  <p style={{ fontSize: 10, fontWeight: 600, color: "#ffffff30", letterSpacing: ".12em", textTransform: "uppercase", padding: "14px 10px 6px", margin: 0 }}>
+                    {section.group}
+                  </p>
+                )}
+                {section.items.map(item => {
+                  const active = isActive(item.href, (item as any).exact);
+                  return (
+                    <Link key={item.href} href={item.href}
+                      onClick={() => mobile && setOpen(false)}
+                      style={{
+                        display:        "flex",
+                        alignItems:     "center",
+                        gap:            10,
+                        padding:        "8px 10px",
+                        borderRadius:   8,
+                        marginBottom:   1,
+                        textDecoration: "none",
+                        fontSize:       13,
+                        fontWeight:     active ? 600 : 400,
+                        color:          active ? "#ffffff" : "#ffffff55",
+                        background:     active ? "#ffffff0f" : "transparent",
+                        borderLeft:     active ? "2px solid #1C75BC" : "2px solid transparent",
+                        paddingLeft:    active ? 8 : 8,
+                        transition:     "all .12s",
+                        letterSpacing:  "-.01em",
+                      }}
+                      onMouseEnter={e => { if (!active) { e.currentTarget.style.color="#ffffff99"; e.currentTarget.style.background="#ffffff06"; } }}
+                      onMouseLeave={e => { if (!active) { e.currentTarget.style.color="#ffffff55"; e.currentTarget.style.background="transparent"; } }}
+                    >
+                      <span style={{ flexShrink: 0, opacity: active ? 1 : .6 }}>{item.icon}</span>
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            ))}
           </nav>
 
-          <div style={{ padding: "12px 20px", borderTop: "1px solid #e2e8f0" }}>
-            <button onClick={() => { localStorage.removeItem("admin_token"); router.push("/admin/login"); }} style={{
-              display: "flex", alignItems: "center", gap: 8, padding: "10px 14px",
-              borderRadius: 10, fontSize: 13, fontWeight: 500, color: "#94a3b8",
-              background: "none", border: "none", cursor: "pointer", width: "100%",
-            }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-                <polyline points="16 17 21 12 16 7"/>
-                <line x1="21" y1="12" x2="9" y2="12"/>
-              </svg>
+          {/* Bottom */}
+          <div style={{ padding: "10px", borderTop: "1px solid #ffffff0a", flexShrink: 0 }}>
+            <Link href="/en" target="_blank"
+              style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 8, textDecoration: "none", fontSize: 12, color: "#ffffff40", marginBottom: 2, transition: "color .12s" }}
+              onMouseEnter={e => e.currentTarget.style.color="#ffffff80"}
+              onMouseLeave={e => e.currentTarget.style.color="#ffffff40"}>
+              <IconExternal/>
+              View Website
+            </Link>
+            <button
+              onClick={() => { localStorage.removeItem("admin_token"); router.push("/admin/login"); }}
+              style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 8, fontSize: 12, color: "#ffffff40", background: "none", border: "none", cursor: "pointer", width: "100%", transition: "color .12s" }}
+              onMouseEnter={e => e.currentTarget.style.color="#ff6b6b"}
+              onMouseLeave={e => e.currentTarget.style.color="#ffffff40"}>
+              <IconSignOut/>
               Sign out
             </button>
           </div>
         </aside>
 
-        <div style={{ flex: 1, marginLeft: isMobile ? 0 : 260, transition: "margin-left 0.3s cubic-bezier(0.4,0,0.2,1)", display: "flex", flexDirection: "column", minWidth: 0 }}>
-          <header style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 20px", background: "white", borderBottom: "1px solid #e2e8f0", position: "sticky", top: 0, zIndex: 30 }}>
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
-              display: isMobile ? "flex" : "none", alignItems: "center", justifyContent: "center",
-              width: 36, height: 36, borderRadius: 8, border: "1px solid #e2e8f0",
-              background: "white", cursor: "pointer", padding: 0,
-            }}>
-              {sidebarOpen
-                ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-              }
-            </button>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
-              <Link href="/en" style={{ fontSize: 12, color: "#1C75BC", textDecoration: "none", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20"/>
+        {/* ── Content area ── */}
+        <div style={{ flex: 1, marginLeft: mobile ? 0 : 260, display: "flex", flexDirection: "column", minWidth: 0, transition: "margin-left .28s cubic-bezier(.4,0,.2,1)" }}>
+
+          {/* Top bar */}
+          <header style={{ height: 52, background: "white", borderBottom: "1px solid #eaecf0", display: "flex", alignItems: "center", padding: "0 24px", gap: 12, position: "sticky", top: 0, zIndex: 30, flexShrink: 0 }}>
+            {mobile && (
+              <button onClick={() => setOpen(!open)}
+                style={{ width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 6, border: "1px solid #eaecf0", background: "white", cursor: "pointer" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" strokeWidth="2" strokeLinecap="round">
+                  {open
+                    ? <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>
+                    : <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>
+                  }
                 </svg>
-                <span style={{ display: isMobile ? "none" : "inline" }}>View Website</span>
-              </Link>
-              <Link href="/ar" style={{ fontSize: 12, color: "#64748b", textDecoration: "none", fontWeight: 600 }}>عربي</Link>
+              </button>
+            )}
+
+            {/* Breadcrumb */}
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#9ca3af" }}>
+              <span style={{ color: "#111827", fontWeight: 600 }}>
+                {NAV.flatMap(s => s.items).find(i => isActive(i.href, (i as any).exact))?.label ?? "Admin"}
+              </span>
+            </div>
+
+            {/* Right side — date */}
+            <div style={{ marginLeft: "auto", fontSize: 12, color: "#9ca3af", fontWeight: 500 }}>
+              {new Date().toLocaleDateString("en-AE", { weekday: "short", day: "2-digit", month: "short", year: "numeric" })}
             </div>
           </header>
 
-          <main style={{ flex: 1, padding: "24px 20px", maxWidth: 1200, width: "100%", margin: "0 auto" }}>
+          {/* Page content */}
+          <main style={{ flex: 1, padding: "28px 28px", maxWidth: 1240, width: "100%", margin: "0 auto", alignSelf: "stretch" }}>
             {children}
           </main>
         </div>

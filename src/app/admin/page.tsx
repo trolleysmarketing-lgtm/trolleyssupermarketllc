@@ -2,215 +2,174 @@ import { isAuthenticated } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
-const navCards = [
+// ─── Module definitions ───────────────────────────────────────────────────────
+const MODULES = [
   {
-    href: "/admin/hero",
-    title: "Hero Slider",
-    description: "Manage homepage hero slides (EN/AR)",
-    bg: "#eff6ff",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <rect x="2" y="6" width="20" height="12" rx="3" fill="#dbeafe" stroke="#1C75BC" strokeWidth="1.5"/>
-        <circle cx="7" cy="12" r="2" fill="#1C75BC" opacity="0.7"/>
-        <rect x="11" y="10.5" width="8" height="1.5" rx="0.75" fill="#1C75BC" opacity="0.6"/>
-        <rect x="11" y="13" width="5" height="1.5" rx="0.75" fill="#1C75BC" opacity="0.4"/>
-        <path d="M1 12h2M21 12h2" stroke="#1C75BC" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
+    group: "Content Management",
+    color: "#1C75BC",
+    items: [
+      { href: "/admin/hero",         label: "Hero Slider",      desc: "Homepage slides & CTAs",        dot: "#3b82f6" },
+      { href: "/admin/ticker",       label: "Ticker",           desc: "Scrolling announcement bar",    dot: "#0ea5e9" },
+      { href: "/admin/announcement", label: "Announcement",     desc: "Site-wide banner message",      dot: "#f59e0b" },
+      { href: "/admin/offers",       label: "Offers & Catalog", desc: "Weekly PDF & promotions",       dot: "#1C75BC" },
+      { href: "/admin/blog",         label: "Blog Posts",       desc: "Articles in EN & AR",           dot: "#8b5cf6" },
+      { href: "/admin/categories",   label: "Categories",       desc: "Product taxonomy",              dot: "#f97316" },
+    ],
   },
   {
-    href: "/admin/ticker",
-    title: "Ticker / Marquee",
-    description: "Manage homepage scrolling banner (EN/AR)",
-    bg: "#f0f9ff",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <rect x="2" y="9" width="20" height="6" rx="3" fill="#bae6fd" stroke="#0284c7" strokeWidth="1.5"/>
-        <rect x="5" y="11" width="6" height="2" rx="1" fill="#0284c7" opacity="0.8"/>
-        <rect x="13" y="11" width="4" height="2" rx="1" fill="#0284c7" opacity="0.4"/>
-        <path d="M20 6l2 3-2 3M4 6L2 9l2 3" stroke="#0284c7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
+    group: "Customer Insights",
+    color: "#059669",
+    items: [
+      { href: "/admin/surveys",        label: "Surveys",        desc: "Build feedback forms",          dot: "#059669" },
+      { href: "/admin/survey-results", label: "Survey Results", desc: "Charts, exports & responses",  dot: "#0d9488" },
+      { href: "/admin/google-business",label: "Google Reviews", desc: "Ratings & branch analytics",   dot: "#e11d48" },
+    ],
   },
   {
-    href: "/admin/announcement",
-    title: "Announcement",
-    description: "Show/hide banner with custom message (EN/AR)",
-    bg: "#fef9c3",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <rect x="2" y="8" width="20" height="8" rx="2.5" fill="#fef08a" stroke="#ca8a04" strokeWidth="1.5"/>
-        <circle cx="7" cy="12" r="1.5" fill="#ca8a04"/>
-        <rect x="10" y="11" width="8" height="1.5" rx="0.75" fill="#ca8a04" opacity="0.6"/>
-        <rect x="10" y="13.5" width="5" height="1.5" rx="0.75" fill="#ca8a04" opacity="0.4"/>
-        <path d="M6 5l1.5 3M18 5l-1.5 3" stroke="#ca8a04" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
+    group: "Locations",
+    color: "#16a34a",
+    items: [
+      { href: "/admin/stores", label: "Stores", desc: "Hours, photos & branch info", dot: "#16a34a" },
+    ],
   },
   {
-    href: "/admin/offers",
-    title: "Offers & Catalog",
-    description: "Upload weekly PDF catalog, manage short links",
-    bg: "#eff6ff",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="3" width="14" height="18" rx="2.5" fill="#dbeafe" stroke="#1C75BC" strokeWidth="1.5"/>
-        <path d="M7 8h6M7 11h6M7 14h4" stroke="#1C75BC" strokeWidth="1.5" strokeLinecap="round"/>
-        <circle cx="18" cy="18" r="4.5" fill="#1C75BC"/>
-        <path d="M18 16v4M16 18h4" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/admin/blog",
-    title: "Blog Posts",
-    description: "Add, edit and delete blog articles (EN/AR)",
-    bg: "#f5f3ff",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="3" width="14" height="18" rx="2.5" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1.5"/>
-        <path d="M7 8h6M7 11h6M7 14h4" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round"/>
-        <path d="M15 17l4-4 2 2-4 4H15v-2z" fill="#7c3aed" stroke="#7c3aed" strokeWidth="0.5" strokeLinejoin="round"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/admin/surveys",
-    title: "Surveys",
-    description: "Create and manage customer feedback surveys",
-    bg: "#ecfeff",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <rect x="4" y="2" width="16" height="20" rx="3" fill="#cffafe" stroke="#0891b2" strokeWidth="1.5"/>
-        <circle cx="8" cy="8" r="1.2" fill="#0891b2"/>
-        <circle cx="8" cy="12" r="1.2" fill="#0891b2" opacity="0.7"/>
-        <circle cx="8" cy="16" r="1.2" fill="#0891b2" opacity="0.5"/>
-        <path d="M11 8h5M11 12h5M11 16h3" stroke="#0891b2" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/admin/survey-results",
-    title: "Survey Results",
-    description: "View charts, responses and export CSV",
-    bg: "#f0fdfa",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <rect x="2" y="2" width="20" height="20" rx="3" fill="#ccfbf1" stroke="#0d9488" strokeWidth="1.5"/>
-        <rect x="5" y="15" width="3" height="4" rx="1" fill="#0d9488"/>
-        <rect x="10" y="11" width="3" height="8" rx="1" fill="#0d9488" opacity="0.7"/>
-        <rect x="15" y="8" width="3" height="11" rx="1" fill="#0d9488" opacity="0.5"/>
-        <path d="M5.5 13l4.5-4 4.5 3 4.5-5" stroke="#0d9488" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/admin/categories",
-    title: "Categories",
-    description: "Manage product categories and taxonomies",
-    bg: "#fffbeb",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <rect x="2" y="2" width="9" height="9" rx="2.5" fill="#fef3c7" stroke="#d97706" strokeWidth="1.5"/>
-        <rect x="13" y="2" width="9" height="9" rx="2.5" fill="#fef3c7" stroke="#d97706" strokeWidth="1.5" opacity="0.7"/>
-        <rect x="2" y="13" width="9" height="9" rx="2.5" fill="#fef3c7" stroke="#d97706" strokeWidth="1.5" opacity="0.7"/>
-        <rect x="13" y="13" width="9" height="9" rx="2.5" fill="#fef3c7" stroke="#d97706" strokeWidth="1.5" opacity="0.4"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/admin/stores",
-    title: "Stores",
-    description: "Update store information, hours and photos",
-    bg: "#f0fdf4",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <path d="M3 10.5l9-7 9 7V20a2 2 0 01-2 2H5a2 2 0 01-2-2v-9.5z" fill="#dcfce7" stroke="#16a34a" strokeWidth="1.5"/>
-        <rect x="9" y="13" width="6" height="9" rx="1.5" fill="#16a34a" opacity="0.5"/>
-        <circle cx="12" cy="9" r="2" fill="#16a34a" opacity="0.7"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/admin/translations",
-    title: "Translations",
-    description: "Edit EN/AR text content across all pages",
-    bg: "#f0fdf4",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="9" fill="#dcfce7" stroke="#16a34a" strokeWidth="1.5"/>
-        <path d="M3 12h18M12 3a14 14 0 000 18M12 3a14 14 0 010 18" stroke="#16a34a" strokeWidth="1.2" strokeLinecap="round"/>
-        <path d="M7 9h4l-2 6M13 9h4" stroke="#16a34a" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/admin/meta",
-    title: "Meta Tags / SEO",
-    description: "Edit page titles and descriptions",
-    bg: "#fdf4ff",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <rect x="2" y="4" width="20" height="16" rx="3" fill="#fae8ff" stroke="#a21caf" strokeWidth="1.5"/>
-        <path d="M6 9h12M6 13h8M6 17h5" stroke="#a21caf" strokeWidth="1.5" strokeLinecap="round"/>
-        <circle cx="18.5" cy="16.5" r="3" fill="#a21caf"/>
-        <path d="M17.5 16.5h2M18.5 15.5v2" stroke="white" strokeWidth="1.2" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    href: "/admin/google-business",
-    title: "Google Business",
-    description: "Monitor reviews, ratings & branch performance",
-    bg: "#fff1f2",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#ffe4e6" stroke="#e11d48" strokeWidth="1.5"/>
-        <circle cx="12" cy="9" r="2.5" fill="#e11d48"/>
-      </svg>
-    ),
+    group: "System",
+    color: "#7c3aed",
+    items: [
+      { href: "/admin/translations", label: "Translations", desc: "EN / AR content editing", dot: "#7c3aed" },
+      { href: "/admin/meta",         label: "SEO / Meta",   desc: "Page titles & descriptions", dot: "#a21caf" },
+    ],
   },
 ];
+
+// ─── Arrow icon ───────────────────────────────────────────────────────────────
+function Arrow() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+    </svg>
+  );
+}
 
 export default async function AdminDashboard() {
   const auth = await isAuthenticated();
   if (!auth) redirect("/admin/login");
 
+  const today = new Date();
+  const hour  = today.getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
   return (
-    <div>
-      <style href="admin-dashboard" precedence="default">{`
-        .admin-dashboard-card {
-          background: white;
-          border-radius: 18px;
-          padding: 24px 20px;
-          border: 1px solid #f1f5f9;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    <>
+      <style href="admin-dash" precedence="default">{`
+        .dash-item {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          padding: 13px 16px;
+          border-radius: 10px;
           text-decoration: none;
-          display: block;
-          transition: transform 0.22s cubic-bezier(0.16,1,0.3,1), box-shadow 0.22s;
+          background: white;
+          border: 1px solid #eaecf0;
+          transition: border-color .15s, box-shadow .15s, transform .15s;
+          color: inherit;
         }
-        .admin-dashboard-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+        .dash-item:hover {
+          border-color: #d0d5dd;
+          box-shadow: 0 4px 12px rgba(0,0,0,.06);
+          transform: translateY(-1px);
+        }
+        .dash-item:hover .dash-arrow {
+          opacity: 1;
+          transform: translateX(0);
+        }
+        .dash-arrow {
+          opacity: 0;
+          transform: translateX(-4px);
+          transition: opacity .15s, transform .15s;
+          color: #9ca3af;
+          margin-left: auto;
+          flex-shrink: 0;
+        }
+        .dash-section {
+          background: white;
+          border: 1px solid #eaecf0;
+          border-radius: 14px;
+          overflow: hidden;
+          margin-bottom: 16px;
+        }
+        .dash-section-header {
+          padding: 14px 18px 12px;
+          border-bottom: 1px solid #f3f4f6;
+          display: flex;
+          align-items: center;
+          gap: 10px;
         }
       `}</style>
 
+      {/* ── Page header ── */}
       <div style={{ marginBottom: 28 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0f172a", margin: "0 0 4px" }}>Dashboard</h2>
-        <p style={{ fontSize: 13, color: "#94a3b8", margin: 0 }}>Welcome back! Manage your website content below.</p>
+        <p style={{ fontSize: 13, color: "#9ca3af", margin: "0 0 4px", fontWeight: 500 }}>{greeting}</p>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: "#111827", margin: "0 0 4px", letterSpacing: "-.3px" }}>
+          Trolleys Admin
+        </h1>
+        <p style={{ fontSize: 13, color: "#9ca3af", margin: 0 }}>
+          Manage your website content, customer data and store information.
+        </p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16 }}>
-        {navCards.map((card) => (
-          <Link key={card.href} href={card.href} className="admin-dashboard-card">
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: card.bg, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>
-              {card.icon}
+      {/* ── Quick stats row ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", gap: 12, marginBottom: 28 }}>
+        {[
+          { label: "Modules",       value: MODULES.reduce((s,g)=>s+g.items.length,0), color: "#1C75BC", icon: "⚡" },
+          { label: "Languages",     value: "EN / AR",                                  color: "#059669", icon: "🌐" },
+          { label: "Branches",      value: "4",                                         color: "#f59e0b", icon: "🏪" },
+          { label: "System",        value: "Online",                                    color: "#10b981", icon: "✓"  },
+        ].map((s, i) => (
+          <div key={i} style={{ background: "white", border: "1px solid #eaecf0", borderRadius: 12, padding: "16px 18px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+              <span style={{ fontSize: 18 }}>{s.icon}</span>
             </div>
-            <p style={{ margin: "0 0 4px", fontSize: 14, fontWeight: 700, color: "#0f172a" }}>{card.title}</p>
-            <p style={{ margin: 0, fontSize: 11, color: "#94a3b8", lineHeight: 1.5 }}>{card.description}</p>
-          </Link>
+            <div style={{ fontSize: 20, fontWeight: 700, color: "#111827", lineHeight: 1, marginBottom: 4 }}>{s.value}</div>
+            <div style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".07em" }}>{s.label}</div>
+          </div>
         ))}
       </div>
-    </div>
+
+      {/* ── Module sections ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        {MODULES.map(section => (
+          <div key={section.group} className="dash-section">
+            <div className="dash-section-header">
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: section.color, flexShrink: 0, display: "block" }}/>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: ".1em" }}>
+                {section.group}
+              </span>
+            </div>
+            <div style={{ padding: "10px 10px" }}>
+              {section.items.map(item => (
+                <Link key={item.href} href={item.href} className="dash-item" style={{ marginBottom: 4 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: item.dot, flexShrink: 0 }}/>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "#111827", lineHeight: 1.3 }}>{item.label}</p>
+                    <p style={{ margin: "2px 0 0", fontSize: 11, color: "#9ca3af" }}>{item.desc}</p>
+                  </div>
+                  <span className="dash-arrow"><Arrow/></span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Footer ── */}
+      <div style={{ marginTop: 32, paddingTop: 20, borderTop: "1px solid #eaecf0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: 11, color: "#d1d5db" }}>Trolleys Supermarket LLC · Admin Panel</span>
+        <div style={{ display: "flex", gap: 16 }}>
+          <Link href="/en" style={{ fontSize: 11, color: "#9ca3af", textDecoration: "none" }}>View Site →</Link>
+          <Link href="/ar" style={{ fontSize: 11, color: "#9ca3af", textDecoration: "none" }}>عربي →</Link>
+        </div>
+      </div>
+    </>
   );
 }
